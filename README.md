@@ -1,4 +1,6 @@
-jim_and_cats
+Jim and Cats
 ============
 
-Jim and cats
+JIM
+
+CATS
