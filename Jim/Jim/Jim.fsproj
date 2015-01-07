@@ -47,9 +47,9 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="paket.references" />
     <None Include="App.config" />
     <Compile Include="Domain.fs" />
-    <None Include="paket.references" />
     <Compile Include="CommandHandler.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>

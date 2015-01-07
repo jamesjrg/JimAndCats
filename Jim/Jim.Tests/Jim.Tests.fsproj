@@ -47,10 +47,10 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="paket.references" />
+    <None Include="App.config" />
     <Compile Include="Specifications.fs" />
     <Compile Include="Tests.fs" />
-    <None Include="App.config" />
-    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jim\Jim.fsproj">

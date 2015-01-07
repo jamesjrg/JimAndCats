@@ -42,8 +42,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EventStoreClient.fs" />
     <None Include="paket.references" />
+    <Compile Include="EventStoreClient.fs" />
     <Compile Include="InMemoryEventStore.fs" />
   </ItemGroup>
   <PropertyGroup>
