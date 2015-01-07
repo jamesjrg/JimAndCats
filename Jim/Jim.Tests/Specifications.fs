@@ -23,9 +23,7 @@ let printExpect events =
     |> List.iter (printfn "\t%A")
 
 let inline replay events =
-    let initial = (^S: (static member initial: ^S) ()) 
-    let apply s = (^S: (static member apply: ^S -> (^E -> ^S)) s)
-    List.fold apply initial events
+    List.fold handleEvent (new State()) events
 
 let Given (events: Event list) = events
 let When (command: Command) events = events, command

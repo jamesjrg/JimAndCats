@@ -21,12 +21,14 @@ type Command =
     | ChangeName of ChangeName
 
 and CreateUser = {
+    Id: Guid
     Name: string
     Email: string
     Password: string
 }
 
 and ChangeName = {
+    Name: string
     Id: Guid
 }
 
@@ -38,10 +40,14 @@ type Event =
     
 and UserCreated = {
     Id: Guid
+    Name: string
+    Email: string
+    Password: string
 }
 
 and NameChanged = {
     Id: Guid
+    Name: string
 }
 
 //Handle events
@@ -57,10 +63,10 @@ let handleEvent (state : State) = function
 
 //Apply commands
 let createUser (command : CreateUser) (state : State) =
-    [UserCreated {Id = Guid.NewGuid() }]
+    [UserCreated {Id = command.Id; Name = command.Name; Email = command.Email; Password = command.Password; }]
 
 let changeName (command : ChangeName) (state : State) =
-    [NameChanged { Id = command.Id }]
+    [NameChanged { Id = command.Id; Name = command.Name; }]
 
 let handleCommand = function
     | CreateUser command -> createUser command
