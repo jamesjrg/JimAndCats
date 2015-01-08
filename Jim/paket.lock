@@ -15,3 +15,4 @@ NUGET
       FSharp.Core (>= 3.1.2.1)
       FsPickler (>= 1.0.6)
     xunit (1.9.2)
+    xunit.runners (1.9.2)

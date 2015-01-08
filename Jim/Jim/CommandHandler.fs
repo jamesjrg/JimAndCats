@@ -19,15 +19,15 @@ let create readStream appendToStream =
     let save events = appendToStream events
 
     let agent = MailboxProcessor.Start <| fun inbox -> 
-        let rec messageLoop state = async {
+        let rec messageLoop version state = async {
             let! command = inbox.Receive()
             let newEvents = handleCommand command state
-            do! save newEvents
+            do! save version newEvents
             let newState = List.fold handleEvent state newEvents
-            return! messageLoop state
+            return! messageLoop version state
             }
         async {
             let! version, state = load
-            return! messageLoop state }
+            return! messageLoop version state }
 
     fun command -> agent.Post command

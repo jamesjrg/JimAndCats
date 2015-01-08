@@ -1,2 +1,5 @@
 ﻿FsUnit.xUnit
 xunit
+EventStore.Client
+FsPickler
+FsPickler.Json

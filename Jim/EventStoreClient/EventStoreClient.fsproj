@@ -43,8 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <Compile Include="EventStoreClient.fs" />
-    <Compile Include="InMemoryEventStore.fs" />
+    <Compile Include="Client.fs" />
+    <Compile Include="InMemoryStore.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

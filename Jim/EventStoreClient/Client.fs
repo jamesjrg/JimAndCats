@@ -1,6 +1,6 @@
 ﻿(* Based on FsUno by Jérémie Chassaing, except using FsPickler *)
 
-module EventStoreClient
+module EventStoreClient.Client
 
 open EventStore.ClientAPI
 open Microsoft.FSharp.Reflection
