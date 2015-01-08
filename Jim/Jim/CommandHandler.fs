@@ -35,4 +35,7 @@ let create readStream appendToStream =
 
 let testFunc =
     let store = EventStoreClient.Client.create() |> subscribe (fun x -> ())
-    appendToStream store "testStream" 0 [UserCreated { Id = Guid.NewGuid(); Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" }] |> Async.RunSynchronously
+    try
+        appendToStream store "testStream" -1 [UserCreated { Id = Guid.NewGuid(); Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" }] |> Async.RunSynchronously
+    with
+    | e -> ()
