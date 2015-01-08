@@ -1,5 +1,6 @@
 ﻿module Jim.WebServer
 
+open Jim.CommandHandler
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
@@ -25,7 +26,8 @@ let app =
 [<EntryPoint>]
 let main argv = 
     printfn "Starting"
-    web_server default_config app
+    testFunc |> ignore
+    web_server default_config app    
     0
 
 

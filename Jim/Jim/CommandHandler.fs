@@ -1,6 +1,7 @@
 ﻿module Jim.CommandHandler
 
 open Jim.Domain
+open EventStoreClient.Client
 open System
 
 let create readStream appendToStream =
@@ -31,3 +32,7 @@ let create readStream appendToStream =
             return! messageLoop version state }
 
     fun command -> agent.Post command
+
+let testFunc =
+    let store = EventStoreClient.Client.create() |> subscribe (fun x -> ())
+    appendToStream store "testStream" 0 [UserCreated { Id = Guid.NewGuid(); Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" }] |> Async.RunSynchronously

@@ -16,3 +16,6 @@ build/
 
 #paket
 Jim/.paket/paket.exe
+
+#Resharper
+*.DotSettings.User
