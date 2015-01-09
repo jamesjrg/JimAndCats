@@ -16,6 +16,7 @@ and Child2 =
 
 [<Fact>]
 let ``Should be able to serialize and deserialize events to/from event store``() =
+    let streamId = "integrationTest"
     let eventHandler event = printfn event
-    let store = EventStoreClient.Client.create() |> subscribe eventHandler
-    appendToStream store "testStream" -1 [Child1(2, 3); Child2("a", "b")] |> Async.RunSynchronously
+    let store = EventStoreClient.Client.create() |> subscribe streamId eventHandler
+    appendToStream store streamId -1 [Child1(2, 3); Child2("a", "b")] |> Async.RunSynchronously

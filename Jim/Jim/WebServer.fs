@@ -1,13 +1,13 @@
 ﻿module Jim.WebServer
 
-open Jim.CommandHandler
+open Jim.App
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
 open Suave.Http.Successful
 open Suave.Web
 
-let app =
+let webApp =
   choose
     [ GET >>= choose
         [ url "/login" >>= OK "Hello"
@@ -26,8 +26,8 @@ let app =
 [<EntryPoint>]
 let main argv = 
     printfn "Starting"
-    testFunc |> ignore
-    web_server default_config app    
+    startService |> ignore
+    web_server default_config webApp 
     0
 
 

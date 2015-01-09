@@ -1,4 +1,4 @@
-﻿(* Based on FsUno by Jérémie Chassaing *)
+﻿(* Based on FsUno.Prod by Jérémie Chassaing *)
 
 module EventStoreClient.InMemoryStore
 
@@ -22,7 +22,7 @@ type InMemoryEventStore<'a> =
 
 let create() = { streams = Map.empty
                  projection = fun _ -> () }
-let subscribe projection store =
+let subscribe streamName projection store =
     { store with projection = projection} 
 
 let readStream store streamId version count =

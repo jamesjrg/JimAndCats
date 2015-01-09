@@ -1,4 +1,9 @@
-﻿(* Based on FsUno by Jérémie Chassaing, except using FsPickler *)
+﻿(*
+Based on FsUno.Prod by Jérémie Chassaing, except:
+- event type is a generic rather than a specific domain type
+- using FsPickler for serialization rather than custom code
+- only subscribes to a single stream, not all streams
+*)
 
 module EventStoreClient.Client
 
@@ -9,7 +14,7 @@ open System
 open System.Net
 
 // This module implements AwaitTask for non generic Task
-// It should be obsolete in F# 4 and implemented in FSharp.Core
+// It should be obsolete as of F# 4 when it will be implemented in FSharp.Core
 [<AutoOpen>]
 module AsyncExtensions =
     open System
@@ -41,7 +46,6 @@ type IEventStoreConnection with
 let jsonPickler = FsPickler.CreateJson(indent = false)
 
 let deserialize<'a> (event: ResolvedEvent) =
-    let eventType = Type.GetType(event.Event.EventType)
     jsonPickler.UnPickle<'a>(event.Event.Data)
 
 let serialize (event : 'a) =
@@ -55,12 +59,12 @@ let create() =
         do! Async.AwaitTask ( s.ConnectAsync() )
         return s }
 
-let subscribe (projection: 'a -> unit) (getStore: Async<IEventStoreConnection>) =
+let subscribe (streamId: string) (projection: 'a -> unit) (getStore: Async<IEventStoreConnection>) =
     async {
     let! store = getStore
     let credential = SystemData.UserCredentials("admin", "changeit")
     do! Async.AwaitTask
-        <| store.SubscribeToAllAsync(true, (fun s e -> deserialize e |> projection), userCredentials = credential) |> Async.Ignore
+        <| store.SubscribeToStreamAsync(streamId, true, (fun s e -> deserialize e |> projection), userCredentials = credential) |> Async.Ignore
     return store }
     |> Async.RunSynchronously
 
