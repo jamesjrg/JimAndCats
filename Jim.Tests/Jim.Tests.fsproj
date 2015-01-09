@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Jim.Tests</RootNamespace>
     <AssemblyName>Jim.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <Name>Jim.Tests</Name>
