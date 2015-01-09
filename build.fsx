@@ -13,7 +13,7 @@ Target "CleanBuild" <| fun _ ->
 
 Target "Build" <| fun _ ->
     !! "JimAndCats.sln"
-    |> MSBuildRelease @"bin\Release" "Build"
+    |> MSBuildRelease "" "Build"
     |> Log "MsBuild"
 
 Target "All" DoNothing
