@@ -1,1 +1,5 @@
-xunit.runners
+Fake
+Suave
+EventStore.Client
+FsPickler
+FsPickler.Json

@@ -1,6 +1,6 @@
-﻿module EventStoreClient.IntegrationTests
+﻿module EventPersistence.IntegrationTests
 
-open EventStoreClient.Client
+open EventPersistence.EventStore
 
 open Xunit
 
@@ -18,5 +18,5 @@ and Child2 =
 let ``Should be able to serialize and deserialize events to/from event store``() =
     let streamId = "integrationTest"
     let eventHandler event = printfn event
-    let store = EventStoreClient.Client.create() |> subscribe streamId eventHandler
+    let store = EventPersistence.EventStore.create() |> subscribe streamId eventHandler
     appendToStream store streamId -1 [Child1(2, 3); Child2("a", "b")] |> Async.RunSynchronously

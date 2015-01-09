@@ -1,6 +1,6 @@
 ﻿(* Based on FsUno.Prod by Jérémie Chassaing *)
 
-module EventStoreClient.InMemoryStore
+module EventPersistence.InMemoryStore
 
 open System
 

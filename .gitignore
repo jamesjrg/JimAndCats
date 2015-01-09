@@ -15,7 +15,7 @@ build/
 !**/packages/build/
 
 #paket
-Jim/.paket/paket.exe
+.paket/paket.exe
 
 #Resharper
 *.DotSettings.User

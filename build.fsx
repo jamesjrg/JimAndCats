@@ -2,15 +2,17 @@
 
 open Fake   
 
-let title = "Jim"
+let title = "JimAndCats"
 let authors = [ "James Gregory" ]
 let githubLink = "https://github.com/jamesjrg/JimAndCats"
 
 Target "CleanBuild" <| fun _ ->
-    CleanDir @"bin\Release"
+    CleanDir @"EventPersistence\bin\Release"
+    CleanDir @"Jim\bin\Release"
+    CleanDir @"Cats\bin\Release"
 
 Target "Build" <| fun _ ->
-    !! "Jim.sln"
+    !! "JimAndCats.sln"
     |> MSBuildRelease @"bin\Release" "Build"
     |> Log "MsBuild"
 
