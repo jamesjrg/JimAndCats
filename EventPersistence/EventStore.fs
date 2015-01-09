@@ -1,5 +1,5 @@
 ﻿(*
-Based on the client FsUno.Prod by Jérémie Chassaing, except:
+Based on the client in FsUno.Prod by Jérémie Chassaing, except:
 - event type is a generic rather than a specific domain type
 - using FsPickler for serialization rather than custom code
 - only subscribes to a single stream, not all streams
