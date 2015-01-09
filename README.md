@@ -1,6 +1,6 @@
 Jim and Cats
 ============
 
-JIM
+JIM: Just Identity Management
 
-CATS
+CATS: Crowdfunding Ask Templates
