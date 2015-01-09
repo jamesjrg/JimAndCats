@@ -45,6 +45,7 @@
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="IntegrationTests.fs" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventPersistence\EventPersistence.fsproj">
