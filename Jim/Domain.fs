@@ -2,13 +2,18 @@
 
 open System
 open System.Collections.Generic
+open System.Text.RegularExpressions
 
 //Domain model
+
+type EmailAdress = 
+    | Unverified of string
+    | Verified of string
 
 type User = {
     Id: Guid
     Name: string
-    Email: string
+    Email: EmailAdress
     Password: string
 }
 
@@ -71,3 +76,8 @@ let changeName (command : ChangeName) (state : State) =
 let handleCommand = function
     | CreateUser command -> createUser command
     | ChangeName command -> changeName command
+
+let createEmailAddress (s:string) = 
+    if Regex.IsMatch(s,@"^\S+@\S+\.\S+$") 
+        then Some s
+        else None
