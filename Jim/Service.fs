@@ -13,6 +13,9 @@ let startService =
         let projection = fun (x: Event) -> ()
         let store = EventPersistence.EventStore.create() |> subscribe streamId projection
         let commandHandler = Jim.CommandHandler.create streamId (readStream store) (appendToStream store)
-        commandHandler <| CreateUser { Id = Guid.NewGuid(); Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" }
+        commandHandler <| CreateUser { 
+            Name="Bob Holness"
+            Email="bob.holness@itv.com"
+            Password="p4ssw0rd" }
     with
     | e -> ()

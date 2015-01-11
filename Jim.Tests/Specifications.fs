@@ -2,6 +2,8 @@
 
 open FsUnit.Xunit
 open Jim.Domain
+open NodaTime
+open System
 
 let printEvent event = event
 let printCommand command = command
@@ -27,11 +29,12 @@ let inline replay events =
 
 let Given (events: Event list) = events
 let When (command: Command) events = events, command
-let Expect (expected: Event list) (events, command) =
+let Expect (expected: Event list) (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (events, command) =
     printGiven events
     printWhen command
     printExpect expected
 
     replay events
-    |> handleCommand command
+    |> handleCommand createGuid createTimestamp command
     |> should equal expected
+

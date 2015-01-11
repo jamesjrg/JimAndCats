@@ -1,9 +1,15 @@
 ﻿module Jim.CommandHandler
 
+open NodaTime
 open Jim.Domain
 open System
 
 let create (streamId:string) readStream appendToStream =
+    
+    let createGuid = fun () -> Guid.NewGuid()
+
+    let createInstant = fun () -> SystemClock.Instance.Now
+
     let load =
         let rec fold (state: State) version =
             async {
@@ -21,7 +27,7 @@ let create (streamId:string) readStream appendToStream =
     let agent = MailboxProcessor.Start <| fun inbox -> 
         let rec messageLoop version state = async {
             let! command = inbox.Receive()
-            let newEvents = handleCommand command state
+            let newEvents = handleCommand createGuid createInstant command state
             do! save version newEvents
             let newState = List.fold handleEvent state newEvents
             return! messageLoop version state
