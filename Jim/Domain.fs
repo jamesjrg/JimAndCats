@@ -1,10 +1,12 @@
 ﻿module Jim.Domain
 
+open NodaTime
+
 open System
 open System.Collections.Generic
 open System.Text.RegularExpressions
 
-//Domain model
+(* Domain model types *)
 
 type EmailAdress = 
     | Unverified of string
@@ -15,18 +17,20 @@ type User = {
     Name: string
     Email: EmailAdress
     Password: string
+    CreationTime: Instant
 }
+
+(* End domain model types *)
 
 type State = Dictionary<string, User>
 
-//Commands
+(* Commands *)
 
 type Command =
     | CreateUser of CreateUser
     | ChangeName of ChangeName
 
 and CreateUser = {
-    Id: Guid
     Name: string
     Email: string
     Password: string
@@ -37,7 +41,9 @@ and ChangeName = {
     Id: Guid
 }
 
-//Events
+(* End commands *)
+
+(* Events *)
 
 type Event =
     | UserCreated of UserCreated
@@ -48,6 +54,7 @@ and UserCreated = {
     Name: string
     Email: string
     Password: string
+    CreationTime: Instant
 }
 
 and NameChanged = {
@@ -55,7 +62,9 @@ and NameChanged = {
     Name: string
 }
 
-//Handle events
+(* End Events *)
+
+(* Event handlers *)
 let userCreated state event =
     state
 
@@ -65,6 +74,8 @@ let nameChanged state event =
 let handleEvent (state : State) = function
     | UserCreated event -> userCreated state event
     | NameChanged event -> nameChanged state event
+
+(* End Event Handlers *)
 
 //Apply commands
 let createUser (command : CreateUser) (state : State) =
