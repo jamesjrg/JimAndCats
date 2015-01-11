@@ -2,8 +2,6 @@
 
 open Jim.App
 
-open NodaTime
-
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
@@ -23,10 +21,6 @@ let logary =
       withTargets [
         Console.create Console.empty "console"
         Debugger.create Debugger.empty "debugger"
-      ] >>
-      withMetrics (Duration.FromMilliseconds 5000L) [
-        WinPerfCounters.create (WinPerfCounters.Common.cpuTimeConf) "wperf"
-(Duration.FromMilliseconds 300L)
       ] >>
       withRules [
         Rule.createForTarget "console"
