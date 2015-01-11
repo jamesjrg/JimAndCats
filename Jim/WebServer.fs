@@ -64,6 +64,5 @@ let main argv =
     printfn "Starting"
     startService |> ignore
     web_server web_config webApp 
+    logary.Dispose()
     0
-
-
