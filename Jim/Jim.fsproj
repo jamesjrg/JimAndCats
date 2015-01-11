@@ -56,7 +56,7 @@
     </None>
     <Compile Include="Domain.fs" />
     <Compile Include="CommandHandler.fs" />
-    <Compile Include="Service.fs" />
+    <Compile Include="ApplicationService.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>
   <ItemGroup>

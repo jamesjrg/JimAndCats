@@ -1,6 +1,6 @@
 ﻿module Jim.WebServer
 
-open Jim.App
+open Jim.ApplicationService
 
 open Suave
 open Suave.Http
@@ -13,6 +13,7 @@ open Logary
 open Logary.Configuration
 open Logary.Targets
 open Logary.Metrics
+open Logary.Logger
 
 open System.IO
 
@@ -42,27 +43,44 @@ let web_config =
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let webApp =
+let login = OK "Hello"
+
+let createUser (appService : AppService) =
+    appService.createUser ()
+    OK "User created"
+
+let listUsers (appService : AppService) =
+    appService.listUsers ()
+    OK "Hello"
+
+let index = OK "Hello"
+
+let setPassword appService = OK "Hello"
+
+let setName appService =  OK "Hello" 
+
+let logout = OK "Hello"
+
+let webApp (appService : AppService) =
   choose
     [ GET >>= choose
         [ url "/api-docs" >>= swaggerSpec
-          url "/login" >>= OK "Hello"
-          url "/users/create" >>= OK "Hello"
-          url "/password" >>= OK "Hello"
-          url "/name" >>= OK "Hello"
-          url "/users" >>= OK "Hello"
-          url "/" >>= OK "Hello" ]
+          url "/users" >>= listUsers appService
+          url "/" >>= index ]
       POST >>= choose
-        [ url "/login" >>= OK "Hello"
-          url "/users/create" >>= OK "Hello"
-          url "/password" >>= OK "Hello"
-          url "/name'" >>= OK "Hello"
-          url "/logout'" >>= OK "Hello" ] ]
+        [ url "/login" >>= login
+          url "/users/create" >>= createUser appService
+          url "/password" >>= setPassword appService
+          url "/name'" >>= setName appService
+          url "/logout'" >>= logout ] ]
 
 [<EntryPoint>]
 let main argv = 
-    printfn "Starting"
-    startService |> ignore
-    web_server web_config webApp 
+    printfn "Starting"    
+    try        
+        web_server web_config (webApp <| new AppService())        
+    with
+    | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
+
     logary.Dispose()
     0
