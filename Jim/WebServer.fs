@@ -31,7 +31,7 @@ let logary =
 let mime_types =
   Suave.Http.Writers.default_mime_types_map
     >=> (function
-    | ".avi" -> Suave.Http.Writers.mk_mime_type "application/json" true
+    | ".json" -> Suave.Http.Writers.mk_mime_type "application/json" true
     | _ -> None)
 
 let web_config =
