@@ -90,22 +90,24 @@ let handleEvent (state : State) = function
 (* End Event Handlers *)
 
 //Apply commands
-let createUser (command : CreateUser) (state : State) =
+let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command : CreateUser) (state : State) =
     [ UserCreated {
-        Id = Guid.NewGuid()
+        Id = createGuid()
         Name = command.Name
         Email = command.Email
         Password = command.Password
-        CreationTime = SystemClock.Instance.Now
+        CreationTime = createTimestamp()
     }]
 
 let changeName (command : ChangeName) (state : State) =
     [NameChanged { Id = command.Id; Name = command.Name; }]
 
-let handleCommand command state =
+let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command state =
     match command with
-        | CreateUser command -> createUser command state
+        | CreateUser command -> createUser createGuid createTimestamp command state
         | ChangeName command -> changeName command state
+
+let handleCommandWithAutoGeneration command state = handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command state
 
 let createEmailAddress (s:string) = 
     if Regex.IsMatch(s,@"^\S+@\S+\.\S+$") 

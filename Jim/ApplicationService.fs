@@ -37,7 +37,7 @@ type AppService () =
 
             match message with
             | Command command -> 
-                let newEvents = handleCommand command state
+                let newEvents = handleCommandWithAutoGeneration command state
                 do! save version newEvents
                 let newState = List.fold handleEvent state newEvents
                 return! messageLoop (version + List.length newEvents) newState

@@ -18,12 +18,12 @@ let inline replay events =
 
 let Given (events: Event list) = events
 let When (command: Command) events = events, command
-let Expect (expected: Event list) (mapActualWithoutGenerated: Event -> Event) (events, command) =
+let Expect (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (expected: Event list) (events, command) =
     printList "Given" events
     printCommand "When" command
     printList "Expect" expected
 
-    let actual = replay events |> handleCommand command |> List.map mapActualWithoutGenerated
+    let actual = replay events |> handleCommand createGuid createTimestamp command
     
     printList "Actual" actual
     actual |> should equal expected
