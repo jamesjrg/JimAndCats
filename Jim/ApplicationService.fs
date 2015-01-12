@@ -1,12 +1,12 @@
 ﻿namespace Jim.ApplicationService
 
 open EventPersistence.EventStore
+open Jim.AppSettings
 open Jim.CommandHandler
 open Jim.Domain
 
 type AppService () =
-    //TODO: this should be a config variable
-    let streamId = "users"
+    let streamId = appSettings.UserStream
 
     let projection = fun (x: Event) -> ()
     let store = EventPersistence.EventStore.create() |> subscribe streamId projection
