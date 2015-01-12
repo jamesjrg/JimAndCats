@@ -59,4 +59,4 @@ type AppService () =
 
     member this.listUsers() = agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
 
-    member this.renameUser(id, name) = agent.Post <| Command (ChangeName{Id= Guid.Parse(id); Name = name})
+    member this.renameUser(id, name) = agent.Post <| Command (ChangeName{ Id=id; Name = name} )

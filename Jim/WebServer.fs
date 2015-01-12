@@ -1,6 +1,7 @@
 ﻿module Jim.WebServer
 
 open Jim.ApplicationService
+open Jim.DataContracts
 
 open Suave
 open Suave.Http
@@ -8,6 +9,7 @@ open Suave.Http.Applicatives
 open Suave.Http.Successful
 open Suave.Types
 open Suave.Utils
+open Suave.Json
 open Suave.Web
 
 open Logary.Suave
@@ -17,6 +19,7 @@ open Logary.Targets
 open Logary.Metrics
 open Logary.Logger
 
+open System
 open System.IO
 
 let logary =
@@ -48,39 +51,30 @@ let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 let login (appService : AppService) httpContext =
     OK "Hello" httpContext
 
-let createUser (appService : AppService) =
-    fun httpContext ->
-        async {
-            appService.createUser ("Bob Holness", "bob.holness@itv.com", "p4ssw0rd")
-            return! OK "User created" httpContext
-        }    
+let createUser (appService : AppService) httpContext =
+    async {
+        appService.createUser ("Bob Holness", "bob.holness@itv.com", "p4ssw0rd")
+        return! OK "User created" httpContext
+    }    
 
-let listUsers (appService : AppService) =
-    fun httpContext ->
-        async {
-            let! users = appService.listUsers ()
-            let usersAsString = "Users:\n" + ((Seq.map (fun u -> sprintf "%A" u) users) |> String.concat "\n")
-            return! OK usersAsString httpContext
-        }
+let listUsers (appService : AppService) httpContext =
+    async {
+        let! users = appService.listUsers ()
+        let usersAsString = "Users:\n" + ((Seq.map (fun u -> sprintf "%A" u) users) |> String.concat "\n")
+        return! OK usersAsString httpContext
+    }
 
 let index = OK "Hello"
 
-let setPassword appService httpContext = OK "Hello" httpContext
+let setPassword appService (id:string) httpContext = OK "Hello" httpContext
 
-//TODO use post data in JSON format, not query string
-let renameUser (appService : AppService) =
-    fun httpContext ->
-        async {
-            let query = HttpRequest.query (httpContext.request)
+let renameUser (appService : AppService) (id:string) httpContext =
+    async {
+        let mappingFunc (renameRequest:RenameRequest) = 
+            appService.renameUser(Guid.Parse(id), renameRequest.name)
+            OK ("Name changed to " + renameRequest.name) httpContext
 
-            let maybeId = query ^^ "id"
-            let maybeName = query ^^ "name"
-
-            match maybeId, maybeName with
-            | Some id, Some name ->
-                appService.renameUser(id, name)
-                return! OK ("Name changed to " + name) httpContext
-            | _ -> return! OK ("Missing query params") httpContext
+        return! map_json mappingFunc httpContext
     }
 
 let logout = OK "Hello"
@@ -94,8 +88,8 @@ let webApp (appService : AppService) =
       POST >>= choose
         [ url "/login" >>= login appService
           url "/users/create" >>= createUser appService
-          url "/password" >>= setPassword appService
-          url "/name'" >>= renameUser appService
+          url_scan "/users/%s/password" (fun id -> setPassword appService id)
+          url_scan "/users/%s/name" (fun id -> renameUser appService id)
           url "/logout'" >>= logout ]
       RequestErrors.NOT_FOUND "404 not found" ]
 
