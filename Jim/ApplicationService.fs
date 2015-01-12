@@ -19,6 +19,7 @@ type AppService () =
     member this.createUser () = commandHandler <| CreateUser { 
             Name="Bob Holness"
             Email="bob.holness@itv.com"
-            Password="p4ssw0rd" }
+            Password="p4ssw0rd"
+            }
 
     member this.listUsers () = ()

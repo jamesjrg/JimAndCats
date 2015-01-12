@@ -46,7 +46,8 @@ type EventStore<'a>(streamId:string, projection : 'a -> unit) =
                     then None 
                     else Some slice.NextEventNumber
 
-                return events, slice.LastEventNumber, nextEventNumber }
+                return events, slice.LastEventNumber, nextEventNumber
+                }
 
         member this.AppendToStream streamId expectedVersion newEvents = 
             async {
