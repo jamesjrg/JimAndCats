@@ -78,21 +78,21 @@ let handleEvent (state : State) = function
 (* End Event Handlers *)
 
 //Apply commands
-let createUser (command : CreateUser) createGuid createTimestamp (state : State) =
+let createUser (command : CreateUser) (state : State) =
     [ UserCreated {
-        Id = createGuid()
+        Id = Guid.NewGuid()
         Name = command.Name
         Email = command.Email
         Password = command.Password
-        CreationTime = createTimestamp()
+        CreationTime = SystemClock.Instance.Now
     }]
 
 let changeName (command : ChangeName) (state : State) =
     [NameChanged { Id = command.Id; Name = command.Name; }]
 
-let handleCommand createGuid createTimestamp command state =
+let handleCommand command state =
     match command with
-        | CreateUser command -> createUser command createGuid createTimestamp state
+        | CreateUser command -> createUser command state
         | ChangeName command -> changeName command state
 
 let createEmailAddress (s:string) = 
