@@ -1,4 +1,4 @@
-﻿(* Based on FsUno.Prod by Jérémie Chassaing *)
+﻿(* Based on the client in FsUno.Prod by Jérémie Chassaing *)
 
 module EventPersistence.InMemoryStore
 
