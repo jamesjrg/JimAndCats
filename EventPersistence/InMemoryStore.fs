@@ -1,4 +1,4 @@
-﻿(* Based on the client in FsUno.Prod by Jérémie Chassaing *)
+﻿(* Based on the client in FsUno by Jérémie Chassaing *)
 
 namespace EventPersistence
 
