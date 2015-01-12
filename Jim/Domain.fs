@@ -22,7 +22,7 @@ type User = {
 
 (* End domain model types *)
 
-type State = Dictionary<string, User>
+type State = Dictionary<Guid, User>
 
 (* Commands *)
 
@@ -65,11 +65,23 @@ and NameChanged = {
 (* End Events *)
 
 (* Event handlers *)
-let userCreated state event =
+let userCreated (state:State) (event: UserCreated) =
+    state.Add(event.Id, {
+        User.Id = event.Id
+        Name = event.Name
+        Email = Unverified event.Email
+        Password = event.Password
+        CreationTime = event.CreationTime
+        })
     state
 
-let nameChanged state event =
-    state
+let nameChanged (state:State) (event : NameChanged) =
+    let userResult = state.TryGetValue(event.Id)
+    match userResult with
+    | true, user ->
+        state.[event.Id] <- {user with Name = event.Name}
+        state
+    | false, _ -> state
 
 let handleEvent (state : State) = function
     | UserCreated event -> userCreated state event
