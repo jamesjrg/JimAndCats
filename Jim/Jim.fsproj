@@ -55,7 +55,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="Domain.fs" />
-    <Compile Include="CommandHandler.fs" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="ApplicationService.fs" />
     <Compile Include="WebServer.fs" />
