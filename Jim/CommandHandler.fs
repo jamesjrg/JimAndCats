@@ -2,14 +2,15 @@
 
 open NodaTime
 open Jim.Domain
+open EventPersistence
 open System
 
-let create (streamId:string) readStream appendToStream =
+let create (streamId:string) (store : IEventStore<Event>) =
     let load =
         let rec fold (state: State) version =
             async {
             let! events, lastEvent, nextEvent = 
-                readStream streamId version 500
+                store.ReadStream streamId version 500
 
             let state = List.fold handleEvent state events
             match nextEvent with
@@ -17,7 +18,7 @@ let create (streamId:string) readStream appendToStream =
             | Some n -> return! fold state n }
         fold (new State()) 0
 
-    let save expectedVersion events = appendToStream streamId expectedVersion events
+    let save expectedVersion events = store.AppendToStream streamId expectedVersion events
 
     let agent = MailboxProcessor.Start <| fun inbox -> 
         let rec messageLoop version state = async {

@@ -45,6 +45,7 @@
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="EventStoreConnectionExtensions.fs" />
+    <Compile Include="IEventStore.fs" />
     <Compile Include="EventStore.fs" />
     <Compile Include="InMemoryStore.fs" />
     <None Include="App.config" />

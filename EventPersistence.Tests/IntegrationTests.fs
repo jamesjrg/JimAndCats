@@ -1,6 +1,6 @@
 ﻿module EventPersistence.IntegrationTests
 
-open EventPersistence.EventStore
+open EventPersistence
 
 open Xunit
 
@@ -17,6 +17,6 @@ and Child2 =
 [<Fact>]
 let ``Should be able to serialize and deserialize events to/from event store``() =
     let streamId = "integrationTest"
-    let eventHandler event = printfn event
-    let store = EventPersistence.EventStore.create() |> subscribe streamId eventHandler
-    appendToStream store streamId -1 [Child1(2, 3); Child2("a", "b")] |> Async.RunSynchronously
+    let projection (event: TestRecordParent) = printfn "%A" event
+    let store = new EventPersistence.EventStore<TestRecordParent>(streamId, projection) :> IEventStore<TestRecordParent>
+    store.AppendToStream streamId -1 [Child1(2, 3); Child2("a", "b")] |> Async.RunSynchronously

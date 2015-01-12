@@ -1,6 +1,6 @@
 ﻿(* Based on the client in FsUno.Prod by Jérémie Chassaing *)
 
-module EventPersistence.InMemoryStore
+namespace EventPersistence
 
 open System
 
@@ -13,49 +13,41 @@ type Stream<'a> = { mutable Events:  ('a * int) list }
         |> Seq.last
         |> snd
 
-type InMemoryEventStore<'a> = 
-    { mutable streams : Map<string,Stream<'a>>
-      projection : 'a -> unit }
-
-    interface IDisposable
-        with member x.Dispose() = ()         
-
-let create() = { streams = Map.empty
-                 projection = fun _ -> () }
-let subscribe streamName projection store =
-    { store with projection = projection} 
-
-let readStream store streamId version count =
-    match store.streams.TryFind streamId with
-    | Some(stream) -> 
-        let events =
-            stream.Events
-            |> Seq.skipWhile (fun (_,v) -> v < version )
-            |> Seq.takeWhile (fun (_,v) -> v <= version + count)
-            |> Seq.toList 
-        let lastEventNumber = events |> Seq.last |> snd 
+type InMemoryStore<'a>(projection : 'a -> unit) = 
+    let mutable streams = Map.empty
             
-        events |> List.map fst,
-            lastEventNumber ,
-            if lastEventNumber < version + count 
-            then None 
-            else Some (lastEventNumber+1)
+    interface IEventStore<'a> with
+        member this.ReadStream streamId version count = 
+            let result = match streams.TryFind streamId with
+            | Some(stream) -> 
+                let events =
+                    stream.Events
+                    |> Seq.skipWhile (fun (_,v) -> v < version )
+                    |> Seq.takeWhile (fun (_,v) -> v <= version + count)
+                    |> Seq.toList 
+                let lastEventNumber = events |> Seq.last |> snd 
             
-    | None -> [], -1, None
+                events |> List.map fst,
+                    lastEventNumber ,
+                    if lastEventNumber < version + count 
+                    then None 
+                    else Some (lastEventNumber+1)
+            
+            | None -> [], -1, None
 
-let appendToStream store streamId expectedVersion newEvents =
-    let eventsWithVersion =
-        newEvents
-        |> List.mapi (fun index event -> (event, expectedVersion + index + 1))
+            async {return result}
 
-    match store.streams.TryFind streamId with
-    | Some stream when Stream.version stream = expectedVersion -> 
-        stream.Events <- stream.Events @ eventsWithVersion
+        member this.AppendToStream streamId expectedVersion newEvents = 
+            let eventsWithVersion =
+                newEvents |> List.mapi (fun index event -> (event, expectedVersion + index + 1))
+
+            match streams.TryFind streamId with
+            | Some stream when Stream<'a>.version stream = expectedVersion -> 
+                stream.Events <- stream.Events @ eventsWithVersion
         
-    | None when expectedVersion = -1 -> 
-        store.streams <- store.streams.Add(streamId, { Events = eventsWithVersion })        
+            | None when expectedVersion = -1 -> 
+                streams <- streams.Add(streamId, { Events = eventsWithVersion })        
 
-    | _ -> raise WrongExpectedVersion 
+            | _ -> raise WrongExpectedVersion 
         
-    newEvents
-    |> Seq.iter store.projection
+            async { newEvents |> Seq.iter projection }
