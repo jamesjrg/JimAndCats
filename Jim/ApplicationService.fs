@@ -3,6 +3,7 @@
 open EventPersistence
 open Jim.AppSettings
 open Jim.Domain
+open System
 
 type Message =
     | Command of Command
@@ -50,10 +51,12 @@ type AppService () =
             return! messageLoop version state
             }
 
-    member this.createUser () = agent.Post <| Command (CreateUser { 
-            Name="Bob Holness"
-            Email="bob.holness@itv.com"
-            Password="p4ssw0rd"
-            })
+    member this.createUser(name, email, password) = agent.Post <| Command (CreateUser { 
+            Name=name
+            Email=email
+            Password=password
+        })
 
-    member this.listUsers () = agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
+    member this.listUsers() = agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
+
+    member this.renameUser(id, name) = agent.Post <| Command (ChangeName{Id= Guid.Parse(id); Name = name})

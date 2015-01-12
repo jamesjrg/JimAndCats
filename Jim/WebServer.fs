@@ -6,6 +6,8 @@ open Suave
 open Suave.Http
 open Suave.Http.Applicatives
 open Suave.Http.Successful
+open Suave.Types
+open Suave.Utils
 open Suave.Web
 
 open Logary.Suave
@@ -43,21 +45,43 @@ let web_config =
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let login = OK "Hello"
+let login (appService : AppService) httpContext =
+    OK "Hello" httpContext
 
 let createUser (appService : AppService) =
-    appService.createUser ()
-    OK "User created"
+    fun httpContext ->
+        async {
+            appService.createUser ("Bob Holness", "bob.holness@itv.com", "p4ssw0rd")
+            return! OK "User created" httpContext
+        }    
 
 let listUsers (appService : AppService) =
-    appService.listUsers ()
-    OK "Hello"
+    fun httpContext ->
+        async {
+            let! users = appService.listUsers ()
+            let usersAsString = "Users:\n" + ((Seq.map (fun u -> sprintf "%A" u) users) |> String.concat "\n")
+            return! OK usersAsString httpContext
+        }
 
 let index = OK "Hello"
 
-let setPassword appService = OK "Hello"
+let setPassword appService httpContext = OK "Hello" httpContext
 
-let setName appService =  OK "Hello" 
+//TODO use post data in JSON format, not query string
+let renameUser (appService : AppService) =
+    fun httpContext ->
+        async {
+            let query = HttpRequest.query (httpContext.request)
+
+            let maybeId = query ^^ "id"
+            let maybeName = query ^^ "name"
+
+            match maybeId, maybeName with
+            | Some id, Some name ->
+                appService.renameUser(id, name)
+                return! OK ("Name changed to " + name) httpContext
+            | _ -> return! OK ("Missing query params") httpContext
+    }
 
 let logout = OK "Hello"
 
@@ -68,11 +92,12 @@ let webApp (appService : AppService) =
           url "/users" >>= listUsers appService
           url "/" >>= index ]
       POST >>= choose
-        [ url "/login" >>= login
+        [ url "/login" >>= login appService
           url "/users/create" >>= createUser appService
           url "/password" >>= setPassword appService
-          url "/name'" >>= setName appService
-          url "/logout'" >>= logout ] ]
+          url "/name'" >>= renameUser appService
+          url "/logout'" >>= logout ]
+      RequestErrors.NOT_FOUND "404 not found" ]
 
 [<EntryPoint>]
 let main argv = 
