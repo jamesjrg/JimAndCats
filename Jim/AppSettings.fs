@@ -2,6 +2,8 @@
 
 open ConfigMapping
 
-type AppSettings = abstract member UserStream : string with get
+type IAppSettings =
+    abstract member UserStream : string with get
+    abstract member UseEventStore : bool with get
 
-let appSettings = ConfigMapper.Map<AppSettings>();
+let appSettings = ConfigMapper.Map<IAppSettings>();
