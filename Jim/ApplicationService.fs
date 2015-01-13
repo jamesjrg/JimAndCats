@@ -6,7 +6,7 @@ open Jim.Domain
 open System
 
 type Message =
-    | Command of Command
+    | Command of Command * AsyncReplyChannel<string>
     | ListUsers of AsyncReplyChannel<User seq>
 
 type AppService () =
@@ -37,10 +37,11 @@ type AppService () =
             let! message = inbox.Receive()
 
             match message with
-            | Command command -> 
+            | Command (command, replyChannel) -> 
                 let newEvents = handleCommandWithAutoGeneration command state
                 do! save version newEvents
                 let newState = List.fold handleEvent state newEvents
+                replyChannel.Reply("Success")
                 return! messageLoop (version + List.length newEvents) newState
             | ListUsers replyChannel ->
                 replyChannel.Reply(state.Values)
@@ -51,12 +52,18 @@ type AppService () =
             return! messageLoop version state
             }
 
-    member this.createUser(name, email, password) = agent.Post <| Command (CreateUser { 
-            Name=name
-            Email=email
-            Password=password
-        })
+    let makeMessage command = 
+        fun replyChannel ->
+            Command (command, replyChannel)
+
+    member this.createUser(name, email, password) = agent.PostAndAsyncReply(
+        makeMessage (CreateUser { 
+                Name=name
+                Email=email
+                Password=password
+            }))
 
     member this.listUsers() = agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
 
-    member this.renameUser(id, name) = agent.Post <| Command (ChangeName{ Id=id; Name = name} )
+    member this.renameUser(id, name) = agent.PostAndAsyncReply(
+        makeMessage (ChangeName{ Id=id; Name = name} ))

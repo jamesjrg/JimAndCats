@@ -37,8 +37,13 @@ and CreateUser = {
 }
 
 and ChangeName = {
-    Name: string
     Id: Guid
+    Name: string    
+}
+
+and ChangePassword = {
+    Id: Guid
+    Password: string   
 }
 
 (* End commands *)

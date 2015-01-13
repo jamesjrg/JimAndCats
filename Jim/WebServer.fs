@@ -51,11 +51,13 @@ let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 let login (appService : AppService) httpContext =
     OK "Hello" httpContext
 
-let createUser (appService : AppService) httpContext =
-    async {
-        appService.createUser ("Bob Holness", "bob.holness@itv.com", "p4ssw0rd")
-        return! OK "User created" httpContext
-    }    
+let createUser (appService : AppService) =
+    let mappingFunc (createUser:CreateUser) = 
+        //TODO handle async response
+        let createResponse = appService.createUser(createUser.name, createUser.email, createUser.password)
+        { JsonResponse.message = "User created: " + createUser.name }
+        
+    map_json mappingFunc  
 
 let listUsers (appService : AppService) httpContext =
     async {
@@ -68,14 +70,13 @@ let index = OK "Hello"
 
 let setPassword appService (id:string) httpContext = OK "Hello" httpContext
 
-let renameUser (appService : AppService) (id:string) httpContext =
-    async {
-        let mappingFunc (renameRequest:RenameRequest) = 
-            appService.renameUser(Guid.Parse(id), renameRequest.name)
-            OK ("Name changed to " + renameRequest.name) httpContext
+let renameUser (appService : AppService) (id:string) =    
+    let mappingFunc (changeName:ChangeName) = 
+        //TODO handle async response
+        let renameResponse = appService.renameUser(Guid.Parse(id), changeName.name)
+        { JsonResponse.message = "Name changed to " + changeName.name }
 
-        return! map_json mappingFunc httpContext
-    }
+    map_json mappingFunc
 
 let logout = OK "Hello"
 
@@ -84,14 +85,19 @@ let webApp (appService : AppService) =
     [ GET >>= choose
         [ url "/api-docs" >>= swaggerSpec
           url "/users" >>= listUsers appService
-          url "/" >>= index ]
+          url "/" >>= index
+        ]
       POST >>= choose
         [ url "/login" >>= login appService
           url "/users/create" >>= createUser appService
-          url_scan "/users/%s/password" (fun id -> setPassword appService id)
+          url "/logout'" >>= logout
+        ]
+      PUT >>= choose 
+        [ url_scan "/users/%s/password" (fun id -> setPassword appService id)
           url_scan "/users/%s/name" (fun id -> renameUser appService id)
-          url "/logout'" >>= logout ]
-      RequestErrors.NOT_FOUND "404 not found" ]
+        ]
+      RequestErrors.NOT_FOUND "404 not found"
+    ] 
 
 [<EntryPoint>]
 let main argv = 
