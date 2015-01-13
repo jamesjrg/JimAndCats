@@ -60,6 +60,7 @@
     <Compile Include="AppSettings.fs" />
     <Compile Include="ApplicationService.fs" />
     <Compile Include="DataContracts.fs" />
+    <Compile Include="Logging.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>
   <ItemGroup>

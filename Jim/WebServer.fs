@@ -2,6 +2,7 @@
 
 open Jim.ApplicationService
 open Jim.DataContracts
+open Jim.Logging
 
 open Suave
 open Suave.Http
@@ -12,27 +13,11 @@ open Suave.Utils
 open Suave.Json
 open Suave.Web
 
-open Logary.Suave
 open Logary
-open Logary.Configuration
-open Logary.Targets
-open Logary.Metrics
-open Logary.Logger
+open Logary.Suave
 
 open System
 open System.IO
-
-let logary =
-    withLogary' "Jim" (
-      withTargets [
-        Console.create Console.empty "console"
-        Debugger.create Debugger.empty "debugger"
-      ] >>
-      withRules [
-        Rule.createForTarget "console"
-        Rule.createForTarget "debugger"
-      ]
-    )
 
 let mime_types =
   Suave.Http.Writers.default_mime_types_map
@@ -43,7 +28,7 @@ let mime_types =
 let web_config =
     { default_config with
         mime_types_map = mime_types
-        logger   = SuaveAdapter(logary.GetLogger "suave")
+        logger = SuaveAdapter(logary.GetLogger "suave")
     }
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
