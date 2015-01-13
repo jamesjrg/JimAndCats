@@ -6,3 +6,4 @@ Intelliplan.Logary
 Intelliplan.Logary.Suave
 NodaTime
 ConfigMapper
+Newtonsoft.Json

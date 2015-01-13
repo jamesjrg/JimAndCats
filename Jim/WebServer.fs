@@ -2,6 +2,7 @@
 
 open Jim.ApplicationService
 open Jim.DataContracts
+open Jim.Json
 open Jim.Logging
 
 open Suave
@@ -10,7 +11,6 @@ open Suave.Http.Applicatives
 open Suave.Http.Successful
 open Suave.Types
 open Suave.Utils
-open Suave.Json
 open Suave.Web
 
 open Logary
@@ -37,13 +37,14 @@ let index = OK "Hello"
 let login (appService : AppService) = OK "Hello"
 let logout = OK "Hello"
 
-let createUser (appService : AppService) =
+let createUser (appService : AppService) : Types.WebPart =
     let mappingFunc (createUser:CreateUser) = 
-        //TODO handle async response
-        let createResponse = appService.createUser(createUser.name, createUser.email, createUser.password)
-        { JsonResponse.message = "User created: " + createUser.name }
-        
-    map_json mappingFunc  
+        async {
+            let! createResponse = appService.createUser(createUser.name, createUser.email, createUser.password)
+            return { ResponseWithIdAndMessage.id = Guid.Empty; message = "User created: " + createUser.name }
+        }
+
+    mapJsonAsync mappingFunc
 
 let listUsers (appService : AppService) httpContext =
     async {
@@ -54,11 +55,13 @@ let listUsers (appService : AppService) httpContext =
 
 let renameUser (appService : AppService) (id:string) =    
     let mappingFunc (changeName:ChangeName) = 
-        //TODO handle async response
-        let renameResponse = appService.renameUser(Guid.Parse(id), changeName.name)
-        { JsonResponse.message = "Name changed to " + changeName.name }
+        async {
+            //TODO handle async response
+            let renameResponse = appService.renameUser(Guid.Parse(id), changeName.name)
+            return { ResponseWithMessage.message = "Name changed to " + changeName.name }
+        }
 
-    map_json mappingFunc
+    mapJsonAsync mappingFunc
 
 let changePassword appService (id:string) httpContext = OK "Hello" httpContext
 
