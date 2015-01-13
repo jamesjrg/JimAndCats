@@ -14,9 +14,10 @@ type AppService () =
 
     let projection = fun (x: Event) -> ()
 
-    let store = match appSettings.UseEventStore with
-    | true -> new EventPersistence.EventStore<Event>(streamId, projection) :> IEventStore<Event>
-    | false -> new EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
+    let store =
+        match appSettings.UseEventStore with
+        | true -> new EventPersistence.EventStore<Event>(streamId, projection) :> IEventStore<Event>
+        | false -> new EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
 
     let load =
         let rec fold (state: State) version =
@@ -56,14 +57,15 @@ type AppService () =
         fun replyChannel ->
             Command (command, replyChannel)
 
-    member this.createUser(name, email, password) = agent.PostAndAsyncReply(
-        makeMessage (CreateUser { 
-                Name=name
-                Email=email
-                Password=password
-            }))
+    member this.createUser(name, email, password) =
+        agent.PostAndAsyncReply(
+            makeMessage (CreateUser { 
+                    Name=name
+                    Email=email
+                    Password=password
+                }))
 
     member this.listUsers() = agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
 
-    member this.renameUser(id, name) = agent.PostAndAsyncReply(
-        makeMessage (ChangeName{ Id=id; Name = name} ))
+    member this.renameUser(id, name) =
+        agent.PostAndAsyncReply(makeMessage (ChangeName{ Id=id; Name = name} ))

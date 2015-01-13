@@ -18,22 +18,23 @@ type InMemoryStore<'a>(projection : 'a -> unit) =
             
     interface IEventStore<'a> with
         member this.ReadStream streamId version count = 
-            let result = match streams.TryFind streamId with
-            | Some(stream) -> 
-                let events =
-                    stream.Events
-                    |> Seq.skipWhile (fun (_,v) -> v < version )
-                    |> Seq.takeWhile (fun (_,v) -> v <= version + count)
-                    |> Seq.toList 
-                let lastEventNumber = events |> Seq.last |> snd 
+            let result =
+                match streams.TryFind streamId with
+                    | Some(stream) -> 
+                        let events =
+                            stream.Events
+                            |> Seq.skipWhile (fun (_,v) -> v < version )
+                            |> Seq.takeWhile (fun (_,v) -> v <= version + count)
+                            |> Seq.toList 
+                        let lastEventNumber = events |> Seq.last |> snd 
             
-                events |> List.map fst,
-                    lastEventNumber ,
-                    if lastEventNumber < version + count 
-                    then None 
-                    else Some (lastEventNumber+1)
+                        events |> List.map fst,
+                            lastEventNumber ,
+                            if lastEventNumber < version + count 
+                            then None 
+                            else Some (lastEventNumber+1)
             
-            | None -> [], -1, None
+                    | None -> [], -1, None
 
             async {return result}
 
