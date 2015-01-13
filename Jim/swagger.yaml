@@ -1,0 +1,45 @@
+swagger: '2.0'
+
+info:
+  version: "0.0.0"
+  title: JIM (Just Identity Management)
+
+paths:
+  /users:
+    get:
+      description: |
+        Gets a list of all the users
+  /users/create:
+    post:
+      description: |
+        Creates a new user
+  /users/{id}/password:
+    put:
+      description: |
+        Changes a user's password
+      parameters:
+       - 
+          name: id
+          in: path
+          description: User id
+          required: true
+          type: uuid
+       - 
+          name: JSON body
+          in: body
+          description: Request details
+          required: true
+          schema:
+            title: Details
+            type: object
+            properties:
+              password:
+                type: string
+              
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfPersons
+            type: object
+            
