@@ -48,8 +48,9 @@ let web_config =
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let login (appService : AppService) httpContext =
-    OK "Hello" httpContext
+let index = OK "Hello"
+let login (appService : AppService) = OK "Hello"
+let logout = OK "Hello"
 
 let createUser (appService : AppService) =
     let mappingFunc (createUser:CreateUser) = 
@@ -66,10 +67,6 @@ let listUsers (appService : AppService) httpContext =
         return! OK usersAsString httpContext
     }
 
-let index = OK "Hello"
-
-let setPassword appService (id:string) httpContext = OK "Hello" httpContext
-
 let renameUser (appService : AppService) (id:string) =    
     let mappingFunc (changeName:ChangeName) = 
         //TODO handle async response
@@ -78,7 +75,7 @@ let renameUser (appService : AppService) (id:string) =
 
     map_json mappingFunc
 
-let logout = OK "Hello"
+let changePassword appService (id:string) httpContext = OK "Hello" httpContext
 
 let webApp (appService : AppService) =
   choose
@@ -93,7 +90,7 @@ let webApp (appService : AppService) =
           url "/logout'" >>= logout
         ]
       PUT >>= choose 
-        [ url_scan "/users/%s/password" (fun id -> setPassword appService id)
+        [ url_scan "/users/%s/password" (fun id -> changePassword appService id)
           url_scan "/users/%s/name" (fun id -> renameUser appService id)
         ]
       RequestErrors.NOT_FOUND "404 not found"
