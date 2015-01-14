@@ -37,17 +37,17 @@ let tests =
     [
       testCase "Should map JSON from one class to another" (fun () ->
         let post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":"foo"}"""))
-        let responseData =
+        let response_data =
           (run_with' (map_json_async mapping_func))
           |> req HttpMethod.POST "/" (Some post_data)
 
-        """{"bar":"foo"}""" =? responseData)
+        """{"bar":"foo"}""" =? response_data)
 
       testCase "Should return bad request" (fun () ->
-        let post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
+        let bad_post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
         let actual_status_code =
           (run_with' (map_json_async mapping_func))
-          |> reqRespWithDefaults HttpMethod.POST "/" (Some post_data) status_code
+          |> reqRespWithDefaults HttpMethod.POST "/" (Some bad_post_data) status_code
 
         HttpStatusCode.BadRequest =? actual_status_code)
     ]
