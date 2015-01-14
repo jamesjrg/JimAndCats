@@ -24,7 +24,7 @@ let testCode =
         do! store.AppendToStream streamId -1 testEvents
         let! events, lastEvent, nextEvent = store.ReadStream streamId 0 500
 
-        events =? testEvents
+        testEvents =? events
     }
 
 [<Tests>]

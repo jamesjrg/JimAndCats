@@ -27,23 +27,21 @@ type Bar =
     { bar : string; }
 
 [<Tests>]
-let test =
+let tests =
     let mappingFunc (a:Foo) = 
         async {
             return { bar = a.foo }
-        }    
-
-    let testWithValidJson () =
-        let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("{\"foo\":\"foo\"}"))
-        (run_with' (mapJsonAsync mappingFunc)) |> req HttpMethod.POST "/" (Some <| postData) =? "{\"bar\":\"foo\"}"
-
-    let testWithInvalidJson () =
-        let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("{\"foo\":foo\"}"))
-        let statusCode = (run_with' (mapJsonAsync mappingFunc)) |> reqRespWithDefaults HttpMethod.POST "/" (Some <| postData) status_code
-        statusCode =? HttpStatusCode.BadRequest
+        }
 
     testList "Json tests"
         [
-        testCase "Should map JSON from one class to another" testWithValidJson
-        testCase "Should return bad request" testWithValidJson
+        testCase "Should map JSON from one class to another" (fun () ->
+            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":"foo"}"""))
+            let responseData = (run_with' (mapJsonAsync mappingFunc)) |> req HttpMethod.POST "/" (Some postData)
+            """{"bar":"foo"}""" =? responseData)
+
+        testCase "Should return bad request" (fun () ->
+            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
+            let statusCode = (run_with' (mapJsonAsync mappingFunc)) |> reqRespWithDefaults HttpMethod.POST "/" (Some postData) status_code
+            HttpStatusCode.BadRequest =? statusCode)
         ]
