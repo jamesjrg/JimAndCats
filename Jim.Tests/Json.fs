@@ -19,8 +19,8 @@ open Swensen.Unquote.Assertions
 
 let run_with' = run_with default_config
 
-let reqRespWithDefaults methd resource data mapResponse =
-  req_resp methd resource "" data None DecompressionMethods.None id mapResponse
+let req_resp_with_defaults methd resource data f_result =
+  req_resp methd resource "" data None DecompressionMethods.None id f_result
 
 type Foo = { foo : string; }
 
@@ -47,7 +47,7 @@ let tests =
         let bad_post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
         let actual_status_code =
           (run_with' (map_json_async mapping_func))
-          |> reqRespWithDefaults HttpMethod.POST "/" (Some bad_post_data) status_code
+          |> req_resp_with_defaults HttpMethod.POST "/" (Some bad_post_data) status_code
 
         HttpStatusCode.BadRequest =? actual_status_code)
     ]
