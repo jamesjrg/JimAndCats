@@ -14,3 +14,5 @@ nuget Intelliplan.Logary.Suave
 nuget NodaTime 1.3.0
 nuget ConfigMapper 0.0.6
 nuget Newtonsoft.Json 6.08
+nuget Suave.Testing 0.21.0
+nuget Suave.Testing
