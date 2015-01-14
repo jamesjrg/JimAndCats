@@ -15,7 +15,6 @@ and Child1 =
 and Child2 =
     string * string
 
-
 let testCode = 
     async {
         let testEvents = [Child1(2, 3); Child2("a", "b")]
