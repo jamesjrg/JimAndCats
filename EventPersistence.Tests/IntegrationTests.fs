@@ -1,4 +1,4 @@
-﻿module EventPersistence.IntegrationTests
+﻿module EventPersistence.Tests.IntegrationTests
 
 open EventPersistence
 

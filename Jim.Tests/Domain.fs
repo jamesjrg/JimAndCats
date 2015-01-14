@@ -1,4 +1,4 @@
-﻿module Jim.Tests.EventStoreTests
+﻿module Jim.Tests.Domain
 
 open Jim.Domain
 open Jim.Tests.Specifications
