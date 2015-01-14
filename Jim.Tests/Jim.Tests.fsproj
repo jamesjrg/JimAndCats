@@ -51,7 +51,9 @@
     <None Include="paket.references" />
     <None Include="App.config" />
     <Compile Include="Specifications.fs" />
-    <Compile Include="Tests.fs" />
+    <Compile Include="DomainTests.fs" />
+    <Compile Include="IntegrationTests.fs" />
+    <Compile Include="JsonTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jim\Jim.fsproj">
