@@ -23,7 +23,7 @@ let testCode =
         let projection (event: TestRecordParent) = printfn "%A" event
         let store = new EventPersistence.EventStore<TestRecordParent>(streamId, projection) :> IEventStore<TestRecordParent>
         do! store.AppendToStream streamId -1 testEvents
-        let! events, lastEvent, nextEvent = store.ReadStream streamId -1 500
+        let! events, lastEvent, nextEvent = store.ReadStream streamId 0 500
 
         events =? testEvents
     }
