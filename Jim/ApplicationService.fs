@@ -1,12 +1,13 @@
 ﻿namespace Jim.ApplicationService
 
 open EventPersistence
+open Jim.ApiResponses
 open Jim.AppSettings
 open Jim.Domain
 open System
 
 type Message =
-    | Command of Command * AsyncReplyChannel<string>
+    | Command of Command * AsyncReplyChannel<Event list>
     | ListUsers of AsyncReplyChannel<User seq>
 
 type AppService () =
@@ -42,7 +43,7 @@ type AppService () =
                 let newEvents = handleCommandWithAutoGeneration command state
                 do! save version newEvents
                 let newState = List.fold handleEvent state newEvents
-                replyChannel.Reply("Success")
+                replyChannel.Reply(newEvents)
                 return! messageLoop (version + List.length newEvents) newState
             | ListUsers replyChannel ->
                 replyChannel.Reply(state.Values)
@@ -58,14 +59,42 @@ type AppService () =
             Command (command, replyChannel)
 
     member this.createUser(name, email, password) =
-        agent.PostAndAsyncReply(
-            makeMessage (CreateUser { 
-                    Name=name
-                    Email=email
-                    Password=password
-                }))
+        async {
+            let! newEvents =
+                agent.PostAndAsyncReply(
+                    makeMessage (CreateUser { 
+                            Name=name
+                            Email=email
+                            Password=password
+                        }))
+
+            match newEvents with
+            | UserCreated event :: tail -> return {
+                ResponseWithIdAndMessage.id = event.Id
+                message = "User created: " + event.Name
+                }
+            | _ -> return {
+                ResponseWithIdAndMessage.id = Guid.Empty
+                message = "Failed to create user"
+                }
+        }
+        
 
     member this.listUsers() = agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
 
     member this.renameUser(id, name) =
-        agent.PostAndAsyncReply(makeMessage (ChangeName{ Id=id; Name = name} ))
+        async {
+            //TODO check for failure
+            let! newEvents = agent.PostAndAsyncReply(makeMessage (ChangeName{ Id=id; Name = name} ))
+
+            match newEvents with
+            | NameChanged event :: tail -> return {
+                ResponseWithIdAndMessage.id = event.Id
+                message = "Name changed to: " + event.Name
+                }
+            | _ -> return {
+                ResponseWithIdAndMessage.id = Guid.Empty
+                message = "Failed to change name"
+                }
+        }
+        

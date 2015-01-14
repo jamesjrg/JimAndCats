@@ -56,8 +56,9 @@
     </None>
     <Compile Include="Domain.fs" />
     <Compile Include="AppSettings.fs" />
+    <Compile Include="ApiResponses.fs" />
     <Compile Include="ApplicationService.fs" />
-    <Compile Include="DataContracts.fs" />
+    <Compile Include="JsonRequests.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="Json.fs" />
     <Compile Include="WebServer.fs" />

@@ -1,7 +1,7 @@
 ﻿module Jim.WebServer
 
 open Jim.ApplicationService
-open Jim.DataContracts
+open Jim.JsonRequests
 open Jim.Json
 open Jim.Logging
 
@@ -40,8 +40,7 @@ let logout = OK "Hello"
 let createUser (appService : AppService) : Types.WebPart =
     let mappingFunc (createUser:CreateUser) = 
         async {
-            let! createResponse = appService.createUser(createUser.name, createUser.email, createUser.password)
-            return { ResponseWithIdAndMessage.id = Guid.Empty; message = "User created: " + createUser.name }
+            return appService.createUser(createUser.name, createUser.email, createUser.password)
         }
 
     mapJsonAsync mappingFunc
@@ -56,9 +55,7 @@ let listUsers (appService : AppService) httpContext =
 let renameUser (appService : AppService) (id:string) =    
     let mappingFunc (changeName:ChangeName) = 
         async {
-            //TODO handle async response
-            let renameResponse = appService.renameUser(Guid.Parse(id), changeName.name)
-            return { ResponseWithMessage.message = "Name changed to " + changeName.name }
+            return appService.renameUser(Guid.Parse(id), changeName.name)            
         }
 
     mapJsonAsync mappingFunc
