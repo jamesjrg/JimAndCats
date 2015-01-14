@@ -8,14 +8,10 @@ open System.Text.RegularExpressions
 
 (* Domain model types *)
 
-type EmailAdress = 
-    | Unverified of string
-    | Verified of string
-
 type User = {
     Id: Guid
     Name: string
-    Email: EmailAdress
+    Email: string
     Password: string
     CreationTime: Instant
 }
@@ -74,7 +70,7 @@ let userCreated (state:State) (event: UserCreated) =
     state.Add(event.Id, {
         User.Id = event.Id
         Name = event.Name
-        Email = Unverified event.Email
+        Email = event.Email
         Password = event.Password
         CreationTime = event.CreationTime
         })
