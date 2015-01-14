@@ -31,5 +31,7 @@ let tests =
         testCase "Should be able to create a user" (fun () ->
             let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"name":"Frank Moss", "email":"frank@somewhere.com","password":"kkk"}"""))
 
-            (run_with' (webApp <| new AppService())) |> req HttpMethod.POST "/users/create" (Some postData) =? "{\"bar\":\"foo\"}")
+            let actual = (run_with' (webApp <| new AppService())) |> req HttpMethod.POST "/users/create" (Some postData)
+
+            test <@ actual.Contains("\"id\":") && actual.Contains("User created") @>)
         ]
