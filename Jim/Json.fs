@@ -13,7 +13,7 @@ Suave has its own Json module with a map_json, but it has various issues:
 - it uses DataContractJsonSerializer and hence requires you put attributes all over your DTOs
 *)
 
-let mapJsonAsyncAfterParsing (f: 'a -> Async<'b>): Types.WebPart =
+let mapJsonAsyncFromPostData (f: 'a -> Async<'b>): Types.WebPart =
     fun httpContext ->
         async {
             let bytesAsString = Encoding.UTF8.GetString(httpContext.request.raw_form);
@@ -35,6 +35,6 @@ let mapJsonAsyncAfterParsing (f: 'a -> Async<'b>): Types.WebPart =
 let mapJsonAsync (f: 'a -> Async<'b>) : Types.WebPart =
     choose
         [
-            ParsingAndControl.parse_post_data >>= mapJsonAsyncAfterParsing f
+            ParsingAndControl.parse_post_data >>= mapJsonAsyncFromPostData f
             RequestErrors.BAD_REQUEST "Unable to parse post data"
         ]
