@@ -40,7 +40,7 @@ let logout = OK "Hello"
 let createUser (appService : AppService) : Types.WebPart =
     let mappingFunc (createUser:CreateUser) = 
         async {
-            return appService.createUser(createUser.name, createUser.email, createUser.password)
+            return! appService.createUser(createUser.name, createUser.email, createUser.password)
         }
 
     mapJsonAsync mappingFunc
@@ -55,7 +55,7 @@ let listUsers (appService : AppService) httpContext =
 let renameUser (appService : AppService) (id:string) =    
     let mappingFunc (changeName:ChangeName) = 
         async {
-            return appService.renameUser(Guid.Parse(id), changeName.name)            
+            return! appService.renameUser(Guid.Parse(id), changeName.name)            
         }
 
     mapJsonAsync mappingFunc
