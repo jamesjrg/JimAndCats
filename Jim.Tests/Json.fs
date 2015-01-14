@@ -9,10 +9,10 @@ open Suave.Testing
 open System.Net.Http
 open System.Text
 
-open Xunit
-open FsUnit.Xunit
-
 open Jim.Json
+
+open Fuchu
+open Swensen.Unquote.Assertions
 
 let run_with' = run_with default_config
 
@@ -22,14 +22,15 @@ type Foo =
 type Bar =
     { bar : string; }
 
-[<Fact>]
-let ``Should map JSON from one class to another``() =  
+[<Tests>]
+let test =
     let mappingFunc (a:Foo) = 
         async {
             return { bar = a.foo }
         }
-
     let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("{\"foo\":\"foo\"}"))
 
-    (run_with' (mapJsonAsync mappingFunc)) |> req HttpMethod.POST "/" (Some <| postData)
-    |> should equal "{\"bar\":\"foo\"}"
+    let testCode () =
+        (run_with' (mapJsonAsync mappingFunc)) |> req HttpMethod.POST "/" (Some <| postData) =? "{\"bar\":\"foo\"}"
+
+    testCase "Should map JSON from one class to another" testCode

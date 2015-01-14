@@ -2,8 +2,8 @@
 
 open EventPersistence
 
-open Xunit
-open FsUnit.Xunit
+open Fuchu
+open Swensen.Unquote.Assertions
 
 type TestRecordParent =
     | Child1 of Child1
@@ -15,8 +15,8 @@ and Child1 =
 and Child2 =
     string * string
 
-[<Fact>]
-let ``Should be able to serialize and deserialize nested union events to/from event store``() =
+
+let testCode = 
     async {
         let testEvents = [Child1(2, 3); Child2("a", "b")]
         let streamId = "integrationTest"
@@ -25,6 +25,9 @@ let ``Should be able to serialize and deserialize nested union events to/from ev
         do! store.AppendToStream streamId -1 testEvents
         let! events, lastEvent, nextEvent = store.ReadStream streamId -1 500
 
-        events |> should equal testEvents
+        events =? testEvents
     }
-    
+
+[<Tests>]
+let test =
+    testCase "Should be able to serialize and deserialize nested union events to/from event store" (fun () -> testCode |> Async.RunSynchronously)

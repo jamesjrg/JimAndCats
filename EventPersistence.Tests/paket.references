@@ -1,5 +1,5 @@
-﻿FsUnit.xUnit
-xunit
-EventStore.Client
+﻿EventStore.Client
 FsPickler
 FsPickler.Json
+Fuchu
+Unquote
