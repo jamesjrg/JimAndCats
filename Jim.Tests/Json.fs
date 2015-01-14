@@ -15,33 +15,39 @@ open Jim.Json
 open Fuchu
 open Swensen.Unquote.Assertions
 
+(* NB I've tried to follow Suave's coding conventions in this file *)
+
 let run_with' = run_with default_config
 
 let reqRespWithDefaults methd resource data mapResponse =
-    req_resp methd resource "" data None DecompressionMethods.None id mapResponse
+  req_resp methd resource "" data None DecompressionMethods.None id mapResponse
 
-type Foo =
-    { foo : string; }
+type Foo = { foo : string; }
 
-type Bar =
-    { bar : string; }
+type Bar = { bar : string; }
 
 [<Tests>]
 let tests =
-    let mappingFunc (a:Foo) = 
-        async {
-            return { bar = a.foo }
-        }
+  let mapping_func (a:Foo) = 
+    async {
+      return { bar = a.foo }
+    }
 
-    testList "Json tests"
-        [
-        testCase "Should map JSON from one class to another" (fun () ->
-            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":"foo"}"""))
-            let responseData = (run_with' (mapJsonAsync mappingFunc)) |> req HttpMethod.POST "/" (Some postData)
-            """{"bar":"foo"}""" =? responseData)
+  testList "Json tests"
+    [
+      testCase "Should map JSON from one class to another" (fun () ->
+        let post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":"foo"}"""))
+        let responseData =
+          (run_with' (map_json_async mapping_func))
+          |> req HttpMethod.POST "/" (Some post_data)
 
-        testCase "Should return bad request" (fun () ->
-            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
-            let statusCode = (run_with' (mapJsonAsync mappingFunc)) |> reqRespWithDefaults HttpMethod.POST "/" (Some postData) status_code
-            HttpStatusCode.BadRequest =? statusCode)
-        ]
+        """{"bar":"foo"}""" =? responseData)
+
+      testCase "Should return bad request" (fun () ->
+        let post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
+        let actual_status_code =
+          (run_with' (map_json_async mapping_func))
+          |> reqRespWithDefaults HttpMethod.POST "/" (Some post_data) status_code
+
+        HttpStatusCode.BadRequest =? actual_status_code)
+    ]

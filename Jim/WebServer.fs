@@ -43,7 +43,7 @@ let createUser (appService : AppService) : Types.WebPart =
             return! appService.createUser(createUser.name, createUser.email, createUser.password)
         }
 
-    mapJsonAsync mappingFunc
+    map_json_async mappingFunc
 
 let listUsers (appService : AppService) httpContext =
     async {
@@ -58,7 +58,7 @@ let renameUser (appService : AppService) (id:string) =
             return! appService.renameUser(Guid.Parse(id), changeName.name)            
         }
 
-    mapJsonAsync mappingFunc
+    map_json_async mappingFunc
 
 let changePassword appService (id:string) httpContext = OK "Hello" httpContext
 
