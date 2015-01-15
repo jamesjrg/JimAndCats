@@ -44,70 +44,56 @@ let listUsers (appService : AppService) httpContext =
     }
 
 let createUser (appService : AppService) : Types.WebPart =
-    let mappingFunc (requestDetails:CreateUserRequest) = 
+    map_json_async (fun (requestDetails:CreateUserRequest) ->
         async {
             return! appService.createUser(
                 CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
-        }
+        })
 
-    map_json_async mappingFunc
+let setName (appService : AppService) (id:Guid) (requestDetails:SetNameRequest) =    
+    async {
+        return! appService.setName(SetName{ Id=id; Name = requestDetails.name})
+    }
 
-let setName (appService : AppService) (id:Guid) =
-    let mappingFunc (requestDetails:SetNameRequest) = 
-        async {
-            return! appService.setName(SetName{ Id=id; Name = requestDetails.name})
-        }
+let setEmail (appService : AppService) (id:Guid) (requestDetails:SetEmailRequest) =
+    async {
+        return! appService.setEmail( SetEmail {Id = id; Email = requestDetails.email} )
+    }
 
-    map_json_async mappingFunc
+let setPassword (appService : AppService) (id:Guid) (requestDetails:SetPasswordRequest) =    
+    async {
+        return! appService.setPassword( SetPassword{ Id=id; Password = requestDetails.password})
+    }
 
-let setEmail (appService : AppService) (id:Guid) =
-    let mappingFunc (requestDetails:SetEmailRequest) = 
-        async {
-            return! appService.setEmail(
-                SetEmail {Id = id; Email = requestDetails.email} )
-        }
-
-    map_json_async mappingFunc
-
-let setPassword (appService : AppService) (id:Guid) =
-    let mappingFunc (requestDetails:SetPasswordRequest) = 
-        async {
-            return! appService.setPassword(
-                SetPassword{ Id=id; Password = requestDetails.password})
-        }
-
-    map_json_async mappingFunc
-
-let authenticate (appService : AppService) (id:Guid) =    
-    let mappingFunc (requestDetails:AuthenticateRequest) = 
-        async {
-            return! appService.authenticate(id, requestDetails)
-        }
-
-    map_json_async mappingFunc
+let authenticate (appService : AppService) (id:Guid) (requestDetails:AuthenticateRequest) =
+    async {
+        return! appService.authenticate(id, requestDetails)
+    }
 
 //TODO: don't use exceptions
 let parseId idString =
     match Guid.TryParse(idString) with
     | true, guid -> guid
-    | false, _ -> raise (new Exception("Failed to parse id: " + idString))  
+    | false, _ -> raise (new Exception("Failed to parse id: " + idString))
+
+let parseIdAndMapJsonAsync f (appService : AppService) id =
+    map_json_async (f appService (parseId id))
 
 let webApp (appService : AppService) =
-  choose
-    [ GET >>= choose [
+  choose [
+    GET >>= choose [
         url "/api-docs" >>= swaggerSpec
         url "/users" >>= listUsers appService
         url "/" >>= index ]
-      POST >>= choose [
+    POST >>= choose [
         url "/users/create" >>= createUser appService
-        url_scan "/users/%s/authenticate" (fun id -> authenticate appService (parseId id)) ]
-      PUT >>= choose [ 
-        url_scan "/users/%s/name" (fun id -> setName appService (parseId id))
-        url_scan "/users/%s/email" (fun id -> setEmail appService (parseId id))
-        url_scan "/users/%s/password" (fun id -> setPassword appService (parseId id)) ]
+        url_scan "/users/%s/authenticate" (fun id -> parseIdAndMapJsonAsync authenticate appService id) ]
+    PUT >>= choose [ 
+        url_scan "/users/%s/name" (fun id -> parseIdAndMapJsonAsync setName appService id)
+        url_scan "/users/%s/email" (fun id -> parseIdAndMapJsonAsync setEmail appService id)
+        url_scan "/users/%s/password" (fun id -> parseIdAndMapJsonAsync setPassword appService id) ]
 
-      RequestErrors.NOT_FOUND "404 not found"
-    ] 
+    RequestErrors.NOT_FOUND "404 not found" ] 
 
 [<EntryPoint>]
 let main argv = 
