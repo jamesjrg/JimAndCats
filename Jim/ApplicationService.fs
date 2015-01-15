@@ -58,15 +58,12 @@ type AppService () =
         fun replyChannel ->
             Command (command, replyChannel)
 
-    member this.createUser(name, email, password) =
+    member this.listUsers() =
+        agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
+
+    member this.createUser(command) =
         async {
-            let! newEvents =
-                agent.PostAndAsyncReply(
-                    makeMessage (CreateUser { 
-                            Name=name
-                            Email=email
-                            Password=password
-                        }))
+            let! newEvents = agent.PostAndAsyncReply(makeMessage command)
 
             match newEvents with
             | UserCreated event :: tail -> return {
@@ -78,14 +75,10 @@ type AppService () =
                 message = "Failed to create user"
                 }
         }
-        
 
-    member this.listUsers() = agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
-
-    member this.renameUser(id, name) =
+    member this.setName(command) =
         async {
-            //TODO check for failure
-            let! newEvents = agent.PostAndAsyncReply(makeMessage (ChangeName{ Id=id; Name = name} ))
+            let! newEvents = agent.PostAndAsyncReply(makeMessage command)
 
             match newEvents with
             | NameChanged event :: tail -> return {
@@ -97,4 +90,34 @@ type AppService () =
                 message = "Failed to change name"
                 }
         }
+
+    member this.setEmail(command) =
+        async {
+            let! newEvents = agent.PostAndAsyncReply(makeMessage command)
+
+            return {
+                ResponseWithIdAndMessage.id = Guid.Empty
+                message = "Todo"
+                }
+        }
+
+    member this.setPassword(command) =
+        async {
+            let! newEvents = agent.PostAndAsyncReply(makeMessage command)
+
+            return {
+                ResponseWithIdAndMessage.id = Guid.Empty
+                message = "Todo"
+                }
+        }
+
+    member this.authenticate(id, details) =
+        async {
+            return {
+                ResponseWithIdAndMessage.id = Guid.Empty
+                message = "Todo"
+                }
+        }
+
+
         

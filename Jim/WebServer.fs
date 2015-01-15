@@ -1,6 +1,7 @@
 ﻿module Jim.WebServer
 
 open Jim.ApplicationService
+open Jim.Domain
 open Jim.JsonRequests
 open Jim.Json
 open Jim.Logging
@@ -34,16 +35,6 @@ let web_config =
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
 let index = OK "Hello"
-let login (appService : AppService) = OK "Hello"
-let logout = OK "Hello"
-
-let createUser (appService : AppService) : Types.WebPart =
-    let mappingFunc (createUser:CreateUser) = 
-        async {
-            return! appService.createUser(createUser.name, createUser.email, createUser.password)
-        }
-
-    map_json_async mappingFunc
 
 let listUsers (appService : AppService) httpContext =
     async {
@@ -52,32 +43,69 @@ let listUsers (appService : AppService) httpContext =
         return! OK usersAsString httpContext
     }
 
-let renameUser (appService : AppService) (id:string) =    
-    let mappingFunc (changeName:ChangeName) = 
+let createUser (appService : AppService) : Types.WebPart =
+    let mappingFunc (requestDetails:CreateUserRequest) = 
         async {
-            return! appService.renameUser(Guid.Parse(id), changeName.name)            
+            return! appService.createUser(
+                CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
         }
 
     map_json_async mappingFunc
 
-let changePassword appService (id:string) httpContext = OK "Hello" httpContext
+let setName (appService : AppService) (id:Guid) =
+    let mappingFunc (requestDetails:SetNameRequest) = 
+        async {
+            return! appService.setName(SetName{ Id=id; Name = requestDetails.name})
+        }
+
+    map_json_async mappingFunc
+
+let setEmail (appService : AppService) (id:Guid) =
+    let mappingFunc (requestDetails:SetEmailRequest) = 
+        async {
+            return! appService.setEmail(
+                SetEmail {Id = id; Email = requestDetails.email} )
+        }
+
+    map_json_async mappingFunc
+
+let setPassword (appService : AppService) (id:Guid) =
+    let mappingFunc (requestDetails:SetPasswordRequest) = 
+        async {
+            return! appService.setPassword(
+                SetPassword{ Id=id; Password = requestDetails.password})
+        }
+
+    map_json_async mappingFunc
+
+let authenticate (appService : AppService) (id:Guid) =    
+    let mappingFunc (requestDetails:AuthenticateRequest) = 
+        async {
+            return! appService.authenticate(id, requestDetails)
+        }
+
+    map_json_async mappingFunc
+
+//TODO: don't use exceptions
+let parseId idString =
+    match Guid.TryParse(idString) with
+    | true, guid -> guid
+    | false, _ -> raise (new Exception("Failed to parse id: " + idString))  
 
 let webApp (appService : AppService) =
   choose
-    [ GET >>= choose
-        [ url "/api-docs" >>= swaggerSpec
-          url "/users" >>= listUsers appService
-          url "/" >>= index
-        ]
-      POST >>= choose
-        [ url "/login" >>= login appService
-          url "/users/create" >>= createUser appService
-          url "/logout'" >>= logout
-        ]
-      PUT >>= choose 
-        [ url_scan "/users/%s/password" (fun id -> changePassword appService id)
-          url_scan "/users/%s/name" (fun id -> renameUser appService id)
-        ]
+    [ GET >>= choose [
+        url "/api-docs" >>= swaggerSpec
+        url "/users" >>= listUsers appService
+        url "/" >>= index ]
+      POST >>= choose [
+        url "/users/create" >>= createUser appService
+        url_scan "/users/%s/authenticate" (fun id -> authenticate appService (parseId id)) ]
+      PUT >>= choose [ 
+        url_scan "/users/%s/name" (fun id -> setName appService (parseId id))
+        url_scan "/users/%s/email" (fun id -> setEmail appService (parseId id))
+        url_scan "/users/%s/password" (fun id -> setPassword appService (parseId id)) ]
+
       RequestErrors.NOT_FOUND "404 not found"
     ] 
 
@@ -91,3 +119,4 @@ let main argv =
 
     logary.Dispose()
     0
+

@@ -24,7 +24,9 @@ type State = Dictionary<Guid, User>
 
 type Command =
     | CreateUser of CreateUser
-    | ChangeName of ChangeName
+    | SetName of SetName
+    | SetEmail of SetEmail
+    | SetPassword of SetPassword
 
 and CreateUser = {
     Name: string
@@ -32,12 +34,17 @@ and CreateUser = {
     Password: string
 }
 
-and ChangeName = {
+and SetName = {
     Id: Guid
     Name: string    
 }
 
-and ChangePassword = {
+and SetEmail = {
+    Id: Guid
+    Email: string   
+}
+
+and SetPassword = {
     Id: Guid
     Password: string   
 }
@@ -49,6 +56,8 @@ and ChangePassword = {
 type Event =
     | UserCreated of UserCreated
     | NameChanged of NameChanged
+    | EmailChanged of EmailChanged
+    | PasswordChanged of PasswordChanged
     
 and UserCreated = {
     Id: Guid
@@ -61,6 +70,16 @@ and UserCreated = {
 and NameChanged = {
     Id: Guid
     Name: string
+}
+
+and EmailChanged = {
+    Id: Guid
+    Email: string
+}
+
+and PasswordChanged = {
+    Id: Guid
+    Password: string
 }
 
 (* End Events *)
@@ -100,13 +119,21 @@ let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (co
         CreationTime = createTimestamp()
     }]
 
-let changeName (command : ChangeName) (state : State) =
+let setName (command : SetName) (state : State) =
     [NameChanged { Id = command.Id; Name = command.Name; }]
+
+let setEmail (command : SetEmail) (state : State) =
+    [EmailChanged { Id = command.Id; Email = command.Email; }]
+
+let setPassword (command : SetPassword) (state : State) =
+    [PasswordChanged { Id = command.Id; Password = command.Password; }]
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command state =
     match command with
         | CreateUser command -> createUser createGuid createTimestamp command state
-        | ChangeName command -> changeName command state
+        | SetName command -> setName command state
+        | SetEmail command -> setEmail command state
+        | SetPassword command -> setPassword command state
 
 let handleCommandWithAutoGeneration command state = handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command state
 
