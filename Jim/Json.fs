@@ -31,11 +31,6 @@ let default_json_parse_fail str =
 let default_post_data_parse_fail =
   RequestErrors.BAD_REQUEST "Unable to parse post data"
 
-/// Expose function f through a json call; lets you write like
-///
-/// let app =
-///   url "/path"  >>= map_json some_function;
-///
 let do_map_json f json_parse_fail =
   Types.request(fun r ->
     match try_parse_json r with
@@ -72,9 +67,19 @@ let map_json' (f: 'a -> 'b) post_data_parse_fail json_parse_fail : Types.WebPart
 let map_json_async' post_data_parse_fail json_parse_fail (f: 'a -> Async<'b>) : Types.WebPart =
   parse_then_map_json_async post_data_parse_fail json_parse_fail f
 
+/// Expose function f through a json call; lets you write like
+///
+/// let app =
+///   url "/path"  >>= map_json some_function;
+///
 let map_json (f: 'a -> 'b) : Types.WebPart =
   parse_then_map_json default_post_data_parse_fail default_json_parse_fail f
 
+/// Expose function f through an async json call; lets you write like
+///
+/// let app =
+///   url "/path"  >>= map_json_async some_async_function;
+///
 let map_json_async (f: 'a -> Async<'b>) : Types.WebPart =
   parse_then_map_json_async default_post_data_parse_fail default_json_parse_fail f
 
