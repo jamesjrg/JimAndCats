@@ -10,16 +10,7 @@ type Message =
     | Command of Command * AsyncReplyChannel<Event list>
     | ListUsers of AsyncReplyChannel<User seq>
 
-type AppService () =
-    let streamId = appSettings.UserStream
-
-    let projection = fun (x: Event) -> ()
-
-    let store =
-        match appSettings.UseEventStore with
-        | true -> new EventPersistence.EventStore<Event>(streamId, projection) :> IEventStore<Event>
-        | false -> new EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
-
+type AppService(store:IEventStore<Event>, streamId) =
     let load =
         let rec fold (state: State) version =
             async {
@@ -57,6 +48,17 @@ type AppService () =
     let makeMessage command = 
         fun replyChannel ->
             Command (command, replyChannel)
+
+    new() =
+        let streamId = appSettings.UserStream
+
+        let projection = fun (x: Event) -> ()
+
+        let store =
+            match appSettings.UseEventStore with
+            | true -> new EventPersistence.EventStore<Event>(streamId, projection) :> IEventStore<Event>
+            | false -> new EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
+        AppService(store, streamId)
 
     member this.listUsers() =
         agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
