@@ -13,9 +13,19 @@ let guid1 = createGuid1()
 let createEpoch () = new Instant(0L)
 let epoch = createEpoch()
 
+let Expect = Specifications.expectWithCreationFuncs createGuid1 createEpoch
+
 [<Tests>]
 let tests =
-    let expectPartial = Expect createGuid1 createEpoch
-    Given []
-    |> When ( CreateUser { Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
-    |> expectPartial "Should be able to create a user" [ UserCreated { Id = guid1; Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd"; CreationTime = epoch } ]
+    testList "Domain tests"
+    [
+        testCase "Should be able to create a user" (fun () ->            
+            Given []
+            |> When ( CreateUser { Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
+            |> Expect [ UserCreated { Id = guid1; Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd"; CreationTime = epoch } ])
+
+        testCase "Should be able to rename a user" (fun () ->
+            Given [UserCreated { Id = guid1; Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd"; CreationTime = epoch }]
+            |> When ( SetName { Id = guid1; Name="Bob Mariachi"; } )
+            |> Expect [ NameChanged { Id = guid1; Name="Bob Mariachi"; } ])
+    ]

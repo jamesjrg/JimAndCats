@@ -52,9 +52,9 @@ let tests =
         testCase "Should be able to rename a user" (fun () ->
             let store = storeWithEvents [UserCreated { Id = guid1; Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd"; CreationTime = epoch} ]
 
-            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"name":"Frank Moss", "email":"frank@somewhere.com","password":"kkk"}"""))
+            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"id":"3C71C09A-2902-4682-B8AB-663432C8867B", "name":"Frank Moss"}"""))
 
-            (*let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.POST "/users/create" (Some postData) *)
+            let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" (Some postData)
 
-            test <@ true @>)
+            test <@ actual.Contains("Frank Moss") && actual.Contains("Name changed to") @>)
         ]
