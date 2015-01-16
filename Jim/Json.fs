@@ -25,10 +25,10 @@ let try_parse_json (r:Types.HttpRequest) =
 let json_success json =
   ((Successful.OK (JsonConvert.SerializeObject(json))) >>= (Writers.set_mime_type "application/json"))
 
-let json_parse_fail str =
+let default_json_parse_fail str =
   RequestErrors.BAD_REQUEST ("Could not parse JSON: " + str)
 
-let post_data_parse_fail =
+let default_post_data_parse_fail =
   RequestErrors.BAD_REQUEST "Unable to parse post data"
 
 /// Expose function f through a json call; lets you write like
@@ -36,13 +36,13 @@ let post_data_parse_fail =
 /// let app =
 ///   url "/path"  >>= map_json some_function;
 ///
-let map_json' f =
+let do_map_json f json_parse_fail =
   Types.request(fun r ->
     match try_parse_json r with
     | Some requestJson, _ -> json_success(f requestJson)
     | None, str -> json_parse_fail str)
 
-let map_json_async' (f: 'a -> Async<'b>): Types.WebPart =
+let do_map_json_async (f: 'a -> Async<'b>) json_parse_fail: Types.WebPart =
   fun http_context ->
     async {
       match try_parse_json http_context.request with
@@ -52,17 +52,29 @@ let map_json_async' (f: 'a -> Async<'b>): Types.WebPart =
       | None, str -> return! json_parse_fail str http_context
   }
 
-/// Expose function f through an async json call
-let map_json_async (f: 'a -> Async<'b>) : Types.WebPart =
+let parse_then_map_json post_data_parse_fail json_parse_fail (f: 'a -> 'b) : Types.WebPart =
   choose
     [
-      ParsingAndControl.parse_post_data >>= map_json_async' f
+      ParsingAndControl.parse_post_data >>= do_map_json f json_parse_fail
       post_data_parse_fail
     ]
 
-let map_json (f: 'a -> 'b) : Types.WebPart =
+let parse_then_map_json_async post_data_parse_fail json_parse_fail (f: 'a -> Async<'b>) : Types.WebPart =
   choose
     [
-      ParsingAndControl.parse_post_data >>= map_json' f
+      ParsingAndControl.parse_post_data >>= do_map_json_async f json_parse_fail
       post_data_parse_fail
     ]
+
+let map_json' (f: 'a -> 'b) post_data_parse_fail json_parse_fail : Types.WebPart =
+  parse_then_map_json post_data_parse_fail json_parse_fail f
+
+let map_json_async' post_data_parse_fail json_parse_fail (f: 'a -> Async<'b>) : Types.WebPart =
+  parse_then_map_json_async post_data_parse_fail json_parse_fail f
+
+let map_json (f: 'a -> 'b) : Types.WebPart =
+  parse_then_map_json default_post_data_parse_fail default_json_parse_fail f
+
+let map_json_async (f: 'a -> Async<'b>) : Types.WebPart =
+  parse_then_map_json_async default_post_data_parse_fail default_json_parse_fail f
+
