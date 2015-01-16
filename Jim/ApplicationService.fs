@@ -66,12 +66,11 @@ type AppService () =
             let! newEvents = agent.PostAndAsyncReply(makeMessage command)
 
             match newEvents with
-            | UserCreated event :: tail -> return {
+            | UserCreated event :: tail -> return ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "User created: " + event.Name
                 }
-            | _ -> return {
-                ResponseWithIdAndMessage.id = Guid.Empty
+            | _ -> return ResponseWithMessage {
                 message = "Failed to create user"
                 }
         }
@@ -81,12 +80,11 @@ type AppService () =
             let! newEvents = agent.PostAndAsyncReply(makeMessage command)
 
             match newEvents with
-            | NameChanged event :: tail -> return {
+            | NameChanged event :: tail -> return ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Name changed to: " + event.Name
                 }
-            | _ -> return {
-                ResponseWithIdAndMessage.id = Guid.Empty
+            | _ -> return ResponseWithMessage {
                 message = "Failed to change name"
                 }
         }
