@@ -1,4 +1,4 @@
-﻿module Jim.Tests.Json
+﻿module Suave.Json.Tests.Json
 
 open Suave
 open Suave.Types
@@ -10,7 +10,7 @@ open System.Net
 open System.Net.Http
 open System.Text
 
-open Jim.Json
+open Suave.Json
 
 open Fuchu
 open Swensen.Unquote.Assertions

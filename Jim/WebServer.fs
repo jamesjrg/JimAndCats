@@ -3,7 +3,6 @@
 open Jim.ApplicationService
 open Jim.Domain
 open Jim.JsonRequests
-open Jim.Json
 open Jim.Logging
 
 open Suave
@@ -13,6 +12,7 @@ open Suave.Http.Successful
 open Suave.Types
 open Suave.Utils
 open Suave.Web
+open Suave.Json
 
 open Logary
 open Logary.Suave

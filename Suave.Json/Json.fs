@@ -1,4 +1,4 @@
-﻿module Jim.Json
+﻿module Suave.Json
 
 open Newtonsoft.Json
 open Suave

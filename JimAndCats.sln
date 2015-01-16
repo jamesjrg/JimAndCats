@@ -20,6 +20,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EventPersistence.Tests", "E
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Cats", "Cats\Cats.fsproj", "{12B66EEC-6091-4194-B790-284569C12335}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Suave.Json", "Suave.Json\Suave.Json.fsproj", "{384DF817-2D6B-48FF-B9AF-9A96AB3F522B}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Suave.Json.Tests", "Suave.Json.Tests\Suave.Json.Tests.fsproj", "{D70A0737-7D44-4F38-B2C6-1A7F6D676984}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +50,14 @@ Global
 		{12B66EEC-6091-4194-B790-284569C12335}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12B66EEC-6091-4194-B790-284569C12335}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12B66EEC-6091-4194-B790-284569C12335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{384DF817-2D6B-48FF-B9AF-9A96AB3F522B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{384DF817-2D6B-48FF-B9AF-9A96AB3F522B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{384DF817-2D6B-48FF-B9AF-9A96AB3F522B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{384DF817-2D6B-48FF-B9AF-9A96AB3F522B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D70A0737-7D44-4F38-B2C6-1A7F6D676984}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D70A0737-7D44-4F38-B2C6-1A7F6D676984}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D70A0737-7D44-4F38-B2C6-1A7F6D676984}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D70A0737-7D44-4F38-B2C6-1A7F6D676984}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
