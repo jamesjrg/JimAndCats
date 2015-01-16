@@ -97,7 +97,7 @@ let webApp (appService : AppService) =
 
 [<EntryPoint>]
 let main argv = 
-    printfn "Starting"    
+    printfn "Starting JIM"    
     try        
         web_server web_config (webApp <| new AppService())        
     with
