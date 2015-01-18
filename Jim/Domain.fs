@@ -8,6 +8,21 @@ open System.Text.RegularExpressions
 
 open Jim.Encryption
 
+(* Error handling *)
+
+type Result<'a> = 
+    | Success of 'a
+    | Failure of string
+
+(* End error handling *)
+
+(* Constants *)
+
+//using PBKDF2 with lots of iterations so needn't be huge
+let minPasswordLength = 7
+
+(* End Constants *)
+
 (* Domain model types *)
 
 type EmailAddress = EmailAddress of string
@@ -88,7 +103,7 @@ and PasswordChanged = {
     PasswordHash: PasswordHash
 }
 
-(* End Events *)
+(* End events *)
 
 (* Event handlers *)
 let userCreated (state:State) (event: UserCreated) =
@@ -117,36 +132,48 @@ let handleEvent (state : State) = function
 
 (* Command Handlers *)
 
+let canonicalizeEmail (input:string) =
+    input.Trim().ToLower()
+
 let createEmailAddress (s:string) = 
     if Regex.IsMatch(s,@"^\S+@\S+\.\S+$") 
-        then Some (EmailAddress s)
-        else None
+        then Success (EmailAddress (canonicalizeEmail s))
+        else Failure "Invalid email address"
 
-let createPasswordHash hashFunc (s:string) = 
-    PasswordHash (hashFunc s)
+let createPasswordHash hashFunc (s:string) =
+    if s.Length < minPasswordLength then
+        Failure (sprintf "Password must be at least %d characters" minPasswordLength)
+    else
+        Success (PasswordHash (hashFunc s))
 
 let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (state : State) =
+    //probably don't want to expend resources on password hash unless everything else is valid
     match createEmailAddress command.Email with
-    | Some email ->
-        [ UserCreated {
-            Id = createGuid()
-            Name = command.Name
-            Email = email
-            PasswordHash = createPasswordHash hashFunc command.Password
-            CreationTime = createTimestamp()
-        }]
-    | None -> []
+    | Success email ->
+        match createPasswordHash hashFunc command.Password with
+        | Success hash ->
+            [ UserCreated {
+                Id = createGuid()
+                Name = command.Name
+                Email = email
+                PasswordHash = hash
+                CreationTime = createTimestamp()
+            }]
+        | Failure f -> []
+    | Failure f -> []
 
 let setName (command : SetName) (state : State) =
     [NameChanged { Id = command.Id; Name = command.Name; }]
 
 let setEmail (command : SetEmail) (state : State) =
     match createEmailAddress command.Email with
-    | Some email -> [EmailChanged { Id = command.Id; Email = email; }]
-    | None -> []
+    | Success email -> [EmailChanged { Id = command.Id; Email = email; }]
+    | Failure f -> []
 
 let setPassword hashFunc (command : SetPassword) (state : State) =
-    [PasswordChanged { Id = command.Id; PasswordHash = createPasswordHash hashFunc command.Password; }]
+    match createPasswordHash hashFunc command.Password with
+    | Success hash -> [PasswordChanged { Id = command.Id; PasswordHash = hash; }]
+    | Failure f -> []    
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) command state =
     match command with
