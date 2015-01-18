@@ -7,15 +7,25 @@ open System.Collections.Generic
 
 type State = int
 
-type Command = int
+type Command =
+    | SomethingCommand of SomethingCommand
 
-type Event = int
+and SomethingCommand = {
+    Something: int
+   }
+
+type Event =
+    | SomethingEvent of SomethingEvent
+
+and SomethingEvent = {
+    Something: int
+   }
 
 let handleEvent (state : State) = function
-    | x -> x
+    | x -> 10
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command state =
     match command with
-        | x -> [Event 5]
+        | x -> [SomethingEvent {Something=5}]
 
 let handleCommandWithAutoGeneration command state = handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command state
