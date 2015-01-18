@@ -6,15 +6,19 @@ open System
 open System.Collections.Generic
 open System.Text.RegularExpressions
 
+open Jim.Encryption
+
 (* Domain model types *)
 
 type EmailAddress = EmailAddress of string
+
+type PasswordHash = PasswordHash of string
 
 type User = {
     Id: Guid
     Name: string
     Email: EmailAddress
-    Password: string
+    PasswordHash: PasswordHash
     CreationTime: Instant
 }
 
@@ -65,7 +69,7 @@ and UserCreated = {
     Id: Guid
     Name: string
     Email: EmailAddress
-    Password: string
+    PasswordHash: PasswordHash
     CreationTime: Instant
 }
 
@@ -81,7 +85,7 @@ and EmailChanged = {
 
 and PasswordChanged = {
     Id: Guid
-    Password: string
+    PasswordHash: PasswordHash
 }
 
 (* End Events *)
@@ -92,7 +96,7 @@ let userCreated (state:State) (event: UserCreated) =
         User.Id = event.Id
         Name = event.Name
         Email = event.Email
-        Password = event.Password
+        PasswordHash = event.PasswordHash
         CreationTime = event.CreationTime
         })
     state
@@ -118,14 +122,17 @@ let createEmailAddress (s:string) =
         then Some (EmailAddress s)
         else None
 
-let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command : CreateUser) (state : State) =
+let createPasswordHash hashFunc (s:string) = 
+    PasswordHash (hashFunc s)
+
+let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (state : State) =
     match createEmailAddress command.Email with
     | Some email ->
         [ UserCreated {
             Id = createGuid()
             Name = command.Name
             Email = email
-            Password = command.Password
+            PasswordHash = createPasswordHash hashFunc command.Password
             CreationTime = createTimestamp()
         }]
     | None -> []
@@ -138,16 +145,22 @@ let setEmail (command : SetEmail) (state : State) =
     | Some email -> [EmailChanged { Id = command.Id; Email = email; }]
     | None -> []
 
-let setPassword (command : SetPassword) (state : State) =
-    [PasswordChanged { Id = command.Id; Password = command.Password; }]
+let setPassword hashFunc (command : SetPassword) (state : State) =
+    [PasswordChanged { Id = command.Id; PasswordHash = createPasswordHash hashFunc command.Password; }]
 
-let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command state =
+let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) command state =
     match command with
-        | CreateUser command -> createUser createGuid createTimestamp command state
+        | CreateUser command -> createUser createGuid createTimestamp hashFunc command state
         | SetName command -> setName command state
         | SetEmail command -> setEmail command state
-        | SetPassword command -> setPassword command state
+        | SetPassword command -> setPassword hashFunc command state
 
-let handleCommandWithAutoGeneration command state = handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command state
+let handleCommandWithAutoGeneration command state =
+    handleCommand
+        Guid.NewGuid
+        (fun () -> SystemClock.Instance.Now)
+        PBKDF2Hash
+        command
+        state
 
 (* End Command Handlers *)
