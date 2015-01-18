@@ -8,10 +8,12 @@ open System.Text.RegularExpressions
 
 (* Domain model types *)
 
+type EmailAddress = EmailAddress of string
+
 type User = {
     Id: Guid
     Name: string
-    Email: string
+    Email: EmailAddress
     Password: string
     CreationTime: Instant
 }
@@ -62,7 +64,7 @@ type Event =
 and UserCreated = {
     Id: Guid
     Name: string
-    Email: string
+    Email: EmailAddress
     Password: string
     CreationTime: Instant
 }
@@ -74,7 +76,7 @@ and NameChanged = {
 
 and EmailChanged = {
     Id: Guid
-    Email: string
+    Email: EmailAddress
 }
 
 and PasswordChanged = {
@@ -109,21 +111,32 @@ let handleEvent (state : State) = function
 
 (* End Event Handlers *)
 
-//Apply commands
+(* Command Handlers *)
+
+let createEmailAddress (s:string) = 
+    if Regex.IsMatch(s,@"^\S+@\S+\.\S+$") 
+        then Some (EmailAddress s)
+        else None
+
 let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command : CreateUser) (state : State) =
-    [ UserCreated {
-        Id = createGuid()
-        Name = command.Name
-        Email = command.Email
-        Password = command.Password
-        CreationTime = createTimestamp()
-    }]
+    match createEmailAddress command.Email with
+    | Some email ->
+        [ UserCreated {
+            Id = createGuid()
+            Name = command.Name
+            Email = email
+            Password = command.Password
+            CreationTime = createTimestamp()
+        }]
+    | None -> []
 
 let setName (command : SetName) (state : State) =
     [NameChanged { Id = command.Id; Name = command.Name; }]
 
 let setEmail (command : SetEmail) (state : State) =
-    [EmailChanged { Id = command.Id; Email = command.Email; }]
+    match createEmailAddress command.Email with
+    | Some email -> [EmailChanged { Id = command.Id; Email = email; }]
+    | None -> []
 
 let setPassword (command : SetPassword) (state : State) =
     [PasswordChanged { Id = command.Id; Password = command.Password; }]
@@ -137,7 +150,4 @@ let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) 
 
 let handleCommandWithAutoGeneration command state = handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command state
 
-let createEmailAddress (s:string) = 
-    if Regex.IsMatch(s,@"^\S+@\S+\.\S+$") 
-        then Some s
-        else None
+(* End Command Handlers *)

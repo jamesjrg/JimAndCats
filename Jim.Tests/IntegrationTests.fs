@@ -50,7 +50,7 @@ let tests =
             test <@ actual.Contains("\"id\":") && actual.Contains("User created") @>)
 
         testCase "Should be able to rename a user" (fun () ->
-            let store = storeWithEvents [UserCreated { Id = guid1; Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd"; CreationTime = epoch} ]
+            let store = storeWithEvents [UserCreated { Id = guid1; Name="Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; Password="p4ssw0rd"; CreationTime = epoch} ]
 
             let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"id":"3C71C09A-2902-4682-B8AB-663432C8867B", "name":"Frank Moss"}"""))
 
