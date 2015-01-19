@@ -51,6 +51,7 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
+    <Compile Include="Hashing.fs" />
     <Compile Include="Specifications.fs" />
     <Compile Include="Domain.fs" />
     <Compile Include="IntegrationTests.fs" />
