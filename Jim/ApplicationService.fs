@@ -7,7 +7,7 @@ open Jim.Domain
 open System
 
 type Message =
-    | Command of Command * AsyncReplyChannel<Event list>
+    | Command of Command * AsyncReplyChannel<Result<Event list>>
     | ListUsers of AsyncReplyChannel<User seq>
 
 type AppService(store:IEventStore<Event>, streamId) =
@@ -31,11 +31,17 @@ type AppService(store:IEventStore<Event>, streamId) =
 
             match message with
             | Command (command, replyChannel) -> 
-                let newEvents = handleCommandWithAutoGeneration command state
-                do! save version newEvents
-                let newState = List.fold handleEvent state newEvents
-                replyChannel.Reply(newEvents)
-                return! messageLoop (version + List.length newEvents) newState
+                let result = handleCommandWithAutoGeneration command state
+                match result with
+                | Success newEvents ->
+                    do! save version newEvents
+                    let newState = List.fold handleEvent state newEvents
+                    replyChannel.Reply(result)
+                    return! messageLoop (version + List.length newEvents) newState
+                | Failure f ->
+                    replyChannel.Reply(result)
+                    return! messageLoop version state
+
             | ListUsers replyChannel ->
                 replyChannel.Reply(state.Values)
                 return! messageLoop version state       
@@ -65,30 +71,30 @@ type AppService(store:IEventStore<Event>, streamId) =
 
     member this.createUser(command) =
         async {
-            let! newEvents = agent.PostAndAsyncReply(makeMessage command)
+            let! result = agent.PostAndAsyncReply(makeMessage command)
 
-            match newEvents with
-            | UserCreated event :: tail -> return ResponseWithIdAndMessage {
+            match result with
+            | Success ((UserCreated event) :: tail) ->
+                return ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "User created: " + event.Name
                 }
-            | _ -> return ResponseWithMessage {
-                message = "Failed to create user"
-                }
+            | Failure f -> return ResponseWithMessage { message = f }
+            | _ -> return ResponseWithMessage { message = "Unexpected events when creating user" }
         }
 
     member this.setName(command) =
         async {
-            let! newEvents = agent.PostAndAsyncReply(makeMessage command)
+            let! result = agent.PostAndAsyncReply(makeMessage command)
 
-            match newEvents with
-            | NameChanged event :: tail -> return ResponseWithIdAndMessage {
+            match result with
+            | Success ((NameChanged event) :: tail) ->
+                return ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Name changed to: " + event.Name
                 }
-            | _ -> return ResponseWithMessage {
-                message = "Failed to change name"
-                }
+            | Failure f -> return ResponseWithMessage { message = f }
+            | _ -> return ResponseWithMessage { message = "Unexpected events when creating user" }
         }
 
     member this.setEmail(command) =

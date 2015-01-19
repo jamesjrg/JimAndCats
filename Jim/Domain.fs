@@ -152,28 +152,28 @@ let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) has
     | Success email ->
         match createPasswordHash hashFunc command.Password with
         | Success hash ->
-            [ UserCreated {
+            Success [ UserCreated {
                 Id = createGuid()
                 Name = command.Name
                 Email = email
                 PasswordHash = hash
                 CreationTime = createTimestamp()
             }]
-        | Failure f -> []
-    | Failure f -> []
+        | Failure f -> Failure f
+    | Failure f -> Failure f
 
 let setName (command : SetName) (state : State) =
-    [NameChanged { Id = command.Id; Name = command.Name; }]
+    Success [NameChanged { Id = command.Id; Name = command.Name; }]
 
 let setEmail (command : SetEmail) (state : State) =
     match createEmailAddress command.Email with
-    | Success email -> [EmailChanged { Id = command.Id; Email = email; }]
-    | Failure f -> []
+    | Success email -> Success [EmailChanged { Id = command.Id; Email = email; }]
+    | Failure f -> Failure f
 
 let setPassword hashFunc (command : SetPassword) (state : State) =
     match createPasswordHash hashFunc command.Password with
-    | Success hash -> [PasswordChanged { Id = command.Id; PasswordHash = hash; }]
-    | Failure f -> []    
+    | Success hash -> Success [PasswordChanged { Id = command.Id; PasswordHash = hash; }]
+    | Failure f -> Failure f
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) command state =
     match command with
