@@ -144,7 +144,7 @@ let createPasswordHash hashFunc (s:string) =
     if s.Length < minPasswordLength then
         Failure (sprintf "Password must be at least %d characters" minPasswordLength)
     else
-        Success (PasswordHash (hashFunc s))
+        Success (PasswordHash (hashFunc (s.Trim())))
 
 let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (state : State) =
     //probably don't want to expend resources on password hash unless everything else is valid
