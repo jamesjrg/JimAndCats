@@ -1,4 +1,4 @@
-﻿module Jim.Encryption
+﻿module Jim.Hashing
 
 open System
 open System.Security.Cryptography

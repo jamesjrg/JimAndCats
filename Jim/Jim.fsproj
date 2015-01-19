@@ -54,7 +54,7 @@
     <None Include="static\api-docs.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Compile Include="Encryption.fs" />
+    <Compile Include="Hashing.fs" />
     <Compile Include="Domain.fs" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="ApiResponses.fs" />

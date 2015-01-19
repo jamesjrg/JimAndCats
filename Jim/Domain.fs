@@ -6,7 +6,7 @@ open System
 open System.Collections.Generic
 open System.Text.RegularExpressions
 
-open Jim.Encryption
+open Jim.Hashing
 
 (* Error handling *)
 
