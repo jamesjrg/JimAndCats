@@ -15,4 +15,3 @@ nuget Suave.Testing 0.21.0
 nuget Suave.Testing
 nuget Fuchu 0.4.0
 nuget Unquote 2.2.2
-nuget xunit.runners
