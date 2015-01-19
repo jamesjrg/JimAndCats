@@ -1,5 +1,6 @@
 ﻿module Jim.WebServer
 
+open Jim.ApiResponses
 open Jim.ApplicationService
 open Jim.Domain
 open Jim.JsonRequests
@@ -32,6 +33,11 @@ let web_config =
         logger = SuaveAdapter(logary.GetLogger "suave")
     }
 
+let appResponseToWebPart  = function
+    | Completed response -> Successful.OK (serializeObject response)
+    | BadRequest response -> RequestErrors.BAD_REQUEST (serializeObject response)
+    | InternalError response -> ServerErrors.INTERNAL_ERROR (serializeObject response)
+
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
 let index = OK "Hello"
@@ -43,12 +49,11 @@ let listUsers (appService : AppService) httpContext =
         return! OK usersAsString httpContext
     }
 
-let createUser (appService : AppService) : Types.WebPart =
-    map_json_async (fun (requestDetails:CreateUserRequest) ->
-        async {
-            return! appService.createUser(
-                CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
-        })
+let createUser (appService : AppService) (requestDetails:CreateUserRequest) =   
+    async {
+        return! appService.createUser(
+            CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
+    }
 
 let setName (appService : AppService) (id:Guid) (requestDetails:SetNameRequest) =    
     async {
@@ -76,8 +81,8 @@ let parseId idString =
     | true, guid -> guid
     | false, _ -> raise (new Exception("Failed to parse id: " + idString))
 
-let parseIdAndMapJsonAsync f (appService : AppService) id =
-    map_json_async (f appService (parseId id))
+let parseIdAndMapResponse f (appService : AppService) id =
+    mapJsonAsync (f appService (parseId id)) appResponseToWebPart 
 
 let webApp (appService : AppService) =
   choose [
@@ -86,12 +91,12 @@ let webApp (appService : AppService) =
         url "/users" >>= listUsers appService
         url "/" >>= index ]
     POST >>= choose [
-        url "/users/create" >>= createUser appService
-        url_scan "/users/%s/authenticate" (fun id -> parseIdAndMapJsonAsync authenticate appService id) ]
+        url "/users/create" >>= mapJsonAsync (createUser appService) appResponseToWebPart
+        url_scan "/users/%s/authenticate" (fun id -> parseIdAndMapResponse authenticate appService id) ]
     PUT >>= choose [ 
-        url_scan "/users/%s/name" (fun id -> parseIdAndMapJsonAsync setName appService id)
-        url_scan "/users/%s/email" (fun id -> parseIdAndMapJsonAsync setEmail appService id)
-        url_scan "/users/%s/password" (fun id -> parseIdAndMapJsonAsync setPassword appService id) ]
+        url_scan "/users/%s/name" (fun id -> parseIdAndMapResponse setName appService id)
+        url_scan "/users/%s/email" (fun id -> parseIdAndMapResponse setEmail appService id)
+        url_scan "/users/%s/password" (fun id -> parseIdAndMapResponse setPassword appService id) ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 

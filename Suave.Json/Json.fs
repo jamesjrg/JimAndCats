@@ -10,52 +10,39 @@ open System.Text
 Suave has its own Json module with a map_json, but it has various issues:
 - it doesn't allow for an async mapping function
 - it doesn't have any error handling
-- it uses DataContractJsonSerializer and hence requires you put attributes all over your DTOs
-
-NB I've tried to follow Suave's coding conventions in this file
+- it doesn't allow for setting http status codes
+- it uses DataContractJsonSerializer and hence requires you put attributes all over your DTOs, and serializes some objects badly
 *)
 
-let try_parse_json (r:Types.HttpRequest) =
+let private defaultJsonParseFail str =
+  RequestErrors.BAD_REQUEST ("Could not parse JSON: " + str)
+
+let private defaultPostDataParseFail =
+  RequestErrors.BAD_REQUEST "Unable to parse post data"
+
+let private tryParseJson (r:Types.HttpRequest) =
   let str = Encoding.UTF8.GetString(r.raw_form);
   try
     Some (JsonConvert.DeserializeObject<'a>(str)), str
   with
   | e -> None, str
 
-let json_success json =
-  ((Successful.OK (JsonConvert.SerializeObject(json))) >>= (Writers.set_mime_type "application/json"))
-
-let default_json_parse_fail str =
-  RequestErrors.BAD_REQUEST ("Could not parse JSON: " + str)
-
-let default_post_data_parse_fail =
-  RequestErrors.BAD_REQUEST "Unable to parse post data"
-
-let do_map_json_async (f: 'a -> Async<'b>) json_parse_fail: Types.WebPart =
-  fun http_context ->
+let private doMapJsonAsync (f: 'a -> Async<'b>) (g: 'b -> Types.WebPart) : Types.WebPart =
+  fun (http_context:Types.HttpContext) ->
     async {
-      match try_parse_json http_context.request with
+      match tryParseJson http_context.request with
       | Some request_json, _ ->
         let! response = f request_json
-        return! json_success response http_context
-      | None, str -> return! json_parse_fail str http_context
+        return! ((g response >>= Writers.set_mime_type "application/json") http_context)
+      | None, str -> return! defaultJsonParseFail str http_context
   }
 
-let parse_then_map_json_async post_data_parse_fail json_parse_fail (f: 'a -> Async<'b>) : Types.WebPart =
+let serializeObject obj =
+    JsonConvert.SerializeObject(obj)
+
+let mapJsonAsync (f: 'a -> Async<'b>) (g: 'b -> Types.WebPart): Types.WebPart =
   choose
     [
-      ParsingAndControl.parse_post_data >>= do_map_json_async f json_parse_fail
-      post_data_parse_fail
+      ParsingAndControl.parse_post_data >>= doMapJsonAsync f g
+      defaultPostDataParseFail
     ]
-
-let map_json_async' post_data_parse_fail json_parse_fail (f: 'a -> Async<'b>) : Types.WebPart =
-  parse_then_map_json_async post_data_parse_fail json_parse_fail f
-
-/// Expose function f through an async json call; lets you write like
-///
-/// let app =
-///   url "/path"  >>= map_json_async some_async_function;
-///
-let map_json_async (f: 'a -> Async<'b>) : Types.WebPart =
-  parse_then_map_json_async default_post_data_parse_fail default_json_parse_fail f
-

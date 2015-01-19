@@ -115,18 +115,19 @@ type AppService(store:IEventStore<Event>, streamId) =
         async {
             let! newEvents = agent.PostAndAsyncReply(makeMessage command)
 
-            return {
+            return Completed ( ResponseWithIdAndMessage
+                {
                 ResponseWithIdAndMessage.id = Guid.Empty
                 message = "Todo"
-                }
+                })
         }
 
     member this.authenticate(id, details) =
         async {
-            return {
+            return Completed ( ResponseWithIdAndMessage{
                 ResponseWithIdAndMessage.id = Guid.Empty
                 message = "Todo"
-                }
+                })
         }
 
 
