@@ -43,7 +43,7 @@ let tests =
         testCase "Should be able to create a user" (fun () ->
             let store = storeWithEvents []
 
-            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"name":"Frank Moss", "email":"frank@somewhere.com","password":"kkk"}"""))
+            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}"""))
 
             let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.POST "/users/create" (Some postData)
 
