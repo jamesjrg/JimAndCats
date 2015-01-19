@@ -14,3 +14,8 @@ type ResponseWithMessage = {
 type ApiResponse = 
     | ResponseWithIdAndMessage of ResponseWithIdAndMessage
     | ResponseWithMessage of ResponseWithMessage
+
+type TaggedApiResponse =
+    | Completed of ApiResponse
+    | BadRequest of ApiResponse
+    | InternalError of ApiResponse

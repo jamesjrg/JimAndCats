@@ -27,6 +27,8 @@ let minPasswordLength = 7
 
 type EmailAddress = EmailAddress of string
 
+let extractString (EmailAddress s) = s
+
 type PasswordHash = PasswordHash of string
 
 type User = {
@@ -117,16 +119,31 @@ let userCreated (state:State) (event: UserCreated) =
     state
 
 let nameChanged (state:State) (event : NameChanged) =
-    let userResult = state.TryGetValue(event.Id)
-    match userResult with
+    match state.TryGetValue(event.Id) with
     | true, user ->
         state.[event.Id] <- {user with Name = event.Name}
+        state
+    | false, _ -> state
+
+let emailChanged (state:State) (event : EmailChanged) =
+    match state.TryGetValue(event.Id) with
+    | true, user ->
+        state.[event.Id] <- {user with Email = event.Email}
+        state
+    | false, _ -> state
+
+let passwordChanged (state:State) (event : PasswordChanged) =
+    match state.TryGetValue(event.Id) with
+    | true, user ->
+        state.[event.Id] <- {user with PasswordHash = event.PasswordHash}
         state
     | false, _ -> state
 
 let handleEvent (state : State) = function
     | UserCreated event -> userCreated state event
     | NameChanged event -> nameChanged state event
+    | EmailChanged event -> emailChanged state event
+    | PasswordChanged event -> passwordChanged state event
 
 (* End Event Handlers *)
 
