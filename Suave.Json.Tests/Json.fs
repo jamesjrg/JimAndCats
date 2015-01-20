@@ -29,7 +29,7 @@ type Bar = { bar : string; }
 let tests =
     let mappingFunc (a:Foo) = 
         async {
-            return Successful.OK (serializeObject { bar = a.foo })
+            return { bar = a.foo }
         }
 
     let mapJsonAsyncPartial =
