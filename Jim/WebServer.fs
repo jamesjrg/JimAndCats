@@ -45,7 +45,7 @@ let index = OK "Hello"
 let listUsers (appService : AppService) httpContext =
     async {
         let! users = appService.listUsers ()
-        let usersAsString = "Users:\n" + ((Seq.map (fun u -> sprintf "%A" u) users) |> String.concat "\n")
+        let usersAsString = "Users:\n" + (users |> Seq.map (fun u -> sprintf "%A" u) |> String.concat "\n")
         return! OK usersAsString httpContext
     }
 
