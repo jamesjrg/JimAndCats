@@ -20,15 +20,9 @@ open Logary.Suave
 open System
 open System.IO
 
-let mime_types =
-  Suave.Http.Writers.default_mime_types_map
-    >=> (function
-    | ".json" -> Suave.Http.Writers.mk_mime_type "application/json" true
-    | _ -> None)
-
 let web_config =
     { default_config with
-        mime_types_map = mime_types
+        mime_types_map = mimeTypesWithJson
         logger = SuaveAdapter(logary.GetLogger "suave")
     }
 

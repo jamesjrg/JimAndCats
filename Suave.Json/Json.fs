@@ -46,3 +46,9 @@ let mapJsonAsync (f: 'a -> Async<'b>) (g: 'b -> Types.WebPart): Types.WebPart =
       ParsingAndControl.parse_post_data >>= doMapJsonAsync f g
       defaultPostDataParseFail
     ]
+
+let mimeTypesWithJson =
+  Suave.Http.Writers.default_mime_types_map
+    >=> (function
+    | ".json" -> Suave.Http.Writers.mk_mime_type "application/json" true
+    | _ -> None)
