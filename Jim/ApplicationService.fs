@@ -77,7 +77,7 @@ type AppService(store:IEventStore<Event>, streamId) =
             | Success ((UserCreated event) :: []) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
-                message = "User created: " + event.Name
+                message = "User created: " + extractUsername event.Name
                 })
             | Failure f -> return BadRequest (ResponseWithMessage { message = f })
             | _ -> return InternalError (ResponseWithMessage { message = "Unexpected events" })
@@ -91,7 +91,7 @@ type AppService(store:IEventStore<Event>, streamId) =
             | Success ((NameChanged event) :: []) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
-                message = "Name changed to: " + event.Name
+                message = "Name changed to: " + extractUsername event.Name
                 })
             | Failure f -> return BadRequest (ResponseWithMessage { message = f })
             | _ -> return InternalError (ResponseWithMessage { message = "Unexpected events" })
@@ -105,7 +105,7 @@ type AppService(store:IEventStore<Event>, streamId) =
             | Success ((EmailChanged event) :: []) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
-                message = "Email changed to: " + extractString event.Email
+                message = "Email changed to: " + extractEmail event.Email
                 })
             | Failure f -> return BadRequest (ResponseWithMessage { message = f })
             | _ -> return InternalError (ResponseWithMessage { message = "Unexpected events" })

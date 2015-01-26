@@ -25,7 +25,12 @@ let tests =
             testCase "Should be able to create a user" (fun () ->            
                 Given []
                 |> When ( CreateUser { Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
-                |> ExpectSuccess [ UserCreated { Id = guid1; Name="Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch } ])
+                |> ExpectSuccess [ UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch } ])
+
+            testCase "Should not be able to create a user with invalid username" (fun () ->            
+                Given []
+                |> When ( CreateUser { Name="Bob"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
+                |> ExpectFailure)
 
             testCase "Should not be able to create a user with invalid email address" (fun () ->            
                 Given []
@@ -33,17 +38,22 @@ let tests =
                 |> ExpectFailure)
 
             testCase "Should be able to rename a user" (fun () ->
-                Given [UserCreated { Id = guid1; Name="Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
                 |> When ( SetName { Id = guid1; Name="Bob Mariachi"; } )
-                |> ExpectSuccess [ NameChanged { Id = guid1; Name="Bob Mariachi"; } ])
+                |> ExpectSuccess [ NameChanged { Id = guid1; Name=Username "Bob Mariachi"; } ])
+
+            testCase "Should not be able to change name to invalid username" (fun () ->            
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                |> When ( SetName { Id = guid1; Name="Bob"; } )
+                |> ExpectFailure)
 
             testCase "Should be able to change email" (fun () ->
-                Given [UserCreated { Id = guid1; Name="Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
                 |> When ( SetEmail { Id = guid1; Email="bob@abc.com"; } )
                 |> ExpectSuccess [ EmailChanged { Id = guid1; Email=EmailAddress "bob@abc.com"; } ])
 
             testCase "Should not be able to change email to invalid email address" (fun () ->            
-                Given [UserCreated { Id = guid1; Name="Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
                 |> When ( SetEmail { Id = guid1; Email="bobabc.com"; } )
                 |> ExpectFailure)
         ]

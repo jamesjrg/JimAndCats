@@ -50,7 +50,7 @@ let tests =
             test <@ actual.Contains("\"id\":") && actual.Contains("User created") @>)
 
         testCase "Should be able to rename a user" (fun () ->
-            let store = storeWithEvents [UserCreated { Id = guid1; Name="Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
+            let store = storeWithEvents [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
 
             let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"name":"Frank Moss"}"""))
 
@@ -58,8 +58,17 @@ let tests =
 
             test <@ actual.Contains("Frank Moss") && actual.Contains("Name changed") @>)
 
+        testCase "Should not be able to change name to invalid username" (fun () ->
+            let store = storeWithEvents [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
+
+            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"name":"Bob"}"""))
+
+            let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" (Some postData)
+
+            test <@ actual.Contains("Username") @>)
+
         testCase "Should be able to change email address" (fun () ->
-            let store = storeWithEvents [UserCreated { Id = guid1; Name="Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
+            let store = storeWithEvents [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
 
             let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"email":"frank@itv.com"}"""))
 
@@ -68,7 +77,7 @@ let tests =
             test <@ actual.Contains("frank@itv.com") && actual.Contains("Email changed") @>)
 
         testCase "Should not be able to change email to invalid address" (fun () ->
-            let store = storeWithEvents [UserCreated { Id = guid1; Name="Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
+            let store = storeWithEvents [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
 
             let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"email":"frankitv.com"}"""))
 

@@ -14,34 +14,50 @@ type Result<'a> =
     | Success of 'a
     | Failure of string
 
+let bind func result = 
+    match result with
+    | Success s -> func s
+    | Failure f -> Failure f
+
+let (>>=) twoTrackInput switchFunction = 
+    bind switchFunction twoTrackInput
+
 (* End error handling *)
 
 (* Constants *)
 
 //using PBKDF2 with lots of iterations so needn't be huge
 let minPasswordLength = 7
+let minUsernameLength = 5
 
 (* End Constants *)
 
 (* Domain model types *)
 
-type EmailAddress = EmailAddress of string
+type Username = Username of string
 
-let extractString (EmailAddress s) = s
+type EmailAddress = EmailAddress of string
 
 type PasswordHash = PasswordHash of string
 
 type User = {
     Id: Guid
-    Name: string
+    Name: Username
     Email: EmailAddress
     PasswordHash: PasswordHash
     CreationTime: Instant
 }
 
+let extractUsername (Username s) = s
+let extractEmail (EmailAddress s) = s
+
 (* End domain model types *)
 
+(* The in-memory query model - this might be a SQL database in a large system *)
+
 type State = Dictionary<Guid, User>
+
+(* end query model *)
 
 (* Commands *)
 
@@ -84,7 +100,7 @@ type Event =
     
 and UserCreated = {
     Id: Guid
-    Name: string
+    Name: Username
     Email: EmailAddress
     PasswordHash: PasswordHash
     CreationTime: Instant
@@ -92,7 +108,7 @@ and UserCreated = {
 
 and NameChanged = {
     Id: Guid
-    Name: string
+    Name: Username
 }
 
 and EmailChanged = {
@@ -149,6 +165,12 @@ let handleEvent (state : State) = function
 
 (* Command Handlers *)
 
+let createUsername (s:string) = 
+    if s.Length < minUsernameLength then
+        Failure (sprintf "Username must be at least %d characters" minUsernameLength)
+    else
+        Success (Username s)
+
 let canonicalizeEmail (input:string) =
     input.Trim().ToLower()
 
@@ -164,23 +186,43 @@ let createPasswordHash hashFunc (s:string) =
         Success (PasswordHash (hashFunc (s.Trim())))
 
 let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (state : State) =
-    //probably don't want to expend resources on password hash unless everything else is valid
-    match createEmailAddress command.Email with
-    | Success email ->
-        match createPasswordHash hashFunc command.Password with
-        | Success hash ->
-            Success [ UserCreated {
-                Id = createGuid()
-                Name = command.Name
-                Email = email
-                PasswordHash = hash
-                CreationTime = createTimestamp()
-            }]
+    let tryCreateUsername (command : CreateUser) =
+        match createUsername command.Name with
+        | Success name -> Success (name, command)
         | Failure f -> Failure f
+    
+    let tryCreateEmailAddress (name, command : CreateUser) =
+        match createEmailAddress command.Email with
+        | Success email -> Success (name, email, command)
+        | Failure f -> Failure f
+
+    let tryCreatePasswordHash (name, email, command : CreateUser) =
+        match createPasswordHash hashFunc command.Password with
+        | Success hash -> Success (name, email, hash)
+        | Failure f -> Failure f
+
+    //password hashing expensive so should come last
+    let result =
+        command
+        |> tryCreateUsername
+        >>= tryCreateEmailAddress
+        >>= tryCreatePasswordHash
+        >>= (fun (name, email, hash) -> Success (UserCreated {
+                    Id = createGuid()
+                    Name = name
+                    Email = email
+                    PasswordHash = hash
+                    CreationTime = createTimestamp()
+            }))
+
+    match result with
+    | Success s -> Success [s]
     | Failure f -> Failure f
 
 let setName (command : SetName) (state : State) =
-    Success [NameChanged { Id = command.Id; Name = command.Name; }]
+    match createUsername command.Name with
+    | Success name -> Success [NameChanged { Id = command.Id; Name = name; }]
+    | Failure f -> Failure f
 
 let setEmail (command : SetEmail) (state : State) =
     match createEmailAddress command.Email with
