@@ -7,13 +7,9 @@ type ResponseWithIdAndMessage = {
     message : string
     }
 
-type ResponseWithMessage = {
-    message: string
-}
-
 type ApiResponse = 
     | ResponseWithIdAndMessage of ResponseWithIdAndMessage
-    | ResponseWithMessage of ResponseWithMessage
+    | ResponseWithMessage of string
 
 type TaggedApiResponse =
     | Completed of ApiResponse

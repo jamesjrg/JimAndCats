@@ -13,6 +13,7 @@ open System.Text
 
 open Jim.ApplicationService
 open Jim.Domain
+open Jim.UserModel
 open Jim.WebServer
 
 open NodaTime

@@ -1,18 +1,12 @@
 ﻿module Jim.Tests.Specifications
 
 open Jim.Domain
+open Jim.ErrorHandling
+open Jim.UserRepository
 open NodaTime
 open System
 
 open Swensen.Unquote.Assertions
-
-let printList label stuff =
-    printfn label
-    stuff |> List.iter (printfn "\t%A")
-
-let printCommand label command =
-    printfn label
-    command |> printfn "\t%A"
 
 let inline replay events =
     List.fold handleEvent (new State()) events

@@ -1,6 +1,8 @@
 ﻿module Jim.Tests.Domain
 
+open Jim.ErrorHandling
 open Jim.Domain
+open Jim.UserModel
 open Jim.Tests.Specifications
 open NodaTime
 open System

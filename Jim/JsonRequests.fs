@@ -21,6 +21,5 @@ type SetPasswordRequest = {
     }
 
 type AuthenticateRequest = {
-    email: string
     password : string
     }

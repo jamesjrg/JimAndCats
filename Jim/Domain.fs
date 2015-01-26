@@ -3,26 +3,12 @@
 open NodaTime
 
 open System
-open System.Collections.Generic
 open System.Text.RegularExpressions
 
+open Jim.ErrorHandling
 open Jim.Hashing
-
-(* Error handling *)
-
-type Result<'a, 'b> = 
-    | Success of 'a
-    | Failure of 'b
-
-let bind func result = 
-    match result with
-    | Success s -> func s
-    | Failure f -> Failure f
-
-let (>>=) twoTrackInput switchFunction = 
-    bind switchFunction twoTrackInput
-
-(* End error handling *)
+open Jim.UserModel
+open Jim.UserRepository
 
 (* Constants *)
 
@@ -32,33 +18,6 @@ let minUsernameLength = 5
 
 (* End Constants *)
 
-(* Domain model types *)
-
-type Username = Username of string
-
-type EmailAddress = EmailAddress of string
-
-type PasswordHash = PasswordHash of string
-
-type User = {
-    Id: Guid
-    Name: Username
-    Email: EmailAddress
-    PasswordHash: PasswordHash
-    CreationTime: Instant
-}
-
-let extractUsername (Username s) = s
-let extractEmail (EmailAddress s) = s
-
-(* End domain model types *)
-
-(* The in-memory query model - this might be a SQL database in a large system *)
-
-type State = Dictionary<Guid, User>
-
-(* end query model *)
-
 (* Commands *)
 
 type Command =
@@ -66,6 +25,7 @@ type Command =
     | SetName of SetName
     | SetEmail of SetEmail
     | SetPassword of SetPassword
+    | Authenticate of Authenticate
 
 and CreateUser = {
     Name: string
@@ -84,6 +44,11 @@ and SetEmail = {
 }
 
 and SetPassword = {
+    Id: Guid
+    Password: string   
+}
+
+and Authenticate = {
     Id: Guid
     Password: string   
 }
@@ -239,12 +204,16 @@ let setPassword hashFunc (command : SetPassword) (state : State) =
     | Success hash -> Success [PasswordChanged { Id = command.Id; PasswordHash = hash; }]
     | Failure f -> Failure f
 
+let authenticate command state =
+   Failure "unimplemented"
+
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) command state =
     match command with
         | CreateUser command -> createUser createGuid createTimestamp hashFunc command state
         | SetName command -> setName command state
         | SetEmail command -> setEmail command state
         | SetPassword command -> setPassword hashFunc command state
+        | Authenticate command -> authenticate command state
 
 let handleCommandWithAutoGeneration command state =
     handleCommand

@@ -4,11 +4,14 @@ open EventPersistence
 open Jim.ApiResponses
 open Jim.AppSettings
 open Jim.Domain
+open Jim.ErrorHandling
+open Jim.UserModel
+open Jim.UserRepository
 open System
 
 type Message =
     | Command of Command * AsyncReplyChannel<Result<Event list, string>>
-    | ListUsers of AsyncReplyChannel<User seq>
+    | Query of Query * AsyncReplyChannel<User seq>
 
 type AppService(store:IEventStore<Event>, streamId) =
     let load =
@@ -42,8 +45,8 @@ type AppService(store:IEventStore<Event>, streamId) =
                     replyChannel.Reply(result)
                     return! messageLoop version state
 
-            | ListUsers replyChannel ->
-                replyChannel.Reply(state.Values)
+            | Query (query, replyChannel) ->
+                handleQuery state query replyChannel |> ignore
                 return! messageLoop version state
             }
         async {
@@ -58,8 +61,8 @@ type AppService(store:IEventStore<Event>, streamId) =
     let singleEventOrFailure (result: Result<Event list,string>) =
         match result with
             | Success (event :: []) -> Success event
-            | Failure f -> Failure (BadRequest (ResponseWithMessage { message = f }))
-            | _ -> Failure (InternalError ((ResponseWithMessage { message = "Unexpected events" })))
+            | Failure f -> Failure (BadRequest (ResponseWithMessage f))
+            | _ -> Failure (InternalError (ResponseWithMessage "Unexpected events"))
 
     new() =
         let streamId = appSettings.UserStream
@@ -72,8 +75,7 @@ type AppService(store:IEventStore<Event>, streamId) =
             | false -> new EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
         AppService(store, streamId)
 
-    member this.listUsers() =
-        agent.PostAndAsyncReply(fun replyChannel -> ListUsers (replyChannel))
+    (* Commands. If the query model wasn't in memory there would be likely be two separate processes for command and query. *)
 
     member this.createUser(command) =
         async {
@@ -86,7 +88,7 @@ type AppService(store:IEventStore<Event>, streamId) =
                 message = "User created: " + extractUsername event.Name
                 })
             | Failure f -> return f
-            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected event type" })
+            | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
         }
 
     member this.setName(command) =
@@ -100,7 +102,7 @@ type AppService(store:IEventStore<Event>, streamId) =
                 message = "Name changed to: " + extractUsername event.Name
                 })
             | Failure f -> return f
-            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected event type" })
+            | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
         }
 
     member this.setEmail(command) =
@@ -114,7 +116,7 @@ type AppService(store:IEventStore<Event>, streamId) =
                 message = "Email changed to: " + extractEmail event.Email
                 })
             | Failure f -> return f
-            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected event type" })
+            | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
         }
 
     member this.setPassword(command) =
@@ -128,13 +130,24 @@ type AppService(store:IEventStore<Event>, streamId) =
                 })
         }
 
-    member this.authenticate(id, details) =
+    member this.authenticate(command) =
         async {
-            return Completed ( ResponseWithIdAndMessage{
-                ResponseWithIdAndMessage.id = Guid.Empty
-                message = "Todo"
-                })
+            let! result = agent.PostAndAsyncReply(makeMessage command)
+            return Completed (ResponseWithMessage "TODO")
         }
+
+    (* End commands *)
+
+    (* Queries *)
+
+    member this.listUsers() =
+        async {
+            let! users = agent.PostAndAsyncReply(fun replyChannel -> Query(ListUsers, replyChannel))
+            let usersAsString = "Users:\n" + (users |> Seq.map (fun u -> sprintf "%A" u) |> String.concat "\n")
+            return Completed (ResponseWithMessage usersAsString)
+        }
+
+    (* End queries *)
 
 
         
