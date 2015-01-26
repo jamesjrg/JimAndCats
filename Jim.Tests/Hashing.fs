@@ -14,9 +14,15 @@ let tests =
                 let hash = PBKDF2Hash password
                 validatePassword password hash =? true)
 
-            testCase "Should not be able to match a hashed password with a different string" (fun () ->            
+            testCase "Should not be able to match a hashed password with a truncated string" (fun () ->            
                 let password = "sxjdfls312w3w"
                 let incorrectPassword = "sxjdfls312w3"
+                let hash = PBKDF2Hash password
+                validatePassword incorrectPassword hash =? false) 
+
+            testCase "Should not be able to match a hashed password with a different string of same length" (fun () ->            
+                let password = "sxjdfls312w3w"
+                let incorrectPassword = "sxjdfls312w3x"
                 let hash = PBKDF2Hash password
                 validatePassword incorrectPassword hash =? false)
         ]
