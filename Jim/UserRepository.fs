@@ -19,8 +19,8 @@ type Repository() =
         | false, _ -> None
 
     member this.Put (user:User) =
-        state.[user.Id] = user |> ignore
+        state.[user.Id] <- user
 
     member this.Add (user:User) =
-        state.[user.Id] = user |> ignore
+        state.[user.Id] <- user
         
