@@ -66,7 +66,7 @@ let setPassword (appService : AppService) (id:Guid) (requestDetails:SetPasswordR
 
 let authenticate (appService : AppService) (id:Guid) (requestDetails:AuthenticateRequest) =
     async {
-        return! appService.authenticate(Authenticate {Id=id; Password=requestDetails.password})
+        return! appService.authenticate( {Id=id; Password=requestDetails.password})
     }
 
 //TODO: don't use exceptions

@@ -9,60 +9,68 @@ open Jim.UserModel
 open Jim.UserRepository
 open System
 
+type Query =
+    | ListUsers of AsyncReplyChannel<User seq>
+    | GetUser of Guid * AsyncReplyChannel<User option>
+
 type Message =
-    | Command of Command * AsyncReplyChannel<Result<Event list, string>>
-    | Query of Query * AsyncReplyChannel<User seq>
+    | SingleEventMessage of SingleEventCommand * AsyncReplyChannel<Result<Event, string>>
+    | AuthenticateMessage of Authenticate * AsyncReplyChannel<Result<unit,string>>
+    | Query of Query
 
 type AppService(store:IEventStore<Event>, streamId) =
-    let load =
-        let rec fold (state: State) version =
+    let load repository =
+        let rec fold version =
             async {
             let! events, lastEvent, nextEvent = 
                 store.ReadStream streamId version 500
 
-            let state = List.fold handleEvent state events
+            List.iter (handleEvent repository) events
             match nextEvent with
-            | None -> return lastEvent, state
-            | Some n -> return! fold state n }
-        fold (new State()) 0
+            | None -> return lastEvent
+            | Some n -> return! fold n }
+        fold 0
 
-    let save expectedVersion events = store.AppendToStream streamId expectedVersion events
+    let save expectedVersion events = store.AppendToStream streamId expectedVersion events    
 
     let agent = MailboxProcessor<Message>.Start <| fun inbox -> 
-        let rec messageLoop version state = async {
+        let rec messageLoop version repository = async {
             let! message = inbox.Receive()
 
             match message with
-            | Command (command, replyChannel) -> 
-                let result = handleCommandWithAutoGeneration command state
+            | SingleEventMessage (command, replyChannel) ->
+                let result = handleSingleEventCommandWithAutoGeneration command repository
                 match result with
-                | Success newEvents ->
-                    do! save version newEvents
-                    let newState = List.fold handleEvent state newEvents
+                | Success newEvent ->
+                    do! save version [newEvent]
+                    handleEvent repository newEvent
                     replyChannel.Reply(result)
-                    return! messageLoop (version + List.length newEvents) newState
+                    return! messageLoop (version + 1) repository
                 | Failure f ->
                     replyChannel.Reply(result)
-                    return! messageLoop version state
+                    return! messageLoop version repository
 
-            | Query (query, replyChannel) ->
-                handleQuery state query replyChannel |> ignore
-                return! messageLoop version state
+            | AuthenticateMessage (command, replyChannel) -> 
+                let result = authenticate command repository
+                replyChannel.Reply(result)
+                return! messageLoop version repository
+
+            | Query query ->
+                match query with
+                | ListUsers replyChannel -> replyChannel.Reply(repository.List())
+                | GetUser (id, replyChannel) -> replyChannel.Reply(repository.Get(id))
+
+                return! messageLoop version repository
             }
         async {
-            let! version, state = load
-            return! messageLoop version state
+            let repository = new Repository()
+            let! version = load repository
+            return! messageLoop version repository
             }
 
-    let makeMessage command = 
+    let makeSingleEventMessage (command:SingleEventCommand) = 
         fun replyChannel ->
-            Command (command, replyChannel)
-
-    let singleEventOrFailure (result: Result<Event list,string>) =
-        match result with
-            | Success (event :: []) -> Success event
-            | Failure f -> Failure (BadRequest (ResponseWithMessage f))
-            | _ -> Failure (InternalError (ResponseWithMessage "Unexpected events"))
+            SingleEventMessage (command, replyChannel)
 
     new() =
         let streamId = appSettings.UserStream
@@ -77,60 +85,65 @@ type AppService(store:IEventStore<Event>, streamId) =
 
     (* Commands. If the query model wasn't in memory there would be likely be two separate processes for command and query. *)
 
-    member this.createUser(command) =
+    member this.createUser(command:SingleEventCommand) =
         async {
-            let! result = agent.PostAndAsyncReply(makeMessage command)
+            let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)
 
-            match singleEventOrFailure result with
+            match result with
             | Success (UserCreated event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "User created: " + extractUsername event.Name
                 })
-            | Failure f -> return f
+            | Failure f -> return BadRequest (ResponseWithMessage f)
             | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
         }
 
-    member this.setName(command) =
+    member this.setName(command:SingleEventCommand) =
         async {
-            let! result = agent.PostAndAsyncReply(makeMessage command)
+            let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)
 
-            match singleEventOrFailure result with
+            match result with
             | Success (NameChanged event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Name changed to: " + extractUsername event.Name
                 })
-            | Failure f -> return f
+            | Failure f -> return BadRequest (ResponseWithMessage f)
             | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
         }
 
-    member this.setEmail(command) =
+    member this.setEmail(command:SingleEventCommand) =
         async {
-            let! result = agent.PostAndAsyncReply(makeMessage command)            
+            let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)            
 
-            match singleEventOrFailure result with
+            match result with
             | Success (EmailChanged event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Email changed to: " + extractEmail event.Email
                 })
-            | Failure f -> return f
+            | Failure f -> return BadRequest (ResponseWithMessage f)
             | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
         }
 
-    member this.setPassword(command) =
+    member this.setPassword(command:SingleEventCommand) =
         async {
-            let! newEvents = agent.PostAndAsyncReply(makeMessage command)
+            let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)
 
-            return Completed ( ResponseWithIdAndMessage
-                {
-                ResponseWithIdAndMessage.id = Guid.Empty
+            match result with
+            | Success (PasswordChanged event) ->
+                return Completed (ResponseWithIdAndMessage {
+                ResponseWithIdAndMessage.id = event.Id
                 message = "Password changed"
                 })
+            | Failure f -> return BadRequest (ResponseWithMessage f)
+            | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
         }
 
-    member this.authenticate(command) =
+    member this.authenticate(command:Authenticate) =
+        let makeMessage command = 
+            fun replyChannel -> AuthenticateMessage (command, replyChannel)
         async {
             let! result = agent.PostAndAsyncReply(makeMessage command)
             return Completed (ResponseWithMessage "TODO")
@@ -140,14 +153,17 @@ type AppService(store:IEventStore<Event>, streamId) =
 
     (* Queries *)
 
+    member this.getUser(id) =
+        async {
+            let! user = agent.PostAndAsyncReply(fun replyChannel -> Query(GetUser(id, replyChannel)))
+            return Completed (ResponseWithMessage <| user.ToString())
+        }
+
     member this.listUsers() =
         async {
-            let! users = agent.PostAndAsyncReply(fun replyChannel -> Query(ListUsers, replyChannel))
+            let! users = agent.PostAndAsyncReply(fun replyChannel -> Query(ListUsers(replyChannel)))
             let usersAsString = "Users:\n" + (users |> Seq.map (fun u -> sprintf "%A" u) |> String.concat "\n")
             return Completed (ResponseWithMessage usersAsString)
         }
 
     (* End queries *)
-
-
-        

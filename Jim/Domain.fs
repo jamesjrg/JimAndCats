@@ -21,11 +21,14 @@ let minUsernameLength = 5
 (* Commands *)
 
 type Command =
+    | SingleEventCommand of SingleEventCommand
+    | Authenticate of Authenticate
+
+and SingleEventCommand =
     | CreateUser of CreateUser
     | SetName of SetName
     | SetEmail of SetEmail
     | SetPassword of SetPassword
-    | Authenticate of Authenticate
 
 and CreateUser = {
     Name: string
@@ -89,46 +92,43 @@ and PasswordChanged = {
 (* End events *)
 
 (* Event handlers *)
-let userCreated (state:State) (event: UserCreated) =
-    state.Add(event.Id, {
+let userCreated (repository:Repository) (event: UserCreated) =
+    repository.Add({
         User.Id = event.Id
         Name = event.Name
         Email = event.Email
         PasswordHash = event.PasswordHash
         CreationTime = event.CreationTime
         })
-    state
 
-let nameChanged (state:State) (event : NameChanged) =
-    match state.TryGetValue(event.Id) with
-    | true, user ->
-        state.[event.Id] <- {user with Name = event.Name}
-        state
-    | false, _ -> state
+let nameChanged (repository:Repository) (event : NameChanged) =
+    match repository.Get(event.Id) with
+    | Some user -> repository.Put({user with Name = event.Name})
+    | None -> ()
 
-let emailChanged (state:State) (event : EmailChanged) =
-    match state.TryGetValue(event.Id) with
-    | true, user ->
-        state.[event.Id] <- {user with Email = event.Email}
-        state
-    | false, _ -> state
+let emailChanged (repository:Repository) (event : EmailChanged) =
+    match repository.Get(event.Id) with
+    | Some user -> repository.Put({user with Email = event.Email})
+    | None -> ()
 
-let passwordChanged (state:State) (event : PasswordChanged) =
-    match state.TryGetValue(event.Id) with
-    | true, user ->
-        state.[event.Id] <- {user with PasswordHash = event.PasswordHash}
-        state
-    | false, _ -> state
+let passwordChanged (repository:Repository) (event : PasswordChanged) =
+    match repository.Get(event.Id) with
+    | Some user -> repository.Put({user with PasswordHash = event.PasswordHash})
+    | None -> ()
 
-let handleEvent (state : State) = function
-    | UserCreated event -> userCreated state event
-    | NameChanged event -> nameChanged state event
-    | EmailChanged event -> emailChanged state event
-    | PasswordChanged event -> passwordChanged state event
+let handleEvent (repository : Repository) = function
+    | UserCreated event -> userCreated repository event
+    | NameChanged event -> nameChanged repository event
+    | EmailChanged event -> emailChanged repository event
+    | PasswordChanged event -> passwordChanged repository event
 
 (* End Event Handlers *)
 
 (* Command Handlers *)
+
+type CommandResponse =
+    | SingleEvent of Result<Event,string>
+    | AuthenticateResponse of Result<unit,string>
 
 let createUsername (s:string) =
     let trimmedName = s.Trim()
@@ -155,7 +155,7 @@ let createPasswordHash hashFunc (s:string) =
     else
         Success (PasswordHash (hashFunc (trimmedPassword)))
 
-let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (state : State) =
+let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (repository : Repository) =
     let tryCreateUsername (command : CreateUser) =
         match createUsername command.Name with
         | Success name -> Success (name, command)
@@ -172,55 +172,49 @@ let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) has
         | Failure f -> Failure f
 
     //password hashing expensive so should come last
-    let result =
-        command
-        |> tryCreateUsername
-        >>= tryCreateEmailAddress
-        >>= tryCreatePasswordHash
-        >>= (fun (name, email, hash) -> Success (UserCreated {
-                    Id = createGuid()
-                    Name = name
-                    Email = email
-                    PasswordHash = hash
-                    CreationTime = createTimestamp()
-            }))
+    command
+    |> tryCreateUsername
+    >>= tryCreateEmailAddress
+    >>= tryCreatePasswordHash
+    >>= (fun (name, email, hash) -> Success (UserCreated {
+                Id = createGuid()
+                Name = name
+                Email = email
+                PasswordHash = hash
+                CreationTime = createTimestamp()
+        }))
 
-    match result with
-    | Success s -> Success [s]
-    | Failure f -> Failure f
-
-let setName (command : SetName) (state : State) =
+let setName (command : SetName) (repository : Repository) =
     match createUsername command.Name with
-    | Success name -> Success [NameChanged { Id = command.Id; Name = name; }]
+    | Success name -> Success (NameChanged { Id = command.Id; Name = name; })
     | Failure f -> Failure f
 
-let setEmail (command : SetEmail) (state : State) =
+let setEmail (command : SetEmail) (repository : Repository) =
     match createEmailAddress command.Email with
-    | Success email -> Success [EmailChanged { Id = command.Id; Email = email; }]
+    | Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
     | Failure f -> Failure f
 
-let setPassword hashFunc (command : SetPassword) (state : State) =
+let setPassword hashFunc (command : SetPassword) (repository : Repository) =
     match createPasswordHash hashFunc command.Password with
-    | Success hash -> Success [PasswordChanged { Id = command.Id; PasswordHash = hash; }]
+    | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
     | Failure f -> Failure f
 
-let authenticate command state =
+let authenticate (command : Authenticate) (repository : Repository) =
    Failure "unimplemented"
 
-let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) command state =
+let handleSingleEventCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:SingleEventCommand) (repository : Repository) =
     match command with
-        | CreateUser command -> createUser createGuid createTimestamp hashFunc command state
-        | SetName command -> setName command state
-        | SetEmail command -> setEmail command state
-        | SetPassword command -> setPassword hashFunc command state
-        | Authenticate command -> authenticate command state
+        | CreateUser command -> createUser createGuid createTimestamp hashFunc command repository
+        | SetName command -> setName command repository
+        | SetEmail command -> setEmail command repository
+        | SetPassword command -> setPassword hashFunc command repository
 
-let handleCommandWithAutoGeneration command state =
-    handleCommand
+let handleSingleEventCommandWithAutoGeneration (command:SingleEventCommand) (repository : Repository) =
+    handleSingleEventCommand
         Guid.NewGuid
         (fun () -> SystemClock.Instance.Now)
         PBKDF2Hash
         command
-        state
+        repository
 
 (* End Command Handlers *)
