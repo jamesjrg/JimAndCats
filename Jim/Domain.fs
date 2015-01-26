@@ -183,10 +183,12 @@ let createEmailAddress (s:string) =
         else Failure "Invalid email address"
 
 let createPasswordHash hashFunc (s:string) =
-    if s.Length < minPasswordLength then
+    let trimmedPassword = s.Trim()
+
+    if trimmedPassword.Length < minPasswordLength then
         Failure (sprintf "Password must be at least %d characters" minPasswordLength)
     else
-        Success (PasswordHash (hashFunc (s.Trim())))
+        Success (PasswordHash (hashFunc (trimmedPassword)))
 
 let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (state : State) =
     let tryCreateUsername (command : CreateUser) =

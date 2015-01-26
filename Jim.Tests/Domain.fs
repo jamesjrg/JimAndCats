@@ -71,4 +71,19 @@ let tests =
                 Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
                 |> When ( SetEmail { Id = guid1; Email="bobabc.com"; } )
                 |> ExpectFailure)
+
+            testCase "Should be able to change password" (fun () ->
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                |> When ( SetPassword { Id = guid1; Password="n3wp4ss"; } )
+                |> ExpectSuccess [ PasswordChanged { Id = guid1; PasswordHash=PasswordHash "n3wp4ss"; } ])
+
+            testCase "Passwords should be trimmed before hashing" (fun () ->
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                |> When ( SetPassword { Id = guid1; Password="    n3wp4ss   "; } )
+                |> ExpectSuccess [ PasswordChanged { Id = guid1; PasswordHash=PasswordHash "n3wp4ss"; } ])
+
+            testCase "Should be able to change password to lots of whitespace" (fun () ->
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                |> When ( SetPassword { Id = guid1; Password="                 "; } )
+                |> ExpectFailure)
         ]

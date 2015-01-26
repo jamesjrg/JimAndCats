@@ -118,7 +118,7 @@ type AppService(store:IEventStore<Event>, streamId) =
             return Completed ( ResponseWithIdAndMessage
                 {
                 ResponseWithIdAndMessage.id = Guid.Empty
-                message = "Todo"
+                message = "Password changed"
                 })
         }
 
