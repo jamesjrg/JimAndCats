@@ -13,5 +13,5 @@ nuget ConfigMapper 0.0.6
 nuget Newtonsoft.Json 6.0.8
 nuget Suave.Testing 0.21.0
 nuget Suave.Testing
-nuget Fuchu 0.4.0
+nuget Fuchu-Suave 0.6.1
 nuget Unquote 2.2.2
