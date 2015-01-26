@@ -27,9 +27,14 @@ let tests =
                 |> When ( CreateUser { Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
                 |> ExpectSuccess [ UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch } ])
 
-            testCase "Should not be able to create a user with invalid username" (fun () ->            
+            testCase "Should not be able to create a user with too short a username" (fun () ->            
                 Given []
                 |> When ( CreateUser { Name="Bob"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
+                |> ExpectFailure)
+
+            testCase "Should not be able to create a user with large whitespace username" (fun () ->            
+                Given []
+                |> When ( CreateUser { Name="                 "; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
                 |> ExpectFailure)
 
             testCase "Should not be able to create a user with invalid email address" (fun () ->            
@@ -42,7 +47,7 @@ let tests =
                 |> When ( SetName { Id = guid1; Name="Bob Mariachi"; } )
                 |> ExpectSuccess [ NameChanged { Id = guid1; Name=Username "Bob Mariachi"; } ])
 
-            testCase "Should not be able to change name to invalid username" (fun () ->            
+            testCase "Should not be able to change name to too short a username" (fun () ->            
                 Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
                 |> When ( SetName { Id = guid1; Name="Bob"; } )
                 |> ExpectFailure)
