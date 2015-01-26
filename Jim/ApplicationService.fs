@@ -85,7 +85,7 @@ type AppService(store:IEventStore<Event>, streamId) =
 
     (* Commands. If the query model wasn't in memory there would be likely be two separate processes for command and query. *)
 
-    member this.createUser(command:SingleEventCommand) =
+    member this.runSingleEventCommand(command:SingleEventCommand) =
         async {
             let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)
 
@@ -95,50 +95,22 @@ type AppService(store:IEventStore<Event>, streamId) =
                 ResponseWithIdAndMessage.id = event.Id
                 message = "User created: " + extractUsername event.Name
                 })
-            | Failure f -> return BadRequest (ResponseWithMessage f)
-            | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
-        }
-
-    member this.setName(command:SingleEventCommand) =
-        async {
-            let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)
-
-            match result with
             | Success (NameChanged event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Name changed to: " + extractUsername event.Name
                 })
-            | Failure f -> return BadRequest (ResponseWithMessage f)
-            | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
-        }
-
-    member this.setEmail(command:SingleEventCommand) =
-        async {
-            let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)            
-
-            match result with
             | Success (EmailChanged event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Email changed to: " + extractEmail event.Email
                 })
-            | Failure f -> return BadRequest (ResponseWithMessage f)
-            | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
-        }
-
-    member this.setPassword(command:SingleEventCommand) =
-        async {
-            let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)
-
-            match result with
             | Success (PasswordChanged event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Password changed"
                 })
             | Failure f -> return BadRequest (ResponseWithMessage f)
-            | _ -> return InternalError (ResponseWithMessage "Unexpected event type")
         }
 
     member this.authenticate(command:Authenticate) =

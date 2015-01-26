@@ -14,4 +14,3 @@ type ApiResponse =
 type TaggedApiResponse =
     | Completed of ApiResponse
     | BadRequest of ApiResponse
-    | InternalError of ApiResponse

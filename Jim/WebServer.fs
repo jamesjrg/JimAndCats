@@ -30,7 +30,6 @@ let web_config =
 let appResponseToWebPart = function
     | Completed response -> Successful.OK (serializeObject response)
     | BadRequest response -> RequestErrors.BAD_REQUEST (serializeObject response)
-    | InternalError response -> ServerErrors.INTERNAL_ERROR (serializeObject response)
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
@@ -43,26 +42,22 @@ let listUsers (appService : AppService) : Types.WebPart =
             return! appResponseToWebPart result httpContext
         }
 
-let createUser (appService : AppService) (requestDetails:CreateUserRequest) =   
+let runSingleEventCommand (appService : AppService) (command:SingleEventCommand) =
     async {
-        return! appService.createUser(
-            CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
+        return! appService.runSingleEventCommand(command)
     }
+
+let createUser (appService : AppService) (requestDetails:CreateUserRequest) =   
+    runSingleEventCommand appService (CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
 
 let setName (appService : AppService) (id:Guid) (requestDetails:SetNameRequest) =    
-    async {
-        return! appService.setName(SetName{ Id=id; Name = requestDetails.name})
-    }
+    runSingleEventCommand appService (SetName{ Id=id; Name = requestDetails.name})
 
 let setEmail (appService : AppService) (id:Guid) (requestDetails:SetEmailRequest) =
-    async {
-        return! appService.setEmail( SetEmail {Id = id; Email = requestDetails.email} )
-    }
+    runSingleEventCommand appService ( SetEmail {Id = id; Email = requestDetails.email} )
 
 let setPassword (appService : AppService) (id:Guid) (requestDetails:SetPasswordRequest) =    
-    async {
-        return! appService.setPassword( SetPassword{ Id=id; Password = requestDetails.password})
-    }
+    runSingleEventCommand appService ( SetPassword{ Id=id; Password = requestDetails.password})
 
 let authenticate (appService : AppService) (id:Guid) (requestDetails:AuthenticateRequest) =
     async {
