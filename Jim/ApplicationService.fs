@@ -7,7 +7,7 @@ open Jim.Domain
 open System
 
 type Message =
-    | Command of Command * AsyncReplyChannel<Result<Event list>>
+    | Command of Command * AsyncReplyChannel<Result<Event list, string>>
     | ListUsers of AsyncReplyChannel<User seq>
 
 type AppService(store:IEventStore<Event>, streamId) =
@@ -55,6 +55,12 @@ type AppService(store:IEventStore<Event>, streamId) =
         fun replyChannel ->
             Command (command, replyChannel)
 
+    let singleEventOrFailure (result: Result<Event list,string>) =
+        match result with
+            | Success (event :: []) -> Success event
+            | Failure f -> Failure (BadRequest (ResponseWithMessage { message = f }))
+            | _ -> Failure (InternalError ((ResponseWithMessage { message = "Unexpected events" })))
+
     new() =
         let streamId = appSettings.UserStream
 
@@ -73,42 +79,42 @@ type AppService(store:IEventStore<Event>, streamId) =
         async {
             let! result = agent.PostAndAsyncReply(makeMessage command)
 
-            match result with
-            | Success ((UserCreated event) :: []) ->
+            match singleEventOrFailure result with
+            | Success (UserCreated event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "User created: " + extractUsername event.Name
                 })
-            | Failure f -> return BadRequest (ResponseWithMessage { message = f })
-            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected events" })
+            | Failure f -> return f
+            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected event type" })
         }
 
     member this.setName(command) =
         async {
             let! result = agent.PostAndAsyncReply(makeMessage command)
 
-            match result with
-            | Success ((NameChanged event) :: []) ->
+            match singleEventOrFailure result with
+            | Success (NameChanged event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Name changed to: " + extractUsername event.Name
                 })
-            | Failure f -> return BadRequest (ResponseWithMessage { message = f })
-            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected events" })
+            | Failure f -> return f
+            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected event type" })
         }
 
     member this.setEmail(command) =
         async {
             let! result = agent.PostAndAsyncReply(makeMessage command)            
 
-            match result with
-            | Success ((EmailChanged event) :: []) ->
+            match singleEventOrFailure result with
+            | Success (EmailChanged event) ->
                 return Completed (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Email changed to: " + extractEmail event.Email
                 })
-            | Failure f -> return BadRequest (ResponseWithMessage { message = f })
-            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected events" })
+            | Failure f -> return f
+            | _ -> return InternalError (ResponseWithMessage { message = "Unexpected event type" })
         }
 
     member this.setPassword(command) =

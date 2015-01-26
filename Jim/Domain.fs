@@ -10,9 +10,9 @@ open Jim.Hashing
 
 (* Error handling *)
 
-type Result<'a> = 
+type Result<'a, 'b> = 
     | Success of 'a
-    | Failure of string
+    | Failure of 'b
 
 let bind func result = 
     match result with

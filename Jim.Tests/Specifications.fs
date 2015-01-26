@@ -19,7 +19,7 @@ let inline replay events =
 
 let Given (events: Event list) = events
 let When (command: Command) events = events, command
-let expectWithCreationFuncs (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (expected: Result<Event list>) (events, command) =    
+let expectWithCreationFuncs (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (expected: Result<Event list, string>) (events, command) =    
     let actual = replay events |> handleCommand createGuid createTimestamp hashFunc command
 
     match expected, actual with
