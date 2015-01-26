@@ -50,6 +50,15 @@ let tests =
 
             test <@ actual.Contains("\"id\":") && actual.Contains("User created") @>)
 
+        testCase "Should not be able to create user with too short a username" (fun () ->
+            let store = storeWithEvents []
+
+            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}"""))
+
+            let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.POST "/users/create" (Some postData)
+
+            test <@ actual.Contains("Username must be at least") @>)
+
         testCase "Should be able to rename a user" (fun () ->
             let store = storeWithEvents [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
 
@@ -94,4 +103,13 @@ let tests =
             let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" (Some postData)
 
             test <@ actual.Contains("Password changed") @>)
+
+        testCase "Should not be able to change password to something too short" (fun () ->
+            let store = storeWithEvents [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
+
+            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"password":"p4ss"}"""))
+
+            let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" (Some postData)
+
+            test <@ actual.Contains("Password must be") @>)
         ]
