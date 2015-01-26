@@ -54,7 +54,9 @@
     <Compile Include="Hashing.fs" />
     <Compile Include="Specifications.fs" />
     <Compile Include="Domain.fs" />
-    <Compile Include="IntegrationTests.fs" />
+    <Compile Include="IntegrationTestHelpers.fs" />
+    <Compile Include="CommandIntegrationTests.fs" />
+    <Compile Include="QueryIntegrationTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

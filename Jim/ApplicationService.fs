@@ -91,22 +91,22 @@ type AppService(store:IEventStore<Event>, streamId) =
 
             match result with
             | Success (UserCreated event) ->
-                return Completed (ResponseWithIdAndMessage {
+                return OK (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "User created: " + extractUsername event.Name
                 })
             | Success (NameChanged event) ->
-                return Completed (ResponseWithIdAndMessage {
+                return OK (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Name changed to: " + extractUsername event.Name
                 })
             | Success (EmailChanged event) ->
-                return Completed (ResponseWithIdAndMessage {
+                return OK (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Email changed to: " + extractEmail event.Email
                 })
             | Success (PasswordChanged event) ->
-                return Completed (ResponseWithIdAndMessage {
+                return OK (ResponseWithIdAndMessage {
                 ResponseWithIdAndMessage.id = event.Id
                 message = "Password changed"
                 })
@@ -118,7 +118,7 @@ type AppService(store:IEventStore<Event>, streamId) =
             fun replyChannel -> AuthenticateMessage (command, replyChannel)
         async {
             let! result = agent.PostAndAsyncReply(makeMessage command)
-            return Completed (ResponseWithMessage "TODO")
+            return OK (ResponseWithMessage "TODO")
         }
 
     (* End commands *)
@@ -127,15 +127,18 @@ type AppService(store:IEventStore<Event>, streamId) =
 
     member this.getUser(id) =
         async {
-            let! user = agent.PostAndAsyncReply(fun replyChannel -> Query(GetUser(id, replyChannel)))
-            return Completed (ResponseWithMessage <| user.ToString())
+            let! result = agent.PostAndAsyncReply(fun replyChannel -> Query(GetUser(id, replyChannel)))
+
+            match result with
+            | Some user -> return OK (ResponseWithMessage <| extractUsername user.Name)
+            | None -> return NotFound
         }
 
     member this.listUsers() =
         async {
             let! users = agent.PostAndAsyncReply(fun replyChannel -> Query(ListUsers(replyChannel)))
             let usersAsString = "Users:\n" + (users |> Seq.map (fun u -> sprintf "%A" u) |> String.concat "\n")
-            return Completed (ResponseWithMessage usersAsString)
+            return OK (ResponseWithMessage usersAsString)
         }
 
     (* End queries *)

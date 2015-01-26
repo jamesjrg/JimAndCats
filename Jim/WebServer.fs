@@ -28,7 +28,8 @@ let web_config =
     }
 
 let appResponseToWebPart = function
-    | Completed response -> Successful.OK (serializeObject response)
+    | OK response -> Successful.OK (serializeObject response)
+    | NotFound -> RequestErrors.NOT_FOUND "Not found"
     | BadRequest response -> RequestErrors.BAD_REQUEST (serializeObject response)
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
@@ -39,6 +40,13 @@ let listUsers (appService : AppService) : Types.WebPart =
     fun httpContext ->
         async {
             let! result = appService.listUsers ()
+            return! appResponseToWebPart result httpContext
+        }
+
+let getUser (appService : AppService) (id:Guid) =
+    fun httpContext ->
+        async {
+            let! result = appService.getUser(id)
             return! appResponseToWebPart result httpContext
         }
 
@@ -81,6 +89,7 @@ let webApp (appService : AppService) =
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
         url "/users" >>= listUsers appService
+        url_scan "/users/%s" (fun id -> getUser appService (parseId id))
         url "/" >>= index ]
     POST >>= choose [
         url "/users/create" >>= mapResponse createUser appService

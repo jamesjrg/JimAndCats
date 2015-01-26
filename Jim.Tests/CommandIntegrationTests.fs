@@ -1,45 +1,26 @@
-﻿module Jim.Tests.IntegrationTests
+﻿module Jim.Tests.CommandIntegrationTests
+
+open System
+open System.Text
+open System.Net.Http
+
+open Jim.Domain
+open Jim.UserModel
+open Jim.ApplicationService
+open Jim.WebServer
+
+open Jim.Tests.IntegrationTestHelpers
 
 open Suave
 open Suave.Types
-open Suave.Http
 open Suave.Web
 open Suave.Testing
-
-open System
-open System.Net
-open System.Net.Http
-open System.Text
-
-open Jim.ApplicationService
-open Jim.Domain
-open Jim.UserModel
-open Jim.WebServer
-
-open NodaTime
-
-open EventPersistence
-
 open Fuchu
 open Swensen.Unquote.Assertions
 
-let run_with' = run_with default_config
-
-let streamId = "testStream"
-
-let storeWithEvents events =
-    let projection = fun (x: Event) -> ()
-    let store = EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
-    if not (List.isEmpty events) then
-        store.AppendToStream streamId -1 events |> Async.RunSynchronously
-    store
-
-let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
-let epoch = new Instant(0L)
-
 [<Tests>]
-let tests =
-    testList "Integration tests"
+let commandTests =
+    testList "Command integration tests"
         [
         testCase "Should be able to create a user" (fun () ->
             let store = storeWithEvents []

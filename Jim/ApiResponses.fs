@@ -12,5 +12,6 @@ type ApiResponse =
     | ResponseWithMessage of string
 
 type TaggedApiResponse =
-    | Completed of ApiResponse
+    | OK of ApiResponse
+    | NotFound
     | BadRequest of ApiResponse
