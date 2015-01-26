@@ -165,18 +165,21 @@ let handleEvent (state : State) = function
 
 (* Command Handlers *)
 
-let createUsername (s:string) = 
-    if s.Length < minUsernameLength then
+let createUsername (s:string) =
+    let trimmedName = s.Trim()
+     
+    if trimmedName.Length < minUsernameLength then
         Failure (sprintf "Username must be at least %d characters" minUsernameLength)
     else
-        Success (Username s)
+        Success (Username trimmedName)
 
 let canonicalizeEmail (input:string) =
     input.Trim().ToLower()
 
-let createEmailAddress (s:string) = 
-    if Regex.IsMatch(s,@"^\S+@\S+\.\S+$") 
-        then Success (EmailAddress (canonicalizeEmail s))
+let createEmailAddress (s:string) =
+    let canonicalized = canonicalizeEmail s
+    if Regex.IsMatch(canonicalized, @"^\S+@\S+\.\S+$") 
+        then Success (EmailAddress canonicalized)
         else Failure "Invalid email address"
 
 let createPasswordHash hashFunc (s:string) =

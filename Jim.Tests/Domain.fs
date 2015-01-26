@@ -47,9 +47,24 @@ let tests =
                 |> When ( SetName { Id = guid1; Name="Bob"; } )
                 |> ExpectFailure)
 
+            testCase "Should not be able to change name to large amount of whitespace" (fun () ->            
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                |> When ( SetName { Id = guid1; Name="                   "; } )
+                |> ExpectFailure)
+
+            testCase "Usernames should be trimmed" (fun () ->            
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                |> When ( SetName { Id = guid1; Name="        hello           "; } )
+                |> ExpectSuccess [ NameChanged { Id = guid1; Name=Username "hello"; } ])
+
             testCase "Should be able to change email" (fun () ->
                 Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
                 |> When ( SetEmail { Id = guid1; Email="bob@abc.com"; } )
+                |> ExpectSuccess [ EmailChanged { Id = guid1; Email=EmailAddress "bob@abc.com"; } ])
+
+            testCase "Email should be canonicalized without whitespace or capital letters" (fun () ->
+                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                |> When ( SetEmail { Id = guid1; Email="   BoB@abc.com"     ; } )
                 |> ExpectSuccess [ EmailChanged { Id = guid1; Email=EmailAddress "bob@abc.com"; } ])
 
             testCase "Should not be able to change email to invalid email address" (fun () ->            
