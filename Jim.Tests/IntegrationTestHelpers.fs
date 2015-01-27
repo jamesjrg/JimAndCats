@@ -34,3 +34,5 @@ let storeWithEvents events =
 let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
 let epoch = new Instant(0L)
 
+let req_resp_with_defaults methd resource data f_result =
+    req_resp methd resource "" data None DecompressionMethods.None id f_result

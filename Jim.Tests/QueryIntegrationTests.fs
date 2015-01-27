@@ -2,6 +2,7 @@
 
 open System
 open System.Text
+open System.Net
 open System.Net.Http
 
 open Jim.Domain
@@ -27,4 +28,11 @@ let commandTests =
             let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.GET "/users/3C71C09A-2902-4682-B8AB-663432C8867B" None
 
             test <@ actual.Contains("Bob Holness") @>)
+
+        testCase "Should get 404 for non-existent user" (fun () ->
+            let store = storeWithEvents []
+
+            let actual_status_code = (run_with' (webApp <| new AppService(store, streamId))) |> req_resp_with_defaults HttpMethod.GET "/users/3C71C09A-2902-4682-B8AB-663432C8867B" None status_code
+            
+            HttpStatusCode.BadRequest =? actual_status_code)
         ]
