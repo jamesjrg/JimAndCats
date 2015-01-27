@@ -19,7 +19,7 @@ open Fuchu
 open Swensen.Unquote.Assertions
 
 [<Tests>]
-let commandTests =
+let queryTests =
     testList "Query integration tests"
         [
         testCase "Should be able to fetch a user" (fun () ->
