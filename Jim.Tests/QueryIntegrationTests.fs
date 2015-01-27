@@ -34,5 +34,5 @@ let commandTests =
 
             let actual_status_code = (run_with' (webApp <| new AppService(store, streamId))) |> req_resp_with_defaults HttpMethod.GET "/users/3C71C09A-2902-4682-B8AB-663432C8867B" None status_code
             
-            HttpStatusCode.BadRequest =? actual_status_code)
+            HttpStatusCode.NotFound =? actual_status_code)
         ]
