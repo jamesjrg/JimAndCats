@@ -19,7 +19,7 @@ open Swensen.Unquote.Assertions
 let run_with' = run_with default_config
 
 let req_resp_with_defaults methd resource data f_result =
-  req_resp methd resource "" data None DecompressionMethods.None id f_result
+    req_resp methd resource "" data None DecompressionMethods.None id f_result
 
 type Foo = { foo : string; }
 
