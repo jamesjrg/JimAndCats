@@ -27,7 +27,7 @@ let queryTests =
 
             let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.GET "/users/3C71C09A-2902-4682-B8AB-663432C8867B" None
 
-            test <@ actual.Contains("Bob Holness") @>)
+            """{"Id":"3c71c09a-2902-4682-b8ab-663432c8867b","Name":"Bob Holness","Email":"bob.holness@itv.com","CreationTime":"1970-01-01T00:00:00Z"}""" =? actual)
 
         testCase "Should get 404 for non-existent user" (fun () ->
             let store = storeWithEvents []
