@@ -72,6 +72,14 @@ type AppService(store:IEventStore<Event>, streamId) =
         fun replyChannel ->
             SingleEventMessage (command, replyChannel)
 
+    let mapUserToUserResponse user =
+        {
+            GetUserResponse.Id = user.Id
+            Name = extractUsername user.Name
+            Email = extractEmail user.Email
+            CreationTime = user.CreationTime.ToString()
+        }
+
     new() =
         let streamId = appSettings.UserStream
 
@@ -91,26 +99,14 @@ type AppService(store:IEventStore<Event>, streamId) =
 
             match result with
             | Success (UserCreated event) ->
-                return OK (ResponseWithIdAndMessage {
-                ResponseWithIdAndMessage.id = event.Id
-                message = "User created: " + extractUsername event.Name
-                })
+                return OK ( { UserCreatedResponse.Id = event.Id; Message = "User created: " + extractUsername event.Name })
             | Success (NameChanged event) ->
-                return OK (ResponseWithIdAndMessage {
-                ResponseWithIdAndMessage.id = event.Id
-                message = "Name changed to: " + extractUsername event.Name
-                })
+                return OK ( { GenericResponse.Message = "Name changed to: " + extractUsername event.Name })
             | Success (EmailChanged event) ->
-                return OK (ResponseWithIdAndMessage {
-                ResponseWithIdAndMessage.id = event.Id
-                message = "Email changed to: " + extractEmail event.Email
-                })
+                return OK ( { GenericResponse.Message = "Email changed to: " + extractEmail event.Email })
             | Success (PasswordChanged event) ->
-                return OK (ResponseWithIdAndMessage {
-                ResponseWithIdAndMessage.id = event.Id
-                message = "Password changed"
-                })
-            | Failure f -> return BadRequest (ResponseWithMessage f)
+                return OK ( { GenericResponse.Message = "Password changed" })
+            | Failure f -> return BadRequest ({ GenericResponse.Message = f})
         }
 
     member this.authenticate(command:Authenticate) =
@@ -118,7 +114,7 @@ type AppService(store:IEventStore<Event>, streamId) =
             fun replyChannel -> AuthenticateMessage (command, replyChannel)
         async {
             let! result = agent.PostAndAsyncReply(makeMessage command)
-            return OK (ResponseWithMessage "TODO")
+            return OK ({ GenericResponse.Message ="TODO"})
         }
 
     (* End commands *)
@@ -130,15 +126,14 @@ type AppService(store:IEventStore<Event>, streamId) =
             let! result = agent.PostAndAsyncReply(fun replyChannel -> Query(GetUser(id, replyChannel)))
 
             match result with
-            | Some user -> return OK (ResponseWithMessage <| extractUsername user.Name)
+            | Some user -> return OK (mapUserToUserResponse user)
             | None -> return NotFound
         }
 
     member this.listUsers() =
         async {
             let! users = agent.PostAndAsyncReply(fun replyChannel -> Query(ListUsers(replyChannel)))
-            let usersAsString = "Users:\n" + (users |> Seq.map (fun u -> sprintf "%A" u) |> String.concat "\n")
-            return OK (ResponseWithMessage usersAsString)
+            return OK ({GetUsersResponse.Users = (users |> Seq.map mapUserToUserResponse)})
         }
 
     (* End queries *)

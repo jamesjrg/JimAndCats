@@ -2,16 +2,27 @@
 
 open System
 
-type ResponseWithIdAndMessage = {    
-    id : Guid
-    message : string
-    }
+type GenericResponse = {
+    Message: string
+}
 
-type ApiResponse = 
-    | ResponseWithIdAndMessage of ResponseWithIdAndMessage
-    | ResponseWithMessage of string
+type UserCreatedResponse = {
+    Id: Guid
+    Message: string
+}
+
+type GetUserResponse = {
+    Id: Guid
+    Name: string
+    Email: string
+    CreationTime: string
+}
+
+type GetUsersResponse = {
+    Users: GetUserResponse seq
+}
 
 type TaggedApiResponse =
-    | OK of ApiResponse
+    | OK of obj
     | NotFound
-    | BadRequest of ApiResponse
+    | BadRequest of obj

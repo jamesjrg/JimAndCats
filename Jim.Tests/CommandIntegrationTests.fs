@@ -29,7 +29,7 @@ let commandTests =
 
             let actual = (run_with' (webApp <| new AppService(store, streamId))) |> req HttpMethod.POST "/users/create" (Some postData)
 
-            test <@ actual.Contains("\"id\":") && actual.Contains("User created") @>)
+            test <@ actual.Contains("\"Id\":") && actual.Contains("User created") @>)
 
         testCase "Should not be able to create user with too short a username" (fun () ->
             let store = storeWithEvents []
