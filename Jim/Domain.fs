@@ -93,12 +93,13 @@ and PasswordChanged = {
 
 (* Event handlers *)
 let userCreated (repository:Repository) (event: UserCreated) =
-    repository.Add({
-        User.Id = event.Id
-        Name = event.Name
-        Email = event.Email
-        PasswordHash = event.PasswordHash
-        CreationTime = event.CreationTime
+    repository.Add(
+        {
+            User.Id = event.Id
+            Name = event.Name
+            Email = event.Email
+            PasswordHash = event.PasswordHash
+            CreationTime = event.CreationTime
         })
 
 let nameChanged (repository:Repository) (event : NameChanged) =
