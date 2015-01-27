@@ -19,7 +19,7 @@ open Swensen.Unquote.Assertions
 
 [<Tests>]
 let commandTests =
-    testList "Command integration tests"
+    testList "Query integration tests"
         [
         testCase "Should be able to fetch a user" (fun () ->
             let store = storeWithEvents [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
