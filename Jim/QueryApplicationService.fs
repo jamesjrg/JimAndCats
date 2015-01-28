@@ -19,8 +19,9 @@ type QueryAppService(repository:IUserRepository) =
         } 
 
     member this.authenticate(details:Authenticate) =
-        let x = authenticate details repository
-        OK ({ GenericResponse.Message ="TODO"})
+        match authenticate details repository with
+        | Success authResult -> OK ({ AuthResponse.IsAuthenticated = authResult})
+        | Failure f -> BadRequest ({ GenericResponse.Message = f})
 
      member this.getUser(id) =
         match repository.Get(id) with

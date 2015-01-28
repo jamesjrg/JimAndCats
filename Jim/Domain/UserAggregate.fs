@@ -19,3 +19,4 @@ type User = {
 
 let extractUsername (Username s) = s
 let extractEmail (EmailAddress s) = s
+let extractPasswordHash (PasswordHash s) = s

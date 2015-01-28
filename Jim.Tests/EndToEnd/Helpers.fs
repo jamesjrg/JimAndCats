@@ -7,6 +7,7 @@ open Suave.Testing
 
 open System
 open System.Net
+open System.Net.Http
 open System.Text
 
 open Jim.Domain.CommandsAndEvents
@@ -40,3 +41,6 @@ let epoch = new Instant(0L)
 
 let req_resp_with_defaults methd resource data f_result =
     req_resp methd resource "" data None DecompressionMethods.None id f_result
+
+let createPostData (str:string) =
+    Some (new ByteArrayContent(Encoding.UTF8.GetBytes(str)))

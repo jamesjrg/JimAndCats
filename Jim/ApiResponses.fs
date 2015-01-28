@@ -22,6 +22,10 @@ type GetUsersResponse = {
     Users: GetUserResponse seq
 }
 
+type AuthResponse = {
+    IsAuthenticated: bool
+}
+
 type TaggedApiResponse =
     | OK of obj
     | NotFound

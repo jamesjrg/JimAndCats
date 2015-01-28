@@ -1,7 +1,9 @@
 ﻿module Jim.Domain.AuthenticationService
 
+open Jim.Domain.UserAggregate
 open Jim.ErrorHandling
 open Jim.Domain.IUserRepository
+open Jim.Domain.Hashing
 open System
 
 type Authenticate = {
@@ -10,4 +12,6 @@ type Authenticate = {
 }
 
 let authenticate (command : Authenticate) (repository : IUserRepository) =
-   Failure "unimplemented"
+    match repository.Get(command.Id) with
+    | Some user -> Success (validatePassword (extractPasswordHash user.PasswordHash) command.Password)
+    | None -> Failure "User not found"
