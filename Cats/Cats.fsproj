@@ -65,8 +65,9 @@
     <None Include="paket.references" />
     <None Include="App.config" />
     <None Include="static\api-docs.json" />
-    <Compile Include="CatRepository.fs" />
-    <Compile Include="Domain.fs" />
+    <Compile Include="Shared\ErrorHandling.fs" />
+    <Compile Include="Domain\CatRepository.fs" />
+    <Compile Include="Domain\CommandsAndEvents.fs" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="ApiResponses.fs" />
     <Compile Include="ApplicationService.fs" />
