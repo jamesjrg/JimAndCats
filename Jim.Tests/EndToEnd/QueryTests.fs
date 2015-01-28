@@ -35,25 +35,23 @@ let queryTests =
             HttpStatusCode.NotFound =? actual_status_code)
 
         testCase "Authentication with a valid password" (fun () ->
-            let commandAppService, queryAppService = getTestAppServices [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
+            let commandAppService, queryAppService = getTestAppServices [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "128000:rp4MqoM6SelmRHtM8XF87Q==:MCtWeondG9hLIQ7zahxV6JTPSt4="; CreationTime = epoch} ]
 
-            let actual = (run_with' (webApp commandAppService queryAppService)) |> req HttpMethod.POST "/users/3C71C09A-2902-4682-B8AB-663432C8867B/authenticate" (createPostData """{"password":"p4ssw0rd"}""")
+            let actual = (run_with' (webApp commandAppService queryAppService)) |> req HttpMethod.POST "/users/3C71C09A-2902-4682-B8AB-663432C8867B/authenticate" (createPostData """{"password":"sxjdfls312w3w"}""")
 
-            """TODO""" =? actual)
+            """{"IsAuthenticated":true}""" =? actual)
 
         testCase "Authentication with a invalid password" (fun () ->
-            let commandAppService, queryAppService = getTestAppServices [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
+            let commandAppService, queryAppService = getTestAppServices [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "128000:rp4MqoM6SelmRHtM8XF87Q==:MCtWeondG9hLIQ7zahxV6JTPSt4="; CreationTime = epoch} ]
 
             let actual = (run_with' (webApp commandAppService queryAppService)) |> req HttpMethod.POST "/users/3C71C09A-2902-4682-B8AB-663432C8867B/authenticate" (createPostData """{"password":"plibbles"}""")
 
-            """{TODO"}""" =? actual)
+            """{"IsAuthenticated":false}""" =? actual)
 
         testCase "Authentication for a non-existent user" (fun () ->
             let commandAppService, queryAppService = getTestAppServices []
 
-            let actual = (run_with' (webApp commandAppService queryAppService)) |> req_resp_with_defaults HttpMethod.POST "/users/3C71C09A-2902-4682-B8AB-663432C8867B/authenticate" (createPostData """{"password":"p4ssw0rd"}""") id
-            let actual_status_code = status_code actual
-            let actual_content = content_string actual
+            let actual_status_code = (run_with' (webApp commandAppService queryAppService)) |> req_resp_with_defaults HttpMethod.POST "/users/3C71C09A-2902-4682-B8AB-663432C8867B/authenticate" (createPostData """{"password":"p4ssw0rd"}""") status_code
 
-            test <@HttpStatusCode.BadRequest = actual_status_code && "TODO" = actual_content @> )
+            HttpStatusCode.NotFound =? actual_status_code)
         ]

@@ -37,7 +37,7 @@ let private slowEquals (a:byte[]) (b:byte[]) =
 
     diff = 0u
 
-let validatePassword password (expectedHash:string) =
+let validatePassword (expectedHash:string) password =
     let split = expectedHash.Split ':'
     let iterations = Int32.Parse(split.[ITERATION_INDEX]);
     let salt = Convert.FromBase64String(split.[SALT_INDEX]);
