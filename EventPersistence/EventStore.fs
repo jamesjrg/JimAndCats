@@ -7,7 +7,7 @@ open Nessos.FsPickler.Json
 open System
 open System.Net
 
-type EventStore<'a>(streamId:string, projection : 'a -> unit) =
+type EventStore<'a>(streamId:string) =
     let jsonPickler = FsPickler.CreateJson(indent = false)
 
     let deserialize (event: ResolvedEvent) =
@@ -23,8 +23,6 @@ type EventStore<'a>(streamId:string, projection : 'a -> unit) =
             let connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1113))
             do! Async.AwaitTask ( connection.ConnectAsync() )
             let credential = SystemData.UserCredentials("admin", "changeit")
-            do! Async.AwaitTask
-                <| connection.SubscribeToStreamAsync(streamId, true, (fun s e -> deserialize e |> projection), userCredentials = credential) |> Async.Ignore
             return connection
         }
         

@@ -13,7 +13,7 @@ type Stream<'a> = { mutable Events:  ('a * int) list }
         |> Seq.last
         |> snd
 
-type InMemoryStore<'a>(projection : 'a -> unit) = 
+type InMemoryStore<'a>() = 
     let mutable streams = Map.empty
             
     interface IEventStore<'a> with
@@ -51,4 +51,4 @@ type InMemoryStore<'a>(projection : 'a -> unit) =
 
             | _ -> raise WrongExpectedVersion 
         
-            async { newEvents |> Seq.iter projection }
+            async{()}

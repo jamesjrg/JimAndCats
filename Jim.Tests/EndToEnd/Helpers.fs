@@ -28,8 +28,7 @@ let run_with' = run_with default_config
 let streamId = "testStream"
 
 let getTestAppServices events =
-    let projection = fun (x: Event) -> ()
-    let store = EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
+    let store = EventPersistence.InMemoryStore<Event>() :> IEventStore<Event>
     if not (List.isEmpty events) then
         store.AppendToStream streamId -1 events |> Async.RunSynchronously
     let repository = new InMemoryUserRepository()

@@ -12,11 +12,10 @@ open EventPersistence
 
 let getAppServices() =
     let streamId = appSettings.UserStream
-    let projection = fun (x: Event) -> ()
     let store =
         match appSettings.UseEventStore with
-        | true -> new EventPersistence.EventStore<Event>(streamId, projection) :> IEventStore<Event>
-        | false -> new EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
+        | true -> new EventPersistence.EventStore<Event>(streamId) :> IEventStore<Event>
+        | false -> new EventPersistence.InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new InMemoryUserRepository()
     let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
     let commandAppService = new CommandAppService(store, repository, streamId, initialVersion)

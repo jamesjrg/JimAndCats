@@ -19,8 +19,7 @@ let testCode =
     async {
         let testEvents = [Child1(2, 3); Child2("a", "b")]
         let streamId = "integrationTest"
-        let projection (event: TestRecordParent) = printfn "%A" event
-        let store = new EventPersistence.EventStore<TestRecordParent>(streamId, projection) :> IEventStore<TestRecordParent>
+        let store = new EventPersistence.EventStore<TestRecordParent>(streamId) :> IEventStore<TestRecordParent>
         do! store.AppendToStream streamId -1 testEvents
         let! events, lastEvent, nextEvent = store.ReadStream streamId 0 500
 
