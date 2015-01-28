@@ -1,9 +1,10 @@
 ﻿module Jim.WebServer
 
 open Jim.ApiResponses
+open Jim.Domain.CommandsAndEvents
 open Jim.CommandApplicationService
 open Jim.QueryApplicationService
-open Jim.Domain.CommandsAndEvents
+open Jim.AppServiceInit
 open Jim.JsonRequests
 open Jim.Logging
 
@@ -37,40 +38,36 @@ let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
 let index = OK "Hello"
 
-let listUsers (appService : AppService) : Types.WebPart =
-    fun httpContext ->
-        async {
-            let! result = appService.listUsers ()
-            return! appResponseToWebPart result httpContext
-        }
+let listUsers (appService : QueryAppService) : Types.WebPart =
+    request (fun r ->
+        let result = appService.listUsers ()
+        appResponseToWebPart result)
 
-let getUser (appService : AppService) (id:Guid) =
-    fun httpContext ->
-        async {
-            let! result = appService.getUser(id)
-            return! appResponseToWebPart result httpContext
-        }
+let getUser (appService : QueryAppService) (id:Guid) =
+    request (fun r ->
+        let result = appService.getUser(id)
+        appResponseToWebPart result)
 
-let runCommand (appService : AppService) (command:Command) =
+let runCommand (appService : CommandAppService) (command:Command) =
     async {
         return! appService.runCommand(command)
     }
 
-let createUser (appService : AppService) (requestDetails:CreateUserRequest) =   
+let createUser (appService : CommandAppService) (requestDetails:CreateUserRequest) =   
     runCommand appService (CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
 
-let setName (appService : AppService) (id:Guid) (requestDetails:SetNameRequest) =    
+let setName (appService : CommandAppService) (id:Guid) (requestDetails:SetNameRequest) =    
     runCommand appService (SetName{ Id=id; Name = requestDetails.name})
 
-let setEmail (appService : AppService) (id:Guid) (requestDetails:SetEmailRequest) =
+let setEmail (appService : CommandAppService) (id:Guid) (requestDetails:SetEmailRequest) =
     runCommand appService ( SetEmail {Id = id; Email = requestDetails.email} )
 
-let setPassword (appService : AppService) (id:Guid) (requestDetails:SetPasswordRequest) =    
+let setPassword (appService : CommandAppService) (id:Guid) (requestDetails:SetPasswordRequest) =    
     runCommand appService ( SetPassword{ Id=id; Password = requestDetails.password})
 
-let authenticate (appService : AppService) (id:Guid) (requestDetails:AuthenticateRequest) =
+let authenticate (appService : QueryAppService) (id:Guid) (requestDetails:AuthenticateRequest) =
     async {
-        return! appService.authenticate( {Id=id; Password=requestDetails.password})
+        return appService.authenticate( {Id=id; Password=requestDetails.password})
     }
 
 //TODO: don't use exceptions
@@ -79,34 +76,35 @@ let parseId idString =
     | true, guid -> guid
     | false, _ -> raise (new Exception("Failed to parse id: " + idString))
 
-let mapResponse f (appService : AppService) =
+let mapResponse f appService =
     mapJsonAsync (f appService) appResponseToWebPart
 
-let parseIdAndMapResponse f (appService : AppService) id =
+let parseIdAndMapResponse f appService id =
     mapJsonAsync (f appService (parseId id)) appResponseToWebPart 
 
-let webApp (appService : AppService) =
+let webApp commandAppService queryAppService =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
-        url "/users" >>= listUsers appService
-        url_scan "/users/%s" (fun id -> getUser appService (parseId id))
+        url "/users" >>= listUsers queryAppService
+        url_scan "/users/%s" (fun id -> getUser queryAppService (parseId id))
         url "/" >>= index ]
     POST >>= choose [
-        url "/users/create" >>= mapResponse createUser appService
-        url_scan "/users/%s/authenticate" (fun id -> parseIdAndMapResponse authenticate appService id) ]
+        url "/users/create" >>= mapResponse createUser commandAppService
+        url_scan "/users/%s/authenticate" (fun id -> parseIdAndMapResponse authenticate queryAppService id) ]
     PUT >>= choose [ 
-        url_scan "/users/%s/name" (fun id -> parseIdAndMapResponse setName appService id)
-        url_scan "/users/%s/email" (fun id -> parseIdAndMapResponse setEmail appService id)
-        url_scan "/users/%s/password" (fun id -> parseIdAndMapResponse setPassword appService id) ]
+        url_scan "/users/%s/name" (fun id -> parseIdAndMapResponse setName commandAppService id)
+        url_scan "/users/%s/email" (fun id -> parseIdAndMapResponse setEmail commandAppService id)
+        url_scan "/users/%s/password" (fun id -> parseIdAndMapResponse setPassword commandAppService id) ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 
 [<EntryPoint>]
 let main argv = 
     printfn "Starting JIM"    
-    try        
-        web_server web_config (webApp <| new AppService())        
+    try     
+        let commandAppService, queryAppService = getAppServices()
+        web_server web_config (webApp commandAppService queryAppService)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

@@ -2,7 +2,7 @@
 
 open Jim.ErrorHandling
 open Jim.Domain.CommandsAndEvents
-open Jim.Domain.UserRepository
+open Jim.InMemoryUserRepository
 open NodaTime
 open System
 
@@ -14,7 +14,7 @@ let inline replay events repository =
 let Given (events: Event list) = events
 let When (command: Command) events = events, command
 let expectWithCreationFuncs (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (expected: Result<Event, string>) (events, command) =  
-    let repository = new Repository()  
+    let repository = new InMemoryUserRepository()  
     replay events repository
     let actual = handleCommand createGuid createTimestamp hashFunc command repository
 

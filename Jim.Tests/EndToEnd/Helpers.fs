@@ -11,6 +11,9 @@ open System.Text
 
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
+open Jim.InMemoryUserRepository
+open Jim.CommandApplicationService
+open Jim.QueryApplicationService
 open Jim.WebServer
 
 open NodaTime
@@ -24,12 +27,14 @@ let run_with' = run_with default_config
 
 let streamId = "testStream"
 
-let storeWithEvents events =
+let getTestAppServices events =
     let projection = fun (x: Event) -> ()
     let store = EventPersistence.InMemoryStore<Event>(projection) :> IEventStore<Event>
     if not (List.isEmpty events) then
         store.AppendToStream streamId -1 events |> Async.RunSynchronously
-    store
+    let repository = new InMemoryUserRepository()
+    let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
+    new CommandAppService(store, repository, streamId, initialVersion), new QueryAppService(repository)
 
 let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
 let epoch = new Instant(0L)

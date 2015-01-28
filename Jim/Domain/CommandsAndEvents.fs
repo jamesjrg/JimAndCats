@@ -8,7 +8,7 @@ open System.Text.RegularExpressions
 open Jim.ErrorHandling
 open Jim.Domain.Hashing
 open Jim.Domain.UserAggregate
-open Jim.Domain.UserRepository
+open Jim.Domain.IUserRepository
 
 (* Constants *)
 
@@ -83,7 +83,7 @@ and PasswordChanged = {
 (* End events *)
 
 (* Event handlers *)
-let userCreated (repository:Repository) (event: UserCreated) =
+let userCreated (repository:IUserRepository) (event: UserCreated) =
     repository.Add(
         {
             User.Id = event.Id
@@ -93,22 +93,22 @@ let userCreated (repository:Repository) (event: UserCreated) =
             CreationTime = event.CreationTime
         })
 
-let nameChanged (repository:Repository) (event : NameChanged) =
+let nameChanged (repository:IUserRepository) (event : NameChanged) =
     match repository.Get(event.Id) with
     | Some user -> repository.Put({user with Name = event.Name})
     | None -> ()
 
-let emailChanged (repository:Repository) (event : EmailChanged) =
+let emailChanged (repository:IUserRepository) (event : EmailChanged) =
     match repository.Get(event.Id) with
     | Some user -> repository.Put({user with Email = event.Email})
     | None -> ()
 
-let passwordChanged (repository:Repository) (event : PasswordChanged) =
+let passwordChanged (repository:IUserRepository) (event : PasswordChanged) =
     match repository.Get(event.Id) with
     | Some user -> repository.Put({user with PasswordHash = event.PasswordHash})
     | None -> ()
 
-let handleEvent (repository : Repository) = function
+let handleEvent (repository : IUserRepository) = function
     | UserCreated event -> userCreated repository event
     | NameChanged event -> nameChanged repository event
     | EmailChanged event -> emailChanged repository event
@@ -143,7 +143,7 @@ let createPasswordHash hashFunc (s:string) =
     else
         Success (PasswordHash (hashFunc (trimmedPassword)))
 
-let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (repository : Repository) =
+let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (repository : IUserRepository) =
     let tryCreateUsername (command : CreateUser) =
         match createUsername command.Name with
         | Success name -> Success (name, command)
@@ -172,29 +172,29 @@ let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) has
                 CreationTime = createTimestamp()
         }))
 
-let setName (command : SetName) (repository : Repository) =
+let setName (command : SetName) (repository : IUserRepository) =
     match createUsername command.Name with
     | Success name -> Success (NameChanged { Id = command.Id; Name = name; })
     | Failure f -> Failure f
 
-let setEmail (command : SetEmail) (repository : Repository) =
+let setEmail (command : SetEmail) (repository : IUserRepository) =
     match createEmailAddress command.Email with
     | Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
     | Failure f -> Failure f
 
-let setPassword hashFunc (command : SetPassword) (repository : Repository) =
+let setPassword hashFunc (command : SetPassword) (repository : IUserRepository) =
     match createPasswordHash hashFunc command.Password with
     | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
     | Failure f -> Failure f
 
-let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : Repository) =
+let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IUserRepository) =
     match command with
         | CreateUser command -> createUser createGuid createTimestamp hashFunc command repository
         | SetName command -> setName command repository
         | SetEmail command -> setEmail command repository
         | SetPassword command -> setPassword hashFunc command repository
 
-let handleCommandWithAutoGeneration (command:Command) (repository : Repository) =
+let handleCommandWithAutoGeneration (command:Command) (repository : IUserRepository) =
     handleCommand
         Guid.NewGuid
         (fun () -> SystemClock.Instance.Now)

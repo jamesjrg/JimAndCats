@@ -1,7 +1,7 @@
 ﻿module Jim.Domain.AuthenticationService
 
 open Jim.ErrorHandling
-open Jim.Domain.UserRepository
+open Jim.Domain.IUserRepository
 open System
 
 type Authenticate = {
@@ -9,5 +9,5 @@ type Authenticate = {
     Password: string   
 }
 
-let authenticate (command : Authenticate) (repository : Repository) =
+let authenticate (command : Authenticate) (repository : IUserRepository) =
    Failure "unimplemented"
