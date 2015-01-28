@@ -3,6 +3,7 @@
 open EventPersistence
 open Jim.ApiResponses
 open Jim.AppSettings
+open Jim.AuthenticationService
 open Jim.Domain
 open Jim.ErrorHandling
 open Jim.UserModel
@@ -12,10 +13,10 @@ open System
 type Query =
     | ListUsers of AsyncReplyChannel<User seq>
     | GetUser of Guid * AsyncReplyChannel<User option>
+    | Authenticate of Authenticate * AsyncReplyChannel<Result<unit,string>>
 
 type Message =
-    | SingleEventMessage of SingleEventCommand * AsyncReplyChannel<Result<Event, string>>
-    | AuthenticateMessage of Authenticate * AsyncReplyChannel<Result<unit,string>>
+    | CommandMessage of Command * AsyncReplyChannel<Result<Event, string>>
     | Query of Query
 
 type AppService(store:IEventStore<Event>, streamId) =
@@ -38,8 +39,8 @@ type AppService(store:IEventStore<Event>, streamId) =
             let! message = inbox.Receive()
 
             match message with
-            | SingleEventMessage (command, replyChannel) ->
-                let result = handleSingleEventCommandWithAutoGeneration command repository
+            | CommandMessage (command, replyChannel) ->
+                let result = handleCommandWithAutoGeneration command repository
                 match result with
                 | Success newEvent ->
                     do! save version [newEvent]
@@ -50,15 +51,11 @@ type AppService(store:IEventStore<Event>, streamId) =
                     replyChannel.Reply(result)
                     return! messageLoop version repository
 
-            | AuthenticateMessage (command, replyChannel) -> 
-                let result = authenticate command repository
-                replyChannel.Reply(result)
-                return! messageLoop version repository
-
             | Query query ->
                 match query with
                 | ListUsers replyChannel -> replyChannel.Reply(repository.List())
                 | GetUser (id, replyChannel) -> replyChannel.Reply(repository.Get(id))
+                | Authenticate (details, replyChannel) -> replyChannel.Reply(authenticate details repository)
 
                 return! messageLoop version repository
             }
@@ -68,9 +65,9 @@ type AppService(store:IEventStore<Event>, streamId) =
             return! messageLoop version repository
             }
 
-    let makeSingleEventMessage (command:SingleEventCommand) = 
+    let makeCommandMessage (command:Command) = 
         fun replyChannel ->
-            SingleEventMessage (command, replyChannel)
+            CommandMessage (command, replyChannel)
 
     let mapUserToUserResponse user =
         {
@@ -93,9 +90,9 @@ type AppService(store:IEventStore<Event>, streamId) =
 
     (* Commands. If the query model wasn't in memory there would be likely be two separate processes for command and query. *)
 
-    member this.runSingleEventCommand(command:SingleEventCommand) =
+    member this.runCommand(command:Command) =
         async {
-            let! result = agent.PostAndAsyncReply(makeSingleEventMessage command)
+            let! result = agent.PostAndAsyncReply(makeCommandMessage command)
 
             match result with
             | Success (UserCreated event) ->
@@ -109,11 +106,11 @@ type AppService(store:IEventStore<Event>, streamId) =
             | Failure f -> return BadRequest ({ GenericResponse.Message = f})
         }
 
-    member this.authenticate(command:Authenticate) =
-        let makeMessage command = 
-            fun replyChannel -> AuthenticateMessage (command, replyChannel)
+    member this.authenticate(details:Authenticate) =
+        let makeMessage details = 
+            fun replyChannel -> Query(Authenticate (details, replyChannel))
         async {
-            let! result = agent.PostAndAsyncReply(makeMessage command)
+            let! result = agent.PostAndAsyncReply(makeMessage details)
             return OK ({ GenericResponse.Message ="TODO"})
         }
 

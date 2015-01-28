@@ -50,22 +50,22 @@ let getUser (appService : AppService) (id:Guid) =
             return! appResponseToWebPart result httpContext
         }
 
-let runSingleEventCommand (appService : AppService) (command:SingleEventCommand) =
+let runCommand (appService : AppService) (command:Command) =
     async {
-        return! appService.runSingleEventCommand(command)
+        return! appService.runCommand(command)
     }
 
 let createUser (appService : AppService) (requestDetails:CreateUserRequest) =   
-    runSingleEventCommand appService (CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
+    runCommand appService (CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
 
 let setName (appService : AppService) (id:Guid) (requestDetails:SetNameRequest) =    
-    runSingleEventCommand appService (SetName{ Id=id; Name = requestDetails.name})
+    runCommand appService (SetName{ Id=id; Name = requestDetails.name})
 
 let setEmail (appService : AppService) (id:Guid) (requestDetails:SetEmailRequest) =
-    runSingleEventCommand appService ( SetEmail {Id = id; Email = requestDetails.email} )
+    runCommand appService ( SetEmail {Id = id; Email = requestDetails.email} )
 
 let setPassword (appService : AppService) (id:Guid) (requestDetails:SetPasswordRequest) =    
-    runSingleEventCommand appService ( SetPassword{ Id=id; Password = requestDetails.password})
+    runCommand appService ( SetPassword{ Id=id; Password = requestDetails.password})
 
 let authenticate (appService : AppService) (id:Guid) (requestDetails:AuthenticateRequest) =
     async {

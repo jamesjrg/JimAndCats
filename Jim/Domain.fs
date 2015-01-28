@@ -21,10 +21,6 @@ let minUsernameLength = 5
 (* Commands *)
 
 type Command =
-    | SingleEventCommand of SingleEventCommand
-    | Authenticate of Authenticate
-
-and SingleEventCommand =
     | CreateUser of CreateUser
     | SetName of SetName
     | SetEmail of SetEmail
@@ -47,11 +43,6 @@ and SetEmail = {
 }
 
 and SetPassword = {
-    Id: Guid
-    Password: string   
-}
-
-and Authenticate = {
     Id: Guid
     Password: string   
 }
@@ -127,10 +118,6 @@ let handleEvent (repository : Repository) = function
 
 (* Command Handlers *)
 
-type CommandResponse =
-    | SingleEvent of Result<Event,string>
-    | AuthenticateResponse of Result<unit,string>
-
 let createUsername (s:string) =
     let trimmedName = s.Trim()
      
@@ -200,18 +187,15 @@ let setPassword hashFunc (command : SetPassword) (repository : Repository) =
     | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
     | Failure f -> Failure f
 
-let authenticate (command : Authenticate) (repository : Repository) =
-   Failure "unimplemented"
-
-let handleSingleEventCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:SingleEventCommand) (repository : Repository) =
+let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : Repository) =
     match command with
         | CreateUser command -> createUser createGuid createTimestamp hashFunc command repository
         | SetName command -> setName command repository
         | SetEmail command -> setEmail command repository
         | SetPassword command -> setPassword hashFunc command repository
 
-let handleSingleEventCommandWithAutoGeneration (command:SingleEventCommand) (repository : Repository) =
-    handleSingleEventCommand
+let handleCommandWithAutoGeneration (command:Command) (repository : Repository) =
+    handleCommand
         Guid.NewGuid
         (fun () -> SystemClock.Instance.Now)
         PBKDF2Hash
