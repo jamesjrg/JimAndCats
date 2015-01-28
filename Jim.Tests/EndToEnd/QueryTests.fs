@@ -1,15 +1,15 @@
-﻿module Jim.Tests.QueryIntegrationTests
+﻿module Jim.Tests.EndToEnd.QueryTests
 
 open System
 open System.Text
 open System.Net
 open System.Net.Http
 
-open Jim.Domain
-open Jim.UserModel
-open Jim.Tests.IntegrationTestHelpers
-open Jim.ApplicationService
+open Jim.Domain.CommandsAndEvents
+open Jim.Domain.UserAggregate
+open Jim.CommandApplicationService
 open Jim.WebServer
+open Jim.Tests.EndToEnd.Helpers
 
 open Suave
 open Suave.Types

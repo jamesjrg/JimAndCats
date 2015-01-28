@@ -1,9 +1,9 @@
-﻿module Jim.Tests.Domain
+﻿module Jim.Tests.Domain.CommandTests
 
 open Jim.ErrorHandling
-open Jim.Domain
-open Jim.UserModel
-open Jim.Tests.Specifications
+open Jim.Domain.CommandsAndEvents
+open Jim.Domain.UserAggregate
+open Jim.Tests.Domain.Specifications
 open NodaTime
 open System
 

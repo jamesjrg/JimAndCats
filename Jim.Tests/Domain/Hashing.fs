@@ -1,6 +1,6 @@
-﻿module Hashing
+﻿module Jim.Tests.Domain.Hashing
 
-open Jim.Hashing
+open Jim.Domain.Hashing
 
 open Fuchu
 open Swensen.Unquote.Assertions

@@ -51,12 +51,12 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
-    <Compile Include="Hashing.fs" />
-    <Compile Include="Specifications.fs" />
-    <Compile Include="Domain.fs" />
-    <Compile Include="IntegrationTestHelpers.fs" />
-    <Compile Include="CommandIntegrationTests.fs" />
-    <Compile Include="QueryIntegrationTests.fs" />
+    <Compile Include="Domain\Hashing.fs" />
+    <Compile Include="Domain\Specifications.fs" />
+    <Compile Include="Domain\CommandTests.fs" />
+    <Compile Include="EndToEnd\Helpers.fs" />
+    <Compile Include="EndToEnd\CommandTests.fs" />
+    <Compile Include="EndToEnd\QueryTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

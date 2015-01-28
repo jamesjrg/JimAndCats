@@ -1,4 +1,4 @@
-﻿module Jim.UserModel
+﻿module Jim.Domain.UserAggregate
 
 open System
 open NodaTime

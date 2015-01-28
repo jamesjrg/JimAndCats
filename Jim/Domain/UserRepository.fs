@@ -1,10 +1,12 @@
-﻿namespace Jim.UserRepository
+﻿namespace Jim.Domain.UserRepository
 
-open Jim.UserModel
+open Jim.Domain.UserAggregate
 open System
 open System.Collections.Generic
 
 (* The in-memory query model - this might be a SQL database in a large system *)
+
+open Jim.Domain.UserAggregate
 
 type State = Dictionary<Guid, User>
 

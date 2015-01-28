@@ -1,15 +1,15 @@
-﻿module Jim.Tests.CommandIntegrationTests
+﻿module Jim.Tests.EndToEnd.CommandTests
 
 open System
 open System.Text
 open System.Net.Http
 
-open Jim.Domain
-open Jim.UserModel
-open Jim.ApplicationService
+open Jim.Domain.CommandsAndEvents
+open Jim.Domain.UserAggregate
+open Jim.CommandApplicationService
 open Jim.WebServer
 
-open Jim.Tests.IntegrationTestHelpers
+open Jim.Tests.EndToEnd.Helpers
 
 open Suave
 open Suave.Types

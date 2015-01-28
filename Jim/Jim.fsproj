@@ -54,15 +54,16 @@
     <None Include="static\api-docs.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Compile Include="ErrorHandling.fs" />
-    <Compile Include="Hashing.fs" />
-    <Compile Include="UserModel.fs" />
-    <Compile Include="UserRepository.fs" />
-    <Compile Include="AuthenticationService.fs" />
-    <Compile Include="Domain.fs" />
+    <Compile Include="Shared\ErrorHandling.fs" />
+    <Compile Include="Domain\Hashing.fs" />
+    <Compile Include="Domain\UserAggregate.fs" />
+    <Compile Include="Domain\UserRepository.fs" />
+    <Compile Include="Domain\AuthenticationService.fs" />
+    <Compile Include="Domain\CommandsAndEvents.fs" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="ApiResponses.fs" />
-    <Compile Include="ApplicationService.fs" />
+    <Compile Include="CommandApplicationService.fs" />
+    <Compile Include="QueryApplicationService.fs" />
     <Compile Include="JsonRequests.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="WebServer.fs" />

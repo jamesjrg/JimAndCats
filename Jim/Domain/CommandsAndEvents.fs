@@ -1,4 +1,4 @@
-﻿module Jim.Domain
+﻿module Jim.Domain.CommandsAndEvents
 
 open NodaTime
 
@@ -6,9 +6,9 @@ open System
 open System.Text.RegularExpressions
 
 open Jim.ErrorHandling
-open Jim.Hashing
-open Jim.UserModel
-open Jim.UserRepository
+open Jim.Domain.Hashing
+open Jim.Domain.UserAggregate
+open Jim.Domain.UserRepository
 
 (* Constants *)
 

@@ -1,8 +1,9 @@
 ﻿module Jim.WebServer
 
 open Jim.ApiResponses
-open Jim.ApplicationService
-open Jim.Domain
+open Jim.CommandApplicationService
+open Jim.QueryApplicationService
+open Jim.Domain.CommandsAndEvents
 open Jim.JsonRequests
 open Jim.Logging
 

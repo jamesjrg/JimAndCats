@@ -1,13 +1,13 @@
-﻿namespace Jim.ApplicationService
+﻿namespace Jim.CommandApplicationService
 
 open EventPersistence
 open Jim.ApiResponses
 open Jim.AppSettings
-open Jim.AuthenticationService
-open Jim.Domain
+open Jim.Domain.AuthenticationService
+open Jim.Domain.CommandsAndEvents
 open Jim.ErrorHandling
-open Jim.UserModel
-open Jim.UserRepository
+open Jim.Domain.UserAggregate
+open Jim.Domain.UserRepository
 open System
 
 type Query =

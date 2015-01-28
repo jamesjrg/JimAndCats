@@ -1,7 +1,7 @@
-﻿module Jim.AuthenticationService
+﻿module Jim.Domain.AuthenticationService
 
 open Jim.ErrorHandling
-open Jim.UserRepository
+open Jim.Domain.UserRepository
 open System
 
 type Authenticate = {

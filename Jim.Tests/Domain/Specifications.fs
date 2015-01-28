@@ -1,8 +1,8 @@
-﻿module Jim.Tests.Specifications
+﻿module Jim.Tests.Domain.Specifications
 
-open Jim.Domain
 open Jim.ErrorHandling
-open Jim.UserRepository
+open Jim.Domain.CommandsAndEvents
+open Jim.Domain.UserRepository
 open NodaTime
 open System
 

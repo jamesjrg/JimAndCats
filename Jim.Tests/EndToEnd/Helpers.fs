@@ -1,4 +1,4 @@
-﻿module Jim.Tests.IntegrationTestHelpers
+﻿module Jim.Tests.EndToEnd.Helpers
 
 open Suave
 open Suave.Types
@@ -9,8 +9,8 @@ open System
 open System.Net
 open System.Text
 
-open Jim.Domain
-open Jim.UserModel
+open Jim.Domain.CommandsAndEvents
+open Jim.Domain.UserAggregate
 open Jim.WebServer
 
 open NodaTime
