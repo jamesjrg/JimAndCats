@@ -61,13 +61,12 @@
     <Compile Include="Domain\CommandsAndEvents.fs" />
     <Compile Include="Domain\AuthenticationService.fs" />
     <Compile Include="AppSettings.fs" />
-    <Compile Include="ApiResponses.fs" />
     <Compile Include="InMemoryUserRepository.fs" />
-    <Compile Include="CommandApplicationService.fs" />
-    <Compile Include="QueryApplicationService.fs" />
-    <Compile Include="JsonRequests.fs" />
+    <Compile Include="CommandContracts.fs" />
+    <Compile Include="CommandAgent.fs" />
     <Compile Include="Logging.fs" />
-    <Compile Include="AppServiceInit.fs" />
+    <Compile Include="CommandEndpoints.fs" />
+    <Compile Include="QueryEndpoints.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -76,8 +75,8 @@
       <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Suave.Json\Suave.Json.fsproj">
-      <Name>Suave.Json</Name>
+    <ProjectReference Include="..\Suave.Extensions\Suave.Extensions.fsproj">
+      <Name>Suave.Extensions</Name>
       <Project>{384df817-2d6b-48ff-b9af-9a96ab3f522b}</Project>
       <Private>True</Private>
     </ProjectReference>

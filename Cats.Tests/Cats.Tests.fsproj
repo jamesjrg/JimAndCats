@@ -57,6 +57,11 @@
       <Project>{12b66eec-6091-4194-b790-284569c12335}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Suave.Extensions\Suave.Extensions.fsproj">
+      <Name>Suave.Extensions</Name>
+      <Project>{384df817-2d6b-48ff-b9af-9a96ab3f522b}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

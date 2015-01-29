@@ -1,4 +1,4 @@
-﻿module Suave.Json.Tests.Program
+﻿module Suave.Extensions.Tests.Program
 
 open Fuchu
 

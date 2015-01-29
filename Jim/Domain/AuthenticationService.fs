@@ -6,12 +6,7 @@ open Jim.Domain.IUserRepository
 open Jim.Domain.Hashing
 open System
 
-type Authenticate = {
-    Id: Guid
-    Password: string   
-}
-
-let authenticate (command : Authenticate) (repository : IUserRepository) =
-    match repository.Get(command.Id) with
-    | Some user -> Success (validatePassword (extractPasswordHash user.PasswordHash) command.Password)
+let authenticate (repository : IUserRepository) (id:Guid) password =
+    match repository.Get(id) with
+    | Some user -> Success (validatePassword (extractPasswordHash user.PasswordHash) password)
     | None -> Failure "User not found"

@@ -1,4 +1,4 @@
-﻿module Suave.Json.Tests.Json
+﻿module Suave.Extensions.Tests.Json
 
 open Suave
 open Suave.Types
@@ -10,7 +10,7 @@ open System.Net
 open System.Net.Http
 open System.Text
 
-open Suave.Json
+open Suave.Extensions.Json
 
 open Fuchu
 open Swensen.Unquote.Assertions
@@ -27,28 +27,22 @@ type Bar = { bar : string; }
 
 [<Tests>]
 let tests =
-    let mappingFunc (a:Foo) = 
-        async {
-            return { bar = a.foo }
-        }
-
-    let mapJsonAsyncPartial =
-        mapJsonAsync mappingFunc (fun x -> Successful.OK (serializeObject x))
+    let mappingFunc (a:Foo) = jsonOK { bar = a.foo }
 
     testList "Json tests"
         [
             testCase "Should map JSON from one class to another" (fun () ->
             let post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":"foo"}"""))
             let response_data =
-                (run_with' mapJsonAsyncPartial)
+                (run_with' (tryMapJson mappingFunc))
                 |> req HttpMethod.POST "/" (Some post_data)
 
             """{"bar":"foo"}""" =? response_data)
 
-            testCase "Should return bad request" (fun () ->
+            testCase "Should return bad request for ill-formatted JSON" (fun () ->
             let bad_post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
             let actual_status_code =
-                (run_with' mapJsonAsyncPartial)
+                (run_with' (tryMapJson mappingFunc))
                 |> req_resp_with_defaults HttpMethod.POST "/" (Some bad_post_data) status_code
 
             HttpStatusCode.BadRequest =? actual_status_code)

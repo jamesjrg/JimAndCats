@@ -1,8 +1,6 @@
 ﻿module Cats.WebServer
 
-open Cats.ApplicationService
 open Cats.Domain
-open Cats.JsonRequests
 open Cats.Logging
 
 open Suave
@@ -12,7 +10,7 @@ open Suave.Http.Successful
 open Suave.Types
 open Suave.Utils
 open Suave.Web
-open Suave.Json
+open Suave.Extensions.Json
 
 open Logary
 open Logary.Suave
@@ -30,7 +28,7 @@ let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
 let index = OK "Hello"
 
-let webApp (appService : AppService) =
+let webApp postCommand =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
@@ -42,7 +40,7 @@ let webApp (appService : AppService) =
 let main argv = 
     printfn "Starting CATS"    
     try        
-        web_server web_config (webApp <| new AppService())        
+        web_server web_config (webApp <| fun x -> ())       
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

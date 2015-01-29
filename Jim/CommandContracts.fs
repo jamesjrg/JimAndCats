@@ -1,4 +1,4 @@
-﻿module Jim.JsonRequests
+﻿module Jim.CommandContracts
 
 open System
 
@@ -23,3 +23,12 @@ type SetPasswordRequest = {
 type AuthenticateRequest = {
     password : string
     }
+
+type GenericResponse = {
+    Message: string
+}
+
+type UserCreatedResponse = {
+    Id: Guid
+    Message: string
+}
