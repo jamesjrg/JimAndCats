@@ -33,4 +33,4 @@ let runCommand postCommand (command:Command) : Types.WebPart =
     }
 
 let createCat postCommand () =   
-    runCommand postCommand (SomethingCommand {Something=5})
+    runCommand postCommand (CreateCat {Something=5})

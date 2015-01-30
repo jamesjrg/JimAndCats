@@ -10,24 +10,32 @@ open System.Collections.Generic
 type State = int
 
 type Command =
-    | SomethingCommand of SomethingCommand
+    | CreateCat of CreateCat
 
-and SomethingCommand = {
+and CreateCat = {
     Something: int
    }
 
 type Event =
-    | SomethingEvent of SomethingEvent
+    | CatCreated of CatCreated
 
-and SomethingEvent = {
-    Something: int
-   }
+and CatCreated = {
+    Id: Guid
+    CreationTime: Instant
+}
 
 let handleEvent (repository : ICatRepository) = function
     | x -> ()
 
-let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command state =
-    match command with
-        | x -> Success (SomethingEvent {Something=5})
+let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) =
+    Success (CatCreated {
+            Id = createGuid()
+            CreationTime = createTimestamp()
+        })
 
-let handleCommandWithAutoGeneration command state = handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command state
+let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command repository =
+    match command with
+        | x -> createCat createGuid createTimestamp
+
+let handleCommandWithAutoGeneration command repository =
+    handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository
