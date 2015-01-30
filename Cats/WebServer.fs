@@ -49,7 +49,7 @@ let webApp postCommand repository =
 
 [<EntryPoint>]
 let main argv = 
-    printfn "Starting JIM"    
+    printfn "Starting CATS"    
     try     
         let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
         web_server web_config (webApp postCommand repository)        
