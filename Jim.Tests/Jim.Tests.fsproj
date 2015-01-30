@@ -54,9 +54,9 @@
     <Compile Include="Domain\Hashing.fs" />
     <Compile Include="Domain\Specifications.fs" />
     <Compile Include="Domain\CommandTests.fs" />
-    <Compile Include="EndToEnd\Helpers.fs" />
-    <Compile Include="EndToEnd\CommandTests.fs" />
-    <Compile Include="EndToEnd\QueryTests.fs" />
+    <Compile Include="Integration\Helpers.fs" />
+    <Compile Include="Integration\CommandTests.fs" />
+    <Compile Include="Integration\QueryTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

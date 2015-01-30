@@ -1,4 +1,4 @@
-﻿module Jim.Tests.EndToEnd.CommandTests
+﻿module Jim.Tests.Integration.CommandTests
 
 open System
 open System.Text
@@ -7,7 +7,7 @@ open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
 open Jim.WebServer
 
-open Jim.Tests.EndToEnd.Helpers
+open Jim.Tests.Integration.Helpers
 
 open Suave
 open Suave.Types

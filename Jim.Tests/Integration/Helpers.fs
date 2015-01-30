@@ -1,4 +1,4 @@
-﻿module Jim.Tests.EndToEnd.Helpers
+﻿module Jim.Tests.Integration.Helpers
 
 open Suave
 open Suave.Types

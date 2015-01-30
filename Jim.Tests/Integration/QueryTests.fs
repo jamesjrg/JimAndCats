@@ -1,4 +1,4 @@
-﻿module Jim.Tests.EndToEnd.QueryTests
+﻿module Jim.Tests.Integration.QueryTests
 
 open System
 open System.Text
@@ -7,7 +7,7 @@ open System.Net
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
 open Jim.WebServer
-open Jim.Tests.EndToEnd.Helpers
+open Jim.Tests.Integration.Helpers
 
 open Suave
 open Suave.Types
