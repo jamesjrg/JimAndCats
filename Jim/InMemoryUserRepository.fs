@@ -38,7 +38,4 @@ type InMemoryUserRepository() =
 
         member this.Put (user:User) =
             state.[user.Id] <- user
-
-        member this.Add (user:User) =
-            state.[user.Id] <- user
         

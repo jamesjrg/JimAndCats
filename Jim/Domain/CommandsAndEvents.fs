@@ -84,7 +84,7 @@ and PasswordChanged = {
 
 (* Event handlers *)
 let userCreated (repository:IUserRepository) (event: UserCreated) =
-    repository.Add(
+    repository.Put(
         {
             User.Id = event.Id
             Name = event.Name
