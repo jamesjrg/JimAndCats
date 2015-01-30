@@ -40,7 +40,8 @@ let runCommand postCommand (command:Command) : Types.WebPart =
             return! jsonOK ( { GenericResponse.Message = "Email changed to: " + extractEmail event.Email }) httpContext
         | Success (PasswordChanged event) ->
             return! jsonOK ( { GenericResponse.Message = "Password changed" }) httpContext
-        | Failure f -> return! jsonBadRequest ({ GenericResponse.Message = f}) httpContext
+        | Failure (BadRequest f) -> return! jsonBadRequest ({ GenericResponse.Message = f}) httpContext
+        | Failure NotFound -> return! genericNotFound httpContext
     }
 
 let createUser postCommand (requestDetails:CreateUserRequest) =   

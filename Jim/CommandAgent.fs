@@ -6,7 +6,7 @@ open Jim.Shared.ErrorHandling
 open Jim.Domain.IUserRepository
 open System
 
-type Message = Command * AsyncReplyChannel<Result<Event, string>>
+type Message = Command * AsyncReplyChannel<Result<Event, CommandFailure>>
 
 let getCommandPoster (store:IEventStore<Event>) (repository:IUserRepository) streamId initialVersion = 
     let save expectedVersion events = store.AppendToStream streamId expectedVersion events    

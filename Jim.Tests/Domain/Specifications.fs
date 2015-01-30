@@ -13,11 +13,12 @@ let inline replay events repository =
 
 let Given (events: Event list) = events
 let When (command: Command) events = events, command
-let expectWithCreationFuncs (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (expected: Result<Event, string>) (events, command) =  
+let expectWithCreationFuncs (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (expected: Result<Event, CommandFailure>) (events, command) =  
     let repository = new InMemoryUserRepository()  
     replay events repository
     let actual = handleCommand createGuid createTimestamp hashFunc command repository
 
     match expected, actual with
-    | Failure e, Failure a -> a =? a //not concerned about the precise error message
+    | Failure (BadRequest e), Failure (BadRequest a) -> a =? a //not concerned about the precise error message
+    | Failure NotFound, Failure NotFound -> Failure NotFound =? Failure NotFound
     | _ -> expected =? actual

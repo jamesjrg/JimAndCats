@@ -80,6 +80,10 @@ and PasswordChanged = {
     PasswordHash: PasswordHash
 }
 
+type CommandFailure =
+    | BadRequest of string
+    | NotFound
+
 (* End events *)
 
 (* Event handlers *)
@@ -143,21 +147,21 @@ let createPasswordHash hashFunc (s:string) =
     else
         Success (PasswordHash (hashFunc (trimmedPassword)))
 
-let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) (repository : IUserRepository) =
+let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) =
     let tryCreateUsername (command : CreateUser) =
         match createUsername command.Name with
         | Success name -> Success (name, command)
-        | Failure f -> Failure f
+        | Failure f -> Failure (BadRequest f)
     
     let tryCreateEmailAddress (name, command : CreateUser) =
         match createEmailAddress command.Email with
         | Success email -> Success (name, email, command)
-        | Failure f -> Failure f
+        | Failure f -> Failure (BadRequest f)
 
     let tryCreatePasswordHash (name, email, command : CreateUser) =
         match createPasswordHash hashFunc command.Password with
         | Success hash -> Success (name, email, hash)
-        | Failure f -> Failure f
+        | Failure f -> Failure (BadRequest f)
 
     //password hashing expensive so should come last
     command
@@ -173,23 +177,26 @@ let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) has
         }))
 
 let setName (command : SetName) (repository : IUserRepository) =
-    match createUsername command.Name with
-    | Success name -> Success (NameChanged { Id = command.Id; Name = name; })
-    | Failure f -> Failure f
+    match repository.Get(command.Id), createUsername command.Name with
+    | None, _ -> Failure NotFound
+    | _, Success name -> Success (NameChanged { Id = command.Id; Name = name; })
+    | _, Failure f -> Failure (BadRequest f)
 
 let setEmail (command : SetEmail) (repository : IUserRepository) =
-    match createEmailAddress command.Email with
-    | Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
-    | Failure f -> Failure f
+    match repository.Get(command.Id), createEmailAddress command.Email with
+    | None, _ -> Failure NotFound
+    | _, Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
+    | _, Failure f -> Failure (BadRequest f)
 
 let setPassword hashFunc (command : SetPassword) (repository : IUserRepository) =
-    match createPasswordHash hashFunc command.Password with
-    | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
-    | Failure f -> Failure f
+    match repository.Get(command.Id), createPasswordHash hashFunc command.Password with
+    | None, _ -> Failure NotFound
+    | _, Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
+    | _, Failure f -> Failure (BadRequest f)
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IUserRepository) =
     match command with
-        | CreateUser command -> createUser createGuid createTimestamp hashFunc command repository
+        | CreateUser command -> createUser createGuid createTimestamp hashFunc command
         | SetName command -> setName command repository
         | SetEmail command -> setEmail command repository
         | SetPassword command -> setPassword hashFunc command repository
