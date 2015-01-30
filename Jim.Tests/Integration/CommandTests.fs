@@ -24,9 +24,9 @@ let commandTests =
     testList "Command integration tests"
         [
         testCase "Should be able to create a user" (fun () ->
-            let actual = requestContentWithPostData [] HttpMethod.POST "/users/create" """{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}"""
+            let content, statusCode = requestResponseWithPostData [] HttpMethod.POST "/users/create" """{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" statusCodeAndContent
 
-            test <@ actual.Contains("\"Id\":") && actual.Contains("User created") @>)
+            test <@ content.Contains("\"Id\":") && statusCode = HttpStatusCode.OK @>)
 
         testCase "Attempting to create user with too short a username returns bad request" (fun () ->
             let actualContent, actualStatusCode = requestResponseWithPostData [] HttpMethod.POST "/users/create" """{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" statusCodeAndContent
@@ -34,14 +34,14 @@ let commandTests =
             test <@ actualContent.Contains("Username must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to rename a user" (fun () ->
-            let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}"""
+            let actual = requestResponseWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" status_code
 
-            test <@ actual.Contains("Frank Moss") && actual.Contains("Name changed") @>)
+            test <@ actual = HttpStatusCode.OK @>)
 
         testCase "Should not be able to change name to invalid username" (fun () ->
-            let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Bob"}"""
+            let content, statusCode = requestResponseWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Bob"}""" statusCodeAndContent
 
-            test <@ actual.Contains("Username must be at least") @>)
+            test <@ content.Contains("Username must be at least") && statusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change email address" (fun () ->
             let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frank@itv.com"}"""
