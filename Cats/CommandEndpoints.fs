@@ -40,5 +40,8 @@ let runCommand postCommand (command:Command) : Types.WebPart =
         | Failure NotFound -> return! genericNotFound httpContext
     }
 
-let createCat postCommand (command:CreateCat) =   
-    runCommand postCommand (CreateCat {Title=command.Title})
+let createCat postCommand (request:CreateCatRequest) =   
+    runCommand postCommand (CreateCat { CreateCat.Title=request.title })
+
+let setTitle postCommand (id:Guid) (request:SetTitleRequest) =   
+    runCommand postCommand (SetTitle {Id=id; Title=request.title})

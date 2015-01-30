@@ -8,7 +8,7 @@ open NodaTime
 open System
 open System.Collections.Generic
 
-type State = int
+let minTitleLength = 3
 
 type Command =
     | CreateCat of CreateCat
@@ -59,23 +59,29 @@ let handleEvent (repository : ICatRepository) = function
     | CatCreated event -> catCreated repository event
     | TitleChanged event -> titleChanged repository event
 
-let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command:CreateCat) =
-    Success (CatCreated {
-            Id = createGuid()
-            Title = PageTitle command.Title
-            CreationTime = createTimestamp()
-        })
+let createTitle (s:string) =
+    let trimmedTitle = s.Trim()
+     
+    if trimmedTitle.Length < minTitleLength then
+        Failure (sprintf "Title must be at least %d characters" minTitleLength)
+    else
+        Success (PageTitle trimmedTitle)
 
-let setTitle (command:SetTitle) =
-    Success (TitleChanged {
-            Id = command.Id
-            Title = PageTitle command.Title
-        })
+let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command:CreateCat) =
+    match createTitle command.Title with
+    | Success title -> Success (CatCreated { Id = createGuid(); Title = title; CreationTime = createTimestamp()})
+    | Failure f -> Failure (BadRequest f)
+
+let setTitle (repository : ICatRepository) (command:SetTitle) =
+    match repository.Get(command.Id), createTitle command.Title with
+    | None, _ -> Failure NotFound
+    | _, Success title -> Success (TitleChanged { Id = command.Id; Title = PageTitle command.Title })
+    | _, Failure f -> Failure (BadRequest f)
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command repository =
     match command with
         | CreateCat command -> createCat createGuid createTimestamp command
-        | SetTitle command -> setTitle command
+        | SetTitle command -> setTitle repository command
 
 let handleCommandWithAutoGeneration command repository =
     handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository

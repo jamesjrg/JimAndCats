@@ -3,9 +3,11 @@
 open System
 
 type CreateCatRequest = {
-    name : string
-    email : string
-    password : string
+    title : string
+    }
+
+type SetTitleRequest = {
+    title : string
     }
 
 type GenericResponse = {

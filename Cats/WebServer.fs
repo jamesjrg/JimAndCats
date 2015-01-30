@@ -32,8 +32,9 @@ let webApp postCommand repository =
         url_scan_guid "/cats/%s" (fun id -> QueryEndpoints.getCat repository id)
         url "/" >>= index ]
     POST >>= choose [
-        url "/cats/create" >>= tryMapJson (CommandEndpoints.createCat postCommand)
-        ]
+        url "/cats/create" >>= tryMapJson (CommandEndpoints.createCat postCommand) ]
+    PUT >>= choose [ 
+        url_scan_guid "/cats/%s/title" (fun id -> tryMapJson <| CommandEndpoints.setTitle postCommand id) ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 

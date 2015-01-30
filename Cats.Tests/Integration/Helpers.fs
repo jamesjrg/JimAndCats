@@ -30,6 +30,9 @@ let createPostData (str:string) =
 
 let streamId = "testStream"
 
+let statusCodeAndContent response =
+    content_string response, status_code response
+
 let getTestCommandPosterAndRepo events =
     let store = EventPersistence.InMemoryStore<Event>() :> IEventStore<Event>
     if not (List.isEmpty events) then

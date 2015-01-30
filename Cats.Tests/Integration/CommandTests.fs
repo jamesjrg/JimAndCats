@@ -24,24 +24,24 @@ let commandTests =
     testList "Command integration tests"
         [
         testCase "Should be able to create a cat" (fun () ->
-            let actual = requestContentWithPostData [] HttpMethod.POST "/cats/create" """{"title":"My lovely cat"}"""
+            let content, statusCode = requestResponseWithPostData [] HttpMethod.POST "/cats/create" """{"title":"My lovely cat"}""" statusCodeAndContent
 
-            test <@ actual.Contains("\"Id\":") && actual.Contains("CAT created") @>)
+            test <@ content.Contains("\"Id\":") && statusCode = HttpStatusCode.OK @>)
 
         testCase "Creating a cat with too short a name returns bad request" (fun () ->
-            let actual = requestContentWithPostData [] HttpMethod.POST "/cats/create" """{"title":"a"}"""
+            let actualContent, actualStatusCode = requestResponseWithPostData [] HttpMethod.POST "/cats/create" """{"title":"a"}""" statusCodeAndContent
 
-            test <@ actual.Contains("Title must be at least") @>)
+            test <@ actualContent.Contains("Title must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change title" (fun () ->
-            let actual = requestContentWithPostData catHasBeenCreated HttpMethod.PUT "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}"""
+            let actual = requestResponseWithPostData catHasBeenCreated HttpMethod.PUT "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" status_code
 
-            test <@ actual.Contains("TODO") @>)
+            test <@ actual = HttpStatusCode.OK @>)
 
         testCase "Should not be able to change title to something too short" (fun () ->
-            let actual = requestContentWithPostData catHasBeenCreated HttpMethod.PUT "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"a"}"""
+            let actualContent, actualStatusCode = requestResponseWithPostData catHasBeenCreated HttpMethod.PUT "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"a"}""" statusCodeAndContent
 
-            test <@ actual.Contains("TODO") @>)
+            test <@ actualContent.Contains("Title must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should get 404 trying to set title of non-existent cat" (fun () ->
             let actual = requestResponseWithPostData [] HttpMethod.PUT "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" status_code
