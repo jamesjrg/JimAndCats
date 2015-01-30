@@ -3,7 +3,10 @@
 open System
 open NodaTime
 
+type PageTitle = PageTitle of string
+
 type Cat = {
     Id: Guid
+    Title: PageTitle
     CreationTime: Instant
 }
