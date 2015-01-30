@@ -2,12 +2,14 @@
 
 open Cats
 open Cats.CommandAgent
+open Cats.AppSettings
 
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
 open Suave.Types
 open Suave.Web
+open Suave.Extensions.ConfigDefaults
 open Suave.Extensions.Json
 
 open Logary
@@ -15,11 +17,7 @@ open Logary
 open System
 open System.IO
 
-let web_config =
-    { default_config with
-        mime_types_map = mimeTypesWithJson
-        logger = Suave.SuaveAdapter(Logging.logary.GetLogger "suave")
-    }
+let web_config = makeConfig appSettings.Port (Suave.SuaveAdapter(Logging.logary.GetLogger "suave"))
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
@@ -49,7 +47,7 @@ let webApp postCommand repository =
 
 [<EntryPoint>]
 let main argv = 
-    printfn "Starting CATS"    
+    printfn "Starting CATS on %d" appSettings.Port
     try     
         let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
         web_server web_config (webApp postCommand repository)        

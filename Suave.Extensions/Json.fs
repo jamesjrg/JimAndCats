@@ -33,9 +33,3 @@ let tryMapJson (f: 'a -> Types.WebPart): Types.WebPart =
       ParsingAndControl.parse_post_data >>= tryMapJson' f
       RequestErrors.BAD_REQUEST "Unable to parse post data"
     ]
-
-let mimeTypesWithJson =
-  Suave.Http.Writers.default_mime_types_map
-    >=> (function
-    | ".json" -> Suave.Http.Writers.mk_mime_type "application/json" true
-    | _ -> None)
