@@ -73,6 +73,7 @@
     <Compile Include="Logging.fs" />
     <Compile Include="InMemoryCatRepository.fs" />
     <Compile Include="CommandAgent.fs" />
+    <Compile Include="CommandContracts.fs" />
     <Compile Include="CommandEndpoints.fs" />
     <Compile Include="QueryEndpoints.fs" />
     <Compile Include="WebServer.fs" />

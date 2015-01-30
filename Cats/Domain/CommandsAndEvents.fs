@@ -2,6 +2,7 @@
 
 open Cats.Shared.ErrorHandling
 open Cats.Domain.ICatRepository
+open Cats.Domain.CatAggregate
 
 open NodaTime
 open System
@@ -24,10 +25,21 @@ and CatCreated = {
     CreationTime: Instant
 }
 
-let handleEvent (repository : ICatRepository) = function
-    | x -> ()
+type CommandFailure =
+    | BadRequest of string
+    | NotFound
 
-let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) =
+let catCreated (repository:ICatRepository) (event: CatCreated) =
+    repository.Put(
+        {
+            Cat.Id = event.Id
+            CreationTime = event.CreationTime
+        })
+
+let handleEvent (repository : ICatRepository) = function
+    | CatCreated event -> catCreated repository event
+
+let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command:CreateCat) =
     Success (CatCreated {
             Id = createGuid()
             CreationTime = createTimestamp()
@@ -35,7 +47,7 @@ let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) =
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command repository =
     match command with
-        | x -> createCat createGuid createTimestamp
+        | CreateCat command -> createCat createGuid createTimestamp command
 
 let handleCommandWithAutoGeneration command repository =
     handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository

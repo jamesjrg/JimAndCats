@@ -5,6 +5,7 @@ open EventPersistence
 open Cats.Shared.ErrorHandling
 open Cats.AppSettings
 open Cats.InMemoryCatRepository
+open Cats.CommandContracts
 open Cats.CommandAgent
 open Cats.Domain.CommandsAndEvents
 open Suave
@@ -29,7 +30,11 @@ let runCommand postCommand (command:Command) : Types.WebPart =
     async {
         let! result = postCommand command
 
-        return! jsonOK "TODO" httpContext
+        match result with
+        | Success (CatCreated event) ->
+            return! jsonOK ( { CatCreatedResponse.Id = event.Id; Message = "CAT created" }) httpContext
+        | Failure (BadRequest f) -> return! jsonBadRequest ({ GenericResponse.Message = f}) httpContext
+        | Failure NotFound -> return! genericNotFound httpContext
     }
 
 let createCat postCommand () =   

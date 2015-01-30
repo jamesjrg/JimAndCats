@@ -13,7 +13,7 @@ let inline replay events repository =
 
 let Given (events: Event list) = events
 let When (command: Command) events = events, command
-let expectWithCreationFuncs (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (expected: Result<Event, string>) (events, command) =  
+let expectWithCreationFuncs (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (expected: Result<Event, CommandFailure>) (events, command) =  
     let repository = new InMemoryCatRepository()  
     replay events repository
     let actual = handleCommand createGuid createTimestamp command repository

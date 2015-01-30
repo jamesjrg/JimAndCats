@@ -6,7 +6,7 @@ open Cats.Shared.ErrorHandling
 open Cats.Domain.ICatRepository
 open System
 
-type Message = Command * AsyncReplyChannel<Result<Event, string>>
+type Message = Command * AsyncReplyChannel<Result<Event, CommandFailure>>
 
 let getCommandPoster (store:IEventStore<Event>) (repository:ICatRepository) streamId initialVersion = 
     let save expectedVersion events = store.AppendToStream streamId expectedVersion events    
