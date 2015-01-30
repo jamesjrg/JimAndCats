@@ -2,19 +2,15 @@
 
 open Jim
 open Jim.CommandAgent
-open Jim.Logging
 
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
-open Suave.Http.Successful
 open Suave.Types
-open Suave.Utils
 open Suave.Web
 open Suave.Extensions.Json
 
 open Logary
-open Logary.Suave
 
 open System
 open System.IO
@@ -22,12 +18,12 @@ open System.IO
 let web_config =
     { default_config with
         mime_types_map = mimeTypesWithJson
-        logger = SuaveAdapter(logary.GetLogger "suave")
+        logger = Suave.SuaveAdapter(Logging.logary.GetLogger "suave")
     }
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let index = OK "Hello"
+let index = Successful.OK "Hello"
 
 //TODO: don't use exceptions
 let parseId idString =
@@ -64,6 +60,6 @@ let main argv =
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 
-    logary.Dispose()
+    Logging.logary.Dispose()
     0
 

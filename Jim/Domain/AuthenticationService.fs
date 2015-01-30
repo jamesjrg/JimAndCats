@@ -1,7 +1,7 @@
 ﻿module Jim.Domain.AuthenticationService
 
 open Jim.Domain.UserAggregate
-open Jim.ErrorHandling
+open Jim.Shared.ErrorHandling
 open Jim.Domain.IUserRepository
 open Jim.Domain.Hashing
 open System

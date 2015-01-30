@@ -1,7 +1,7 @@
 ﻿module Jim.QueryEndpoints
 
 open System
-open Jim.ErrorHandling
+open Jim.Shared.ErrorHandling
 open Jim.Domain.AuthenticationService
 open Jim.Domain.UserAggregate
 open Jim.Domain.IUserRepository

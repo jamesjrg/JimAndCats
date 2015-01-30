@@ -9,8 +9,6 @@ open System.Collections.Generic
 
 (* An in-memory repository implementation. This might be a SQL database in a large system *)
 
-open Jim.Domain.UserAggregate
-
 type State = Dictionary<Guid, User>
 
 type InMemoryUserRepository() =

@@ -5,7 +5,7 @@ open NodaTime
 open System
 open System.Text.RegularExpressions
 
-open Jim.ErrorHandling
+open Jim.Shared.ErrorHandling
 open Jim.Domain.Hashing
 open Jim.Domain.UserAggregate
 open Jim.Domain.IUserRepository

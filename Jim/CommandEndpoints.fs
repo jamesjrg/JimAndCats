@@ -1,7 +1,7 @@
 ﻿module Jim.CommandEndpoints
 
 open System
-open Jim.ErrorHandling
+open Jim.Shared.ErrorHandling
 open Jim.AppSettings
 open Jim.CommandContracts
 open Jim.Domain.CommandsAndEvents
@@ -15,7 +15,7 @@ open Suave.Extensions.Json
 
 (* If the system used a SQL database to maintain state for the user repository then the repository instance would not need to be shared between the command and query services, and the query service would not rely on the event store at all *)
 let getCommandPosterAndRepository() =
-    let streamId = appSettings.UserStream
+    let streamId = appSettings.PrivateIdentityStream
     let store =
         match appSettings.UseEventStore with
         | true -> new EventPersistence.EventStore<Event>(streamId) :> IEventStore<Event>

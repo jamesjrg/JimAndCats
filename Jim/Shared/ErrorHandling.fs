@@ -1,4 +1,4 @@
-﻿module Jim.ErrorHandling
+﻿module Jim.Shared.ErrorHandling
 
 type Result<'a, 'b> = 
     | Success of 'a

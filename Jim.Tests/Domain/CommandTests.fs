@@ -1,6 +1,6 @@
 ﻿module Jim.Tests.Domain.CommandTests
 
-open Jim.ErrorHandling
+open Jim.Shared.ErrorHandling
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
 open Jim.Tests.Domain.Specifications
