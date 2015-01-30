@@ -28,10 +28,10 @@ let commandTests =
 
             test <@ actual.Contains("\"Id\":") && actual.Contains("User created") @>)
 
-        testCase "Should not be able to create user with too short a username" (fun () ->
-            let actual = requestContentWithPostData [] HttpMethod.POST "/users/create" """{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}"""
+        testCase "Attempting to create user with too short a username returns bad request" (fun () ->
+            let actualContent, actualStatusCode = requestResponseWithPostData [] HttpMethod.POST "/users/create" """{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" statusCodeAndContent
 
-            test <@ actual.Contains("Username must be at least") @>)
+            test <@ actualContent.Contains("Username must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to rename a user" (fun () ->
             let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}"""
