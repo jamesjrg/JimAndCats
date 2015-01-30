@@ -17,106 +17,64 @@ open Suave.Testing
 open Fuchu
 open Swensen.Unquote.Assertions
 
+let userHasBeenCreated = [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "128000:rp4MqoM6SelmRHtM8XF87Q==:MCtWeondG9hLIQ7zahxV6JTPSt4="; CreationTime = epoch} ]
+
 [<Tests>]
 let commandTests =
     testList "Command integration tests"
         [
         testCase "Should be able to create a user" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo []
-
-            let postData = createPostData """{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}"""
-
-            let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.POST "/users/create" postData
+            let actual = requestContentWithPostData [] HttpMethod.POST "/users/create" """{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}"""
 
             test <@ actual.Contains("\"Id\":") && actual.Contains("User created") @>)
 
         testCase "Should not be able to create user with too short a username" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo []
-
-            let postData = createPostData """{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}"""
-
-            let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.POST "/users/create" postData
+            let actual = requestContentWithPostData [] HttpMethod.POST "/users/create" """{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}"""
 
             test <@ actual.Contains("Username must be at least") @>)
 
         testCase "Should be able to rename a user" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
-
-            let postData = createPostData """{"name":"Frank Moss"}"""
-
-            let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" postData
+            let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}"""
 
             test <@ actual.Contains("Frank Moss") && actual.Contains("Name changed") @>)
 
         testCase "Should not be able to change name to invalid username" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
+            let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Bob"}"""
 
-            let postData = createPostData """{"name":"Bob"}"""
-
-            let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" postData
-
-            test <@ actual.Contains("Username") @>)
+            test <@ actual.Contains("Username must be at least") @>)
 
         testCase "Should be able to change email address" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
-
-            let postData = createPostData """{"email":"frank@itv.com"}"""
-
-            let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" postData
+            let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frank@itv.com"}"""
 
             test <@ actual.Contains("frank@itv.com") && actual.Contains("Email changed") @>)
 
         testCase "Should not be able to change email to invalid address" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
-
-            let postData = createPostData """{"email":"frankitv.com"}"""
-
-            let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" postData
+            let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frankitv.com"}"""
 
             test <@ actual.Contains("Invalid email") @>)
 
         testCase "Should be able to change password" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
-
-            let postData = createPostData """{"password":"n3wp4ss"}"""
-
-            let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" postData
+            let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" """{"password":"n3wp4ss"}"""
 
             test <@ actual.Contains("Password changed") @>)
 
         testCase "Should not be able to change password to something too short" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch} ]
-
-            let postData = createPostData """{"password":"p4ss"}"""
-
-            let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" postData
+            let actual = requestContentWithPostData userHasBeenCreated HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"p4ss"}"""
 
             test <@ actual.Contains("Password must be") @>)
 
         testCase "Should get 404 trying to set name on non-existent user" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo []
+            let actual = requestResponseWithPostData [] HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" status_code
 
-            let postData = createPostData """{"name":"Mr New Name"}"""
-
-            let actual_status_code = (run_with' (webApp postCommand repo)) |> req_resp_with_defaults HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" postData status_code
-
-            HttpStatusCode.NotFound =? actual_status_code)
+            HttpStatusCode.NotFound =? actual)
 
         testCase "Should get 404 trying to set email of non-existent user" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo []
+            let actual = requestResponseWithPostData [] HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" """{"email":"a@b.com"}""" status_code
 
-            let postData = createPostData """{"email":"a@b.com"}"""
-
-            let actual_status_code = (run_with' (webApp postCommand repo)) |> req_resp_with_defaults HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" postData status_code
-
-            HttpStatusCode.NotFound =? actual_status_code)
+            HttpStatusCode.NotFound =? actual)
 
         testCase "Should get 404 trying to set password of non-existent user" (fun () ->
-            let postCommand, repo = getTestCommandPosterAndRepo []
+            let actual = requestResponseWithPostData [] HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"n3wp4ss"}""" status_code
 
-            let postData = createPostData """{"password":"flibbles123"}"""
-
-            let actual_status_code = (run_with' (webApp postCommand repo)) |> req_resp_with_defaults HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" postData status_code
-
-            HttpStatusCode.NotFound =? actual_status_code)
+            HttpStatusCode.NotFound =? actual)
         ]
