@@ -12,8 +12,7 @@ open Jim.Domain.IUserRepository
 
 (* Constants *)
 
-//using PBKDF2 with lots of iterations so needn't be huge
-let minPasswordLength = 7
+let minPasswordLength = 7 //using PBKDF2 with lots of iterations so needn't be huge
 let minUsernameLength = 5
 
 (* End Constants *)
