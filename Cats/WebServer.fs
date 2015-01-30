@@ -6,6 +6,7 @@ open Cats.CommandAgent
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
+open Suave.Types
 open Suave.Web
 open Suave.Extensions.Json
 
@@ -37,7 +38,7 @@ let webApp postCommand repository =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
-        url "/cats" >>= QueryEndpoints.listCats repository
+        url "/cats" >>= request (fun r -> QueryEndpoints.listCats repository)
         url_scan "/cats/%s" (fun id -> QueryEndpoints.getCat repository (parseId id))
         url "/" >>= index ]
     POST >>= choose [

@@ -38,7 +38,7 @@ let webApp postCommand repository =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
-        url "/users" >>= QueryEndpoints.listUsers repository
+        url "/users" >>= request (fun r -> QueryEndpoints.listUsers repository)
         url_scan "/users/%s" (fun id -> QueryEndpoints.getUser repository (parseId id))
         url "/" >>= index ]
     POST >>= choose [
