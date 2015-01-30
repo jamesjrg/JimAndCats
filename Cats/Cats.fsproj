@@ -66,10 +66,15 @@
     <None Include="App.config" />
     <None Include="static\api-docs.json" />
     <Compile Include="Shared\ErrorHandling.fs" />
-    <Compile Include="Domain\CatRepository.fs" />
+    <Compile Include="Domain\CatAggregate.fs" />
+    <Compile Include="Domain\ICatRepository.fs" />
     <Compile Include="Domain\CommandsAndEvents.fs" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="Logging.fs" />
+    <Compile Include="InMemoryCatRepository.fs" />
+    <Compile Include="CommandAgent.fs" />
+    <Compile Include="CommandEndpoints.fs" />
+    <Compile Include="QueryEndpoints.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>
   <ItemGroup>

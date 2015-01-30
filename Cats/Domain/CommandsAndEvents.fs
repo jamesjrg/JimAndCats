@@ -1,7 +1,9 @@
-﻿module Cats.Domain
+﻿module Cats.Domain.CommandsAndEvents
+
+open Cats.Shared.ErrorHandling
+open Cats.Domain.ICatRepository
 
 open NodaTime
-
 open System
 open System.Collections.Generic
 
@@ -21,11 +23,11 @@ and SomethingEvent = {
     Something: int
    }
 
-let handleEvent (state : State) = function
-    | x -> 10
+let handleEvent (repository : ICatRepository) = function
+    | x -> ()
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command state =
     match command with
-        | x -> [SomethingEvent {Something=5}]
+        | x -> Success (SomethingEvent {Something=5})
 
 let handleCommandWithAutoGeneration command state = handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command state

@@ -1,19 +1,15 @@
 ﻿module Cats.WebServer
 
-open Cats.Domain
-open Cats.Logging
+open Cats
+open Cats.CommandAgent
 
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
-open Suave.Http.Successful
-open Suave.Types
-open Suave.Utils
 open Suave.Web
 open Suave.Extensions.Json
 
 open Logary
-open Logary.Suave
 
 open System
 open System.IO
@@ -21,29 +17,44 @@ open System.IO
 let web_config =
     { default_config with
         mime_types_map = mimeTypesWithJson
-        logger = SuaveAdapter(logary.GetLogger "suave")
+        logger = Suave.SuaveAdapter(Logging.logary.GetLogger "suave")
     }
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let index = OK "Hello"
+let index = Successful.OK "Hello"
 
-let webApp postCommand =
+//TODO: don't use exceptions
+let parseId idString =
+    match Guid.TryParse(idString) with
+    | true, guid -> guid
+    | false, _ -> raise (new Exception("Failed to parse id: " + idString))
+
+let parseIdAndMapToResponse f state id =
+    tryMapJson (f state (parseId id))
+
+let webApp postCommand repository =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
-        url "/" >>= index ]  
+        url "/cats" >>= QueryEndpoints.listCats repository
+        url_scan "/cats/%s" (fun id -> QueryEndpoints.getCat repository (parseId id))
+        url "/" >>= index ]
+    POST >>= choose [
+        url "/cats/create" >>= tryMapJson (CommandEndpoints.createCat postCommand)
+        ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 
 [<EntryPoint>]
 let main argv = 
-    printfn "Starting CATS"    
-    try        
-        web_server web_config (webApp <| fun x -> ())       
+    printfn "Starting JIM"    
+    try     
+        let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
+        web_server web_config (webApp postCommand repository)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 
-    logary.Dispose()
+    Logging.logary.Dispose()
     0
 
