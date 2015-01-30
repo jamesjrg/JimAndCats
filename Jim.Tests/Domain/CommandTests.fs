@@ -93,4 +93,19 @@ let tests =
                 Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
                 |> When ( SetPassword { Id = guid1; Password="                 "; } )
                 |> ExpectFailure)
+
+            testCase "Should not be able to change name of non-existent user" (fun () ->
+                Given []
+                |> When ( SetName { Id = guid1; Name="flibbles123"; } )
+                |> ExpectFailure)
+
+            testCase "Should not be able to change email of non-existent user" (fun () ->
+                Given []
+                |> When ( SetEmail { Id = guid1; Email="a@b.com"; } )
+                |> ExpectFailure)
+
+            testCase "Should not be able to change password of non-existent user" (fun () ->
+                Given []
+                |> When ( SetPassword { Id = guid1; Password="flibbles123"; } )
+                |> ExpectFailure)
         ]

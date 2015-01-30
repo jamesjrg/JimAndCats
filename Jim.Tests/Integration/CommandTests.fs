@@ -1,6 +1,7 @@
 ﻿module Jim.Tests.Integration.CommandTests
 
 open System
+open System.Net
 open System.Text
 
 open Jim.Domain.CommandsAndEvents
@@ -91,4 +92,31 @@ let commandTests =
             let actual = (run_with' (webApp postCommand repo)) |> req HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" postData
 
             test <@ actual.Contains("Password must be") @>)
+
+        testCase "Should get 404 trying to set name on non-existent user" (fun () ->
+            let postCommand, repo = getTestCommandPosterAndRepo []
+
+            let postData = createPostData """{"name":"Mr New Name"}"""
+
+            let actual_status_code = (run_with' (webApp postCommand repo)) |> req_resp_with_defaults HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" postData status_code
+
+            HttpStatusCode.NotFound =? actual_status_code)
+
+        testCase "Should get 404 trying to set email of non-existent user" (fun () ->
+            let postCommand, repo = getTestCommandPosterAndRepo []
+
+            let postData = createPostData """{"email":"a@b.com"}"""
+
+            let actual_status_code = (run_with' (webApp postCommand repo)) |> req_resp_with_defaults HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" postData status_code
+
+            HttpStatusCode.NotFound =? actual_status_code)
+
+        testCase "Should get 404 trying to set password of non-existent user" (fun () ->
+            let postCommand, repo = getTestCommandPosterAndRepo []
+
+            let postData = createPostData """{"password":"flibbles123"}"""
+
+            let actual_status_code = (run_with' (webApp postCommand repo)) |> req_resp_with_defaults HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" postData status_code
+
+            HttpStatusCode.NotFound =? actual_status_code)
         ]
