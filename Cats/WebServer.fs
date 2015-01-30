@@ -10,6 +10,7 @@ open Suave.Http.Applicatives
 open Suave.Types
 open Suave.Web
 open Suave.Extensions.ConfigDefaults
+open Suave.Extensions.Guids
 open Suave.Extensions.Json
 
 open Logary
@@ -23,21 +24,12 @@ let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
 let index = Successful.OK "Hello"
 
-//TODO: don't use exceptions
-let parseId idString =
-    match Guid.TryParse(idString) with
-    | true, guid -> guid
-    | false, _ -> raise (new Exception("Failed to parse id: " + idString))
-
-let parseIdAndMapToResponse f state id =
-    tryMapJson (f state (parseId id))
-
 let webApp postCommand repository =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
         url "/cats" >>= request (fun r -> QueryEndpoints.listCats repository)
-        url_scan "/cats/%s" (fun id -> QueryEndpoints.getCat repository (parseId id))
+        url_scan_guid "/cats/%s" (fun id -> QueryEndpoints.getCat repository id)
         url "/" >>= index ]
     POST >>= choose [
         url "/cats/create" >>= tryMapJson (CommandEndpoints.createCat postCommand)

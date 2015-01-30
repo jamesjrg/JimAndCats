@@ -10,6 +10,7 @@ open Jim.InMemoryUserRepository
 open Jim.CommandAgent
 open EventPersistence
 open Suave
+open Suave.Http
 open Suave.Types
 open Suave.Extensions.Json
 
@@ -40,7 +41,7 @@ let runCommand postCommand (command:Command) : Types.WebPart =
             return! jsonOK ( { GenericResponse.Message = "Email changed to: " + extractEmail event.Email }) httpContext
         | Success (PasswordChanged event) ->
             return! jsonOK ( { GenericResponse.Message = "Password changed" }) httpContext
-        | Failure (BadRequest f) -> return! jsonBadRequest ({ GenericResponse.Message = f}) httpContext
+        | Failure (BadRequest f) -> return! RequestErrors.BAD_REQUEST f httpContext
         | Failure NotFound -> return! genericNotFound httpContext
     }
 

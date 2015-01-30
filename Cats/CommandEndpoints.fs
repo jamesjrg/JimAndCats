@@ -9,6 +9,7 @@ open Cats.CommandContracts
 open Cats.CommandAgent
 open Cats.Domain.CommandsAndEvents
 open Suave
+open Suave.Http
 open Suave.Types
 open Suave.Extensions.Json
 
@@ -33,7 +34,7 @@ let runCommand postCommand (command:Command) : Types.WebPart =
         match result with
         | Success (CatCreated event) ->
             return! jsonOK ( { CatCreatedResponse.Id = event.Id; Message = "CAT created" }) httpContext
-        | Failure (BadRequest f) -> return! jsonBadRequest ({ GenericResponse.Message = f}) httpContext
+        | Failure (BadRequest f) -> return! RequestErrors.BAD_REQUEST f httpContext
         | Failure NotFound -> return! genericNotFound httpContext
     }
 

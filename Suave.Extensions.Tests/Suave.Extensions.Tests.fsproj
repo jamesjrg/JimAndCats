@@ -52,6 +52,7 @@
     <None Include="App.config" />
     <None Include="paket.references" />
     <Compile Include="Json.fs" />
+    <Compile Include="Guids.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

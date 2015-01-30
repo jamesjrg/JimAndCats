@@ -15,7 +15,6 @@ open Suave.Extensions.Json
 open Fuchu
 open Swensen.Unquote.Assertions
 
-
 let run_with' = run_with default_config
 
 let req_resp_with_defaults methd resource data f_result =
