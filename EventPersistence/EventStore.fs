@@ -22,7 +22,6 @@ type EventStore<'a>(streamId:string) =
         async {
             let connection = EventStoreConnection.Create(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1113))
             do! Async.AwaitTask ( connection.ConnectAsync() )
-            let credential = SystemData.UserCredentials("admin", "changeit")
             return connection
         }
         
