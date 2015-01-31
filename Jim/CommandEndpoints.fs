@@ -22,9 +22,11 @@ open Suave.Extensions.Json
 let getCommandPosterAndRepository() =
     let streamId = appSettings.PrivateIdentityStream
     let store =
-        match appSettings.UseEventStore with
-        | true -> new MicroCQRS.Common.EventStore<Event>(streamId) :> IEventStore<Event>
-        | false -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
+        match appSettings.WriteToInMemoryStoreOnly with
+        | false -> new MicroCQRS.Common.EventStore<Event>(
+            appSettings.PrivateEventStoreIp,
+            appSettings.PrivateEventStorePort) :> IEventStore<Event>
+        | true -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new InMemoryUserRepository()
     let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
     let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion

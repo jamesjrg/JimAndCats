@@ -52,3 +52,9 @@ type InMemoryStore<'a>() =
             | _ -> raise WrongExpectedVersion 
         
             async{()}
+
+        member this.SubscribeToStreamFrom
+            streamId
+            (lastCheckpoint : int)
+            (handleEvent: 'a -> unit) =
+            ()

@@ -42,6 +42,7 @@ let main argv =
     printfn "Starting CATS on %d" appSettings.Port
     try     
         let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
+        QueryEndpoints.JimEventSubscriber.startSubscribingToIdentityEvents()
         web_server web_config (webApp postCommand repository)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())

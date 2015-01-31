@@ -19,7 +19,7 @@ let testCode =
     async {
         let testEvents = [Child1(2, 3); Child2("a", "b")]
         let streamId = "integrationTest"
-        let store = new MicroCQRS.Common.EventStore<TestRecordParent>(streamId) :> IEventStore<TestRecordParent>
+        let store = new MicroCQRS.Common.EventStore<TestRecordParent>("127.0.0.1", 1113) :> IEventStore<TestRecordParent>
         do! store.AppendToStream streamId -1 testEvents
         let! events, lastEvent, nextEvent = store.ReadStream streamId 0 500
 
