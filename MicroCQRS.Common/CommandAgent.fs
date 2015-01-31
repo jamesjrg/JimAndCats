@@ -1,13 +1,21 @@
 ﻿module MicroCQRS.Common.CommandAgent
 
 open MicroCQRS.Common
+open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
 open System
 
-let getCommandPoster<'TCommand, 'TEvent, 'TRepository, 'TCommandFailure> (store:IEventStore<'TEvent>) (repository:'TRepository) (handleCommand:'TCommand -> 'TRepository -> Result<'TEvent, 'TCommandFailure>) (handleEvent:'TRepository -> 'TEvent -> unit) (streamId:string) (initialVersion:int) = 
+let getCommandPoster<'TCommand, 'TEvent, 'TRepository>
+    (store:IEventStore<'TEvent>)
+    (repository:'TRepository)
+    (handleCommand:'TCommand -> 'TRepository -> Result<'TEvent, CommandFailure>)
+    (handleEvent:'TRepository -> 'TEvent -> unit)
+    (streamId:string)
+    (initialVersion:int) = 
+    
     let save expectedVersion events = store.AppendToStream streamId expectedVersion events
 
-    let agent = MailboxProcessor<'TCommand * AsyncReplyChannel<Result<'TEvent, 'TCommandFailure>>>.Start <| fun inbox -> 
+    let agent = MailboxProcessor<'TCommand * AsyncReplyChannel<Result<'TEvent, CommandFailure>>>.Start <| fun inbox -> 
         let rec messageLoop version = async {
             let! command, replyChannel = inbox.Receive()
             

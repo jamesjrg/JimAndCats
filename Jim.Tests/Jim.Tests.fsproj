@@ -52,9 +52,8 @@
     <None Include="paket.references" />
     <None Include="App.config" />
     <Compile Include="Domain\Hashing.fs" />
-    <Compile Include="Domain\Specifications.fs" />
     <Compile Include="Domain\CommandTests.fs" />
-    <Compile Include="Integration\Helpers.fs" />
+    <Compile Include="Integration\CreateWebServer.fs" />
     <Compile Include="Integration\CommandTests.fs" />
     <Compile Include="Integration\QueryTests.fs" />
     <Compile Include="Program.fs" />
@@ -63,6 +62,11 @@
     <ProjectReference Include="..\Jim\Jim.fsproj">
       <Name>Jim</Name>
       <Project>{72fa52a4-85c8-40cc-8053-fb652ac186c3}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj">
+      <Name>MicroCQRS.Common.Testing</Name>
+      <Project>{5fd77a37-8aed-4a7d-8134-6c0aef0e09b3}</Project>
       <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\MicroCQRS.Common\MicroCQRS.Common.fsproj">

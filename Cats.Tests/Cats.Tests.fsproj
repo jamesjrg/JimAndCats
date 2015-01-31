@@ -50,10 +50,9 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
-    <Compile Include="Integration\Helpers.fs" />
+    <Compile Include="Integration\CreateWebServer.fs" />
     <Compile Include="Integration\CommandTests.fs" />
     <Compile Include="Integration\QueryTests.fs" />
-    <Compile Include="Domain\Specifications.fs" />
     <Compile Include="Domain\CommandTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -61,6 +60,11 @@
     <ProjectReference Include="..\Cats\Cats.fsproj">
       <Name>Cats</Name>
       <Project>{12b66eec-6091-4194-b790-284569c12335}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj">
+      <Name>MicroCQRS.Common.Testing</Name>
+      <Project>{5fd77a37-8aed-4a7d-8134-6c0aef0e09b3}</Project>
       <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\MicroCQRS.Common\MicroCQRS.Common.fsproj">

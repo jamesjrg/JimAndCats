@@ -5,6 +5,7 @@ open NodaTime
 open System
 open System.Text.RegularExpressions
 
+open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
 open Jim.Domain.Hashing
 open Jim.Domain.UserAggregate
@@ -78,10 +79,6 @@ and PasswordChanged = {
     Id: Guid
     PasswordHash: PasswordHash
 }
-
-type CommandFailure =
-    | BadRequest of string
-    | NotFound
 
 (* End events *)
 

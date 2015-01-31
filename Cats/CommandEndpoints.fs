@@ -1,13 +1,17 @@
 ﻿module Cats.CommandEndpoints
 
 open System
+
 open MicroCQRS.Common
+open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
 open MicroCQRS.Common.CommandAgent
+
 open Cats.AppSettings
 open Cats.InMemoryCatRepository
 open Cats.CommandContracts
 open Cats.Domain.CommandsAndEvents
+
 open Suave
 open Suave.Http
 open Suave.Types

@@ -1,13 +1,14 @@
 ﻿module Cats.Tests.Domain.CommandTests
 
-open MicroCQRS.Common.Result
 open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
-open Cats.Tests.Domain.Specifications
+open Cats.InMemoryCatRepository
+open Fuchu
+open MicroCQRS.Common.Result
+open MicroCQRS.Common.CommandFailure
+open MicroCQRS.Common.Testing.BDDHelpers
 open NodaTime
 open System
-
-open Fuchu
 
 let createGuid1 () = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
 let guid1 = createGuid1()
@@ -17,9 +18,9 @@ let epoch = createEpoch()
 
 let catHasBeenCreated = [CatCreated { Id = guid1; Title=PageTitle "My lovely crowdfunding ask template"; CreationTime = epoch }]
 
-let Expect: Result<Event,CommandFailure> -> Event list * Command -> unit = Specifications.expectWithCreationFuncs createGuid1 createEpoch
+let Expect: Result<Event,CommandFailure> -> Event list * Command -> unit = Expect' (fun () -> new InMemoryCatRepository()) handleEvent (handleCommand createGuid1 createEpoch)
 let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
-let ExpectSuccess event = Specifications.expectWithCreationFuncs createGuid1 createEpoch (Success event)
+let ExpectSuccess event = Expect (Success event)
 
 [<Tests>]
 let tests =

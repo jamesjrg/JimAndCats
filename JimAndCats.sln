@@ -26,6 +26,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Suave.Extensions", "Suave.E
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Suave.Extensions.Tests", "Suave.Extensions.Tests\Suave.Extensions.Tests.fsproj", "{D70A0737-7D44-4F38-B2C6-1A7F6D676984}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MicroCQRS.Common.Testing", "MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj", "{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{D70A0737-7D44-4F38-B2C6-1A7F6D676984}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D70A0737-7D44-4F38-B2C6-1A7F6D676984}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D70A0737-7D44-4F38-B2C6-1A7F6D676984}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

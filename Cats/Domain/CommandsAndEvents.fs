@@ -1,6 +1,7 @@
 ﻿module Cats.Domain.CommandsAndEvents
 
 open MicroCQRS.Common.Result
+open MicroCQRS.Common.CommandFailure
 open Cats.Domain.ICatRepository
 open Cats.Domain.CatAggregate
 
@@ -37,10 +38,6 @@ and TitleChanged = {
     Id: Guid
     Title: PageTitle
 }
-
-type CommandFailure =
-    | BadRequest of string
-    | NotFound
 
 let catCreated (repository:ICatRepository) (event: CatCreated) =
     repository.Put(

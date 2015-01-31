@@ -4,6 +4,7 @@ open System
 
 open MicroCQRS.Common.CommandAgent
 open MicroCQRS.Common
+open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
 
 open Jim.AppSettings
