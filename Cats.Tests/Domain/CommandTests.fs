@@ -18,7 +18,7 @@ let epoch = createEpoch()
 let catHasBeenCreated = [CatCreated { Id = guid1; Title=PageTitle "My lovely crowdfunding ask template"; CreationTime = epoch }]
 
 let Expect: Result<Event,CommandFailure> -> Event list * Command -> unit = Specifications.expectWithCreationFuncs createGuid1 createEpoch
-let ExpectBadRequestFailure = Expect (Failure (BadRequest "any string will do"))
+let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
 let ExpectSuccess event = Specifications.expectWithCreationFuncs createGuid1 createEpoch (Success event)
 
 [<Tests>]
@@ -33,12 +33,12 @@ let tests =
             testCase "Should not be able to create a CAT with too short a title" (fun () ->            
                 Given []
                 |> When ( CreateCat { Title="a" } )
-                |> ExpectBadRequestFailure)
+                |> ExpectBadRequest)
 
             testCase "Should not be able to create a CAT with large whitespace title" (fun () ->            
                 Given []
                 |> When ( CreateCat { Title="                 "; } )
-                |> ExpectBadRequestFailure)
+                |> ExpectBadRequest)
 
             testCase "Should be able to retitle a CAT" (fun () ->
                 Given catHasBeenCreated
@@ -48,12 +48,12 @@ let tests =
             testCase "Should not be able to change title to something too short" (fun () ->            
                 Given catHasBeenCreated
                 |> When ( SetTitle { Id = guid1; Title="a"; } )
-                |> ExpectBadRequestFailure)
+                |> ExpectBadRequest)
 
             testCase "Should not be able to change title to whitespace" (fun () ->            
                 Given catHasBeenCreated
                 |> When ( SetTitle { Id = guid1; Title="                   "; } )
-                |> ExpectBadRequestFailure)
+                |> ExpectBadRequest)
 
             testCase "Should not be able to change title of non-existent CAT" (fun () ->
                 Given []
