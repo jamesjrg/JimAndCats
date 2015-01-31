@@ -44,14 +44,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
+    <None Include="App.config" />
     <Compile Include="Result.fs" />
     <Compile Include="CommandFailure.fs" />
-    <Compile Include="EventStoreConnectionExtensions.fs" />
     <Compile Include="IEventStore.fs" />
     <Compile Include="EventStore.fs" />
     <Compile Include="InMemoryStore.fs" />
     <Compile Include="CommandAgent.fs" />
-    <None Include="App.config" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

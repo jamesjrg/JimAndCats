@@ -7,7 +7,7 @@ open System.Text.RegularExpressions
 
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
-open Jim.Domain.Hashing
+open Jim.Domain.AuthenticationService
 open Jim.Domain.UserAggregate
 open Jim.Domain.IUserRepository
 
@@ -203,7 +203,7 @@ let handleCommandWithAutoGeneration (command:Command) (repository : IUserReposit
     handleCommand
         Guid.NewGuid
         (fun () -> SystemClock.Instance.Now)
-        PBKDF2Hash
+        PBKDF2.getHash
         command
         repository
 
