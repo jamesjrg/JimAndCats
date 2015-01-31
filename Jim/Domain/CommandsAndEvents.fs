@@ -175,30 +175,32 @@ let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) has
                 CreationTime = createTimestamp()
         }))
 
-let setName (command : SetName) (repository : IUserRepository) =
-    match repository.Get(command.Id), createUsername command.Name with
-    | None, _ -> Failure NotFound
-    | _, Success name -> Success (NameChanged { Id = command.Id; Name = name; })
-    | _, Failure f -> Failure (BadRequest f)
+let runCommandIfUserExists (repository : IUserRepository) id command f =
+    match repository.Get(id) with
+    | None -> Failure NotFound
+    | _ -> f command
 
-let setEmail (command : SetEmail) (repository : IUserRepository) =
-    match repository.Get(command.Id), createEmailAddress command.Email with
-    | None, _ -> Failure NotFound
-    | _, Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
-    | _, Failure f -> Failure (BadRequest f)
+let setName (command : SetName) =
+    match createUsername command.Name with
+    | Success name -> Success (NameChanged { Id = command.Id; Name = name; })
+    | Failure f -> Failure (BadRequest f)
 
-let setPassword hashFunc (command : SetPassword) (repository : IUserRepository) =
-    match repository.Get(command.Id), createPasswordHash hashFunc command.Password with
-    | None, _ -> Failure NotFound
-    | _, Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
-    | _, Failure f -> Failure (BadRequest f)
+let setEmail (command : SetEmail) =
+    match createEmailAddress command.Email with
+    | Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
+    | Failure f -> Failure (BadRequest f)
+
+let setPassword hashFunc (command : SetPassword) =
+    match createPasswordHash hashFunc command.Password with
+    | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
+    | Failure f -> Failure (BadRequest f)
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IUserRepository) =
     match command with
         | CreateUser command -> createUser createGuid createTimestamp hashFunc command
-        | SetName command -> setName command repository
-        | SetEmail command -> setEmail command repository
-        | SetPassword command -> setPassword hashFunc command repository
+        | SetName command -> runCommandIfUserExists repository command.Id command  setName
+        | SetEmail command -> runCommandIfUserExists repository command.Id command setEmail
+        | SetPassword command -> runCommandIfUserExists repository command.Id command (setPassword hashFunc)
 
 let handleCommandWithAutoGeneration (command:Command) (repository : IUserRepository) =
     handleCommand

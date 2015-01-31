@@ -72,16 +72,20 @@ let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (com
     | Success title -> Success (CatCreated { Id = createGuid(); Title = title; CreationTime = createTimestamp()})
     | Failure f -> Failure (BadRequest f)
 
-let setTitle (repository : ICatRepository) (command:SetTitle) =
-    match repository.Get(command.Id), createTitle command.Title with
-    | None, _ -> Failure NotFound
-    | _, Success title -> Success (TitleChanged { Id = command.Id; Title = PageTitle command.Title })
-    | _, Failure f -> Failure (BadRequest f)
+let runCommandIfCatExists (repository : ICatRepository) id command f =
+    match repository.Get(id) with
+    | None -> Failure NotFound
+    | _ -> f command
+
+let setTitle (command:SetTitle) =
+    match createTitle command.Title with
+    | Success title -> Success (TitleChanged { Id = command.Id; Title = PageTitle command.Title })
+    | Failure f -> Failure (BadRequest f)
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command repository =
     match command with
         | CreateCat command -> createCat createGuid createTimestamp command
-        | SetTitle command -> setTitle repository command
+        | SetTitle command -> runCommandIfCatExists repository command.Id command setTitle
 
 let handleCommandWithAutoGeneration command repository =
     handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository
