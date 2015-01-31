@@ -2,7 +2,7 @@
 
 open System
 open EventPersistence
-open Cats.Shared.ErrorHandling
+open Cats.Result
 open Cats.AppSettings
 open Cats.InMemoryCatRepository
 open Cats.CommandContracts

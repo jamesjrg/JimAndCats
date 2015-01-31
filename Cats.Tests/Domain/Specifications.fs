@@ -1,6 +1,6 @@
 ﻿module Cats.Tests.Domain.Specifications
 
-open Cats.Shared.ErrorHandling
+open Cats.Result
 open Cats.Domain.CommandsAndEvents
 open Cats.InMemoryCatRepository
 open NodaTime

@@ -1,6 +1,6 @@
 ﻿module Cats.Domain.CommandsAndEvents
 
-open Cats.Shared.ErrorHandling
+open Cats.Result
 open Cats.Domain.ICatRepository
 open Cats.Domain.CatAggregate
 

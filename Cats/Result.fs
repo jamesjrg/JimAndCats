@@ -1,4 +1,4 @@
-﻿module Cats.Shared.ErrorHandling
+﻿module Cats.Result
 
 type Result<'a, 'b> = 
     | Success of 'a

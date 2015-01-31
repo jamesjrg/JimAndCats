@@ -2,7 +2,7 @@
 
 open EventPersistence
 open Jim.Domain.CommandsAndEvents
-open Jim.Shared.ErrorHandling
+open Jim.Result
 open Jim.Domain.IUserRepository
 open System
 

@@ -1,6 +1,6 @@
 ﻿module Cats.Tests.Domain.CommandTests
 
-open Cats.Shared.ErrorHandling
+open Cats.Result
 open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
 open Cats.Tests.Domain.Specifications

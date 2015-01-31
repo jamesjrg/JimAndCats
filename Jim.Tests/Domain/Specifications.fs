@@ -1,6 +1,6 @@
 ﻿module Jim.Tests.Domain.Specifications
 
-open Jim.Shared.ErrorHandling
+open Jim.Result
 open Jim.Domain.CommandsAndEvents
 open Jim.InMemoryUserRepository
 open NodaTime

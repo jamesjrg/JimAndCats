@@ -1,7 +1,7 @@
 ﻿module Jim.CommandEndpoints
 
 open System
-open Jim.Shared.ErrorHandling
+open Jim.Result
 open Jim.AppSettings
 open Jim.CommandContracts
 open Jim.Domain.CommandsAndEvents

@@ -65,12 +65,12 @@
     <None Include="paket.references" />
     <None Include="App.config" />
     <None Include="static\api-docs.json" />
-    <Compile Include="Shared\ErrorHandling.fs" />
     <Compile Include="Domain\CatAggregate.fs" />
     <Compile Include="Domain\ICatRepository.fs" />
     <Compile Include="Domain\CommandsAndEvents.fs" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="Logging.fs" />
+    <Compile Include="Result.fs" />
     <Compile Include="InMemoryCatRepository.fs" />
     <Compile Include="CommandAgent.fs" />
     <Compile Include="CommandContracts.fs" />
