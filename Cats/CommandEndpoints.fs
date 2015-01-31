@@ -22,7 +22,7 @@ let getCommandPosterAndRepository() =
     let streamId = appSettings.PrivateCatStream
     let store =
         match appSettings.WriteToInMemoryStoreOnly with
-        | false -> new MicroCQRS.Common.EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
+        | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new InMemoryCatRepository()
     let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
