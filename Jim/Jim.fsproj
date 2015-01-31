@@ -54,6 +54,7 @@
     <None Include="static\api-docs.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="Result.fs" />
     <Compile Include="Domain\Hashing.fs" />
     <Compile Include="Domain\UserAggregate.fs" />
     <Compile Include="Domain\IUserRepository.fs" />
@@ -61,7 +62,6 @@
     <Compile Include="Domain\AuthenticationService.fs" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="Logging.fs" />
-    <Compile Include="Result.fs" />
     <Compile Include="InMemoryUserRepository.fs" />
     <Compile Include="CommandContracts.fs" />
     <Compile Include="CommandAgent.fs" />
