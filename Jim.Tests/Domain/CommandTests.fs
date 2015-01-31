@@ -1,6 +1,6 @@
 ﻿module Jim.Tests.Domain.CommandTests
 
-open Jim.Result
+open MicroCQRS.Common.Result
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
 open Jim.Tests.Domain.Specifications

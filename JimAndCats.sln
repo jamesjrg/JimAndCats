@@ -14,9 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		paket.references = paket.references
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EventPersistence", "EventPersistence\EventPersistence.fsproj", "{93E305C0-E643-4073-A36E-8213918DC28C}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MicroCQRS.Common", "MicroCQRS.Common\MicroCQRS.Common.fsproj", "{93E305C0-E643-4073-A36E-8213918DC28C}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EventPersistence.Tests", "EventPersistence.Tests\EventPersistence.Tests.fsproj", "{5DAA41D2-6A6E-48BF-8C9D-1F64F5F307DF}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MicroCQRS.Common.Tests", "MicroCQRS.Common.Tests\MicroCQRS.Common.Tests.fsproj", "{5DAA41D2-6A6E-48BF-8C9D-1F64F5F307DF}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Cats", "Cats\Cats.fsproj", "{12B66EEC-6091-4194-B790-284569C12335}"
 EndProject

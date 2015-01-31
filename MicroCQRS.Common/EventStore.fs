@@ -1,6 +1,6 @@
-﻿namespace EventPersistence
+﻿namespace MicroCQRS.Common
 
-open EventPersistence.EventStoreConnectionExtensions
+open MicroCQRS.Common.EventStoreConnectionExtensions
 open EventStore.ClientAPI
 open Microsoft.FSharp.Reflection
 open Nessos.FsPickler.Json

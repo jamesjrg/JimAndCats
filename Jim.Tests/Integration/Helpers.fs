@@ -18,7 +18,7 @@ open Jim.WebServer
 
 open NodaTime
 
-open EventPersistence
+open MicroCQRS.Common
 
 open Fuchu
 open Swensen.Unquote.Assertions
@@ -34,12 +34,12 @@ let statusCodeAndContent response =
     content_string response, status_code response
 
 let getTestCommandPosterAndRepo events =
-    let store = EventPersistence.InMemoryStore<Event>() :> IEventStore<Event>
+    let store = MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
     if not (List.isEmpty events) then
         store.AppendToStream streamId -1 events |> Async.RunSynchronously
     let repository = new InMemoryUserRepository()
     let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
-    (CommandAgent.getCommandPoster store repository streamId initialVersion), repository
+    (CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion), repository
 
 let req_resp_with_defaults methd resource data f_result =
     req_resp methd resource "" data None DecompressionMethods.None id f_result

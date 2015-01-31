@@ -1,4 +1,4 @@
-﻿module EventPersistence.Tests.Program
+﻿module MicroCQRS.Common.Tests.Program
 
 open Fuchu
 

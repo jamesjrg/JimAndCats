@@ -1,4 +1,4 @@
-﻿namespace EventPersistence
+﻿namespace MicroCQRS.Common
 
 type IEventStore<'a> =
     abstract member ReadStream : string -> int -> int -> Async<'a list * int * int option>

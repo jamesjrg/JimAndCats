@@ -1,14 +1,17 @@
 ﻿module Jim.CommandEndpoints
 
 open System
-open Jim.Result
+
+open MicroCQRS.Common.CommandAgent
+open MicroCQRS.Common
+open MicroCQRS.Common.Result
+
 open Jim.AppSettings
 open Jim.CommandContracts
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
 open Jim.InMemoryUserRepository
-open Jim.CommandAgent
-open EventPersistence
+
 open Suave
 open Suave.Http
 open Suave.Types
@@ -19,11 +22,11 @@ let getCommandPosterAndRepository() =
     let streamId = appSettings.PrivateIdentityStream
     let store =
         match appSettings.UseEventStore with
-        | true -> new EventPersistence.EventStore<Event>(streamId) :> IEventStore<Event>
-        | false -> new EventPersistence.InMemoryStore<Event>() :> IEventStore<Event>
+        | true -> new MicroCQRS.Common.EventStore<Event>(streamId) :> IEventStore<Event>
+        | false -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new InMemoryUserRepository()
     let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
-    let postCommand = getCommandPoster store repository streamId initialVersion
+    let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     
     postCommand, repository
 

@@ -2,7 +2,7 @@
 
 open Jim
 open Jim.AppSettings
-open Jim.CommandAgent
+open MicroCQRS.Common.CommandAgent
 
 open Suave
 open Suave.Http

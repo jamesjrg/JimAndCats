@@ -1,6 +1,6 @@
 ﻿namespace Cats.InMemoryCatRepository
 
-open EventPersistence
+open MicroCQRS.Common
 open Cats.Domain.CatAggregate
 open Cats.Domain.ICatRepository
 open Cats.Domain.CommandsAndEvents

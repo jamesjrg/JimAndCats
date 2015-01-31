@@ -1,21 +1,17 @@
-﻿module Cats.CommandAgent
+﻿module MicroCQRS.Common.CommandAgent
 
-open EventPersistence
-open Cats.Domain.CommandsAndEvents
-open Cats.Result
-open Cats.Domain.ICatRepository
+open MicroCQRS.Common
+open MicroCQRS.Common.Result
 open System
 
-type Message = Command * AsyncReplyChannel<Result<Event, CommandFailure>>
+let getCommandPoster<'TCommand, 'TEvent, 'TRepository, 'TCommandFailure> (store:IEventStore<'TEvent>) (repository:'TRepository) (handleCommand:'TCommand -> 'TRepository -> Result<'TEvent, 'TCommandFailure>) (handleEvent:'TRepository -> 'TEvent -> unit) (streamId:string) (initialVersion:int) = 
+    let save expectedVersion events = store.AppendToStream streamId expectedVersion events
 
-let getCommandPoster (store:IEventStore<Event>) (repository:ICatRepository) streamId initialVersion = 
-    let save expectedVersion events = store.AppendToStream streamId expectedVersion events    
-
-    let agent = MailboxProcessor<Message>.Start <| fun inbox -> 
+    let agent = MailboxProcessor<'TCommand * AsyncReplyChannel<Result<'TEvent, 'TCommandFailure>>>.Start <| fun inbox -> 
         let rec messageLoop version = async {
             let! command, replyChannel = inbox.Receive()
             
-            let result = handleCommandWithAutoGeneration command repository
+            let result = handleCommand command repository
             match result with
             | Success newEvent ->
                 do! save version [newEvent]

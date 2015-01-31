@@ -5,7 +5,7 @@ open NodaTime
 open System
 open System.Text.RegularExpressions
 
-open Jim.Result
+open MicroCQRS.Common.Result
 open Jim.Domain.Hashing
 open Jim.Domain.UserAggregate
 open Jim.Domain.IUserRepository

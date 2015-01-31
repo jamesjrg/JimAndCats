@@ -1,6 +1,6 @@
 ﻿module Jim.Tests.Domain.Specifications
 
-open Jim.Result
+open MicroCQRS.Common.Result
 open Jim.Domain.CommandsAndEvents
 open Jim.InMemoryUserRepository
 open NodaTime

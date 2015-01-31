@@ -1,6 +1,6 @@
 ﻿(* Based on the client in FsUno by Jérémie Chassaing *)
 
-namespace EventPersistence
+namespace MicroCQRS.Common
 
 open System
 

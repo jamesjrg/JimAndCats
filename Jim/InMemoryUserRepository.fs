@@ -1,6 +1,6 @@
 ﻿namespace Jim.InMemoryUserRepository
 
-open EventPersistence
+open MicroCQRS.Common
 open Jim.Domain.UserAggregate
 open Jim.Domain.IUserRepository
 open Jim.Domain.CommandsAndEvents

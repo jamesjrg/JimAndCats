@@ -1,6 +1,6 @@
 ﻿module Cats.Tests.Domain.CommandTests
 
-open Cats.Result
+open MicroCQRS.Common.Result
 open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
 open Cats.Tests.Domain.Specifications

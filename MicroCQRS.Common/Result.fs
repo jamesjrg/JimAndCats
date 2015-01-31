@@ -1,4 +1,4 @@
-﻿module Jim.Result
+﻿module MicroCQRS.Common.Result
 
 type Result<'a, 'b> = 
     | Success of 'a

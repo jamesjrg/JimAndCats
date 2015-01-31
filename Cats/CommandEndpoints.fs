@@ -1,12 +1,12 @@
 ﻿module Cats.CommandEndpoints
 
 open System
-open EventPersistence
-open Cats.Result
+open MicroCQRS.Common
+open MicroCQRS.Common.Result
+open MicroCQRS.Common.CommandAgent
 open Cats.AppSettings
 open Cats.InMemoryCatRepository
 open Cats.CommandContracts
-open Cats.CommandAgent
 open Cats.Domain.CommandsAndEvents
 open Suave
 open Suave.Http
@@ -18,11 +18,11 @@ let getCommandPosterAndRepository() =
     let streamId = appSettings.PrivateCatStream
     let store =
         match appSettings.UseEventStore with
-        | true -> new EventPersistence.EventStore<Event>(streamId) :> IEventStore<Event>
-        | false -> new EventPersistence.InMemoryStore<Event>() :> IEventStore<Event>
+        | true -> new MicroCQRS.Common.EventStore<Event>(streamId) :> IEventStore<Event>
+        | false -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new InMemoryCatRepository()
     let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
-    let postCommand = getCommandPoster store repository streamId initialVersion
+    let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     
     postCommand, repository
 

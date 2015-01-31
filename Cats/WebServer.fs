@@ -1,7 +1,6 @@
 ﻿module Cats.WebServer
 
 open Cats
-open Cats.CommandAgent
 open Cats.AppSettings
 
 open Suave

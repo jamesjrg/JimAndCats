@@ -1,4 +1,4 @@
-﻿module EventPersistence.EventStoreConnectionExtensions
+﻿module MicroCQRS.Common.EventStoreConnectionExtensions
 
 open EventStore.ClientAPI
 

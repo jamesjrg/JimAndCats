@@ -5,13 +5,13 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>5daa41d2-6a6e-48bf-8c9d-1f64f5f307df</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>EventPersistence.Tests</RootNamespace>
-    <AssemblyName>EventPersistence.Tests</AssemblyName>
+    <ProjectGuid>93e305c0-e643-4073-a36e-8213918dc28c</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MicroCQRS.Common</RootNamespace>
+    <AssemblyName>MicroCQRS.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>EventPersistence.Tests</Name>
+    <Name>MicroCQRS.Common</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\EventPersistence.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\MicroCQRS.Common.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\EventPersistence.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\MicroCQRS.Common.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -44,16 +44,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <Compile Include="IntegrationTests.fs" />
+    <Compile Include="Result.fs" />
+    <Compile Include="EventStoreConnectionExtensions.fs" />
+    <Compile Include="IEventStore.fs" />
+    <Compile Include="EventStore.fs" />
+    <Compile Include="InMemoryStore.fs" />
+    <Compile Include="CommandAgent.fs" />
     <None Include="App.config" />
-    <Compile Include="Program.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EventPersistence\EventPersistence.fsproj">
-      <Name>EventPersistence</Name>
-      <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -87,12 +84,6 @@
           <Paket>True</Paket>
         </Reference>
       </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
-    </When>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
     </When>
   </Choose>
   <Choose>
@@ -136,17 +127,6 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
-      <ItemGroup>
-        <Reference Include="Fuchu">
-          <HintPath>..\packages\Fuchu-suave\lib\net40\Fuchu.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v3.5'">
       <ItemGroup>
         <Reference Include="Newtonsoft.Json">
@@ -178,26 +158,6 @@
       <ItemGroup>
         <Reference Include="Newtonsoft.Json">
           <HintPath>..\packages\Newtonsoft.Json\lib\net45\Newtonsoft.Json.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v5.0')">
-      <ItemGroup>
-        <Reference Include="Unquote">
-          <HintPath>..\packages\Unquote\lib\sl4\Unquote.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
-      <ItemGroup>
-        <Reference Include="Unquote">
-          <HintPath>..\packages\Unquote\lib\net40\Unquote.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

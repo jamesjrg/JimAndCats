@@ -1,6 +1,6 @@
 ﻿module Cats.Domain.CommandsAndEvents
 
-open Cats.Result
+open MicroCQRS.Common.Result
 open Cats.Domain.ICatRepository
 open Cats.Domain.CatAggregate
 

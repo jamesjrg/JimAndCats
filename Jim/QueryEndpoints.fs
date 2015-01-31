@@ -1,7 +1,7 @@
 ﻿module Jim.QueryEndpoints
 
 open System
-open Jim.Result
+open MicroCQRS.Common.Result
 open Jim.Domain.AuthenticationService
 open Jim.Domain.UserAggregate
 open Jim.Domain.IUserRepository
