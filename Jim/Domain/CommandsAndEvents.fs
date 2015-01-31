@@ -5,11 +5,11 @@ open NodaTime
 open System
 open System.Text.RegularExpressions
 
+open MicroCQRS.Common
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
 open Jim.Domain.AuthenticationService
 open Jim.Domain.UserAggregate
-open Jim.Domain.IUserRepository
 
 (* Constants *)
 
@@ -83,32 +83,32 @@ and PasswordChanged = {
 (* End events *)
 
 (* Event handlers *)
-let userCreated (repository:IUserRepository) (event: UserCreated) =
-    repository.Put(
+let userCreated (repository:ISimpleRepository<User>) (event: UserCreated) =
+    repository.Put event.Id
         {
             User.Id = event.Id
             Name = event.Name
             Email = event.Email
             PasswordHash = event.PasswordHash
             CreationTime = event.CreationTime
-        })
+        }
 
-let nameChanged (repository:IUserRepository) (event : NameChanged) =
+let nameChanged (repository:ISimpleRepository<User>) (event : NameChanged) =
     match repository.Get(event.Id) with
-    | Some user -> repository.Put({user with Name = event.Name})
+    | Some user -> repository.Put event.Id {user with Name = event.Name}
     | None -> ()
 
-let emailChanged (repository:IUserRepository) (event : EmailChanged) =
+let emailChanged (repository:ISimpleRepository<User>) (event : EmailChanged) =
     match repository.Get(event.Id) with
-    | Some user -> repository.Put({user with Email = event.Email})
+    | Some user -> repository.Put user.Id {user with Email = event.Email}
     | None -> ()
 
-let passwordChanged (repository:IUserRepository) (event : PasswordChanged) =
+let passwordChanged (repository:ISimpleRepository<User>) (event : PasswordChanged) =
     match repository.Get(event.Id) with
-    | Some user -> repository.Put({user with PasswordHash = event.PasswordHash})
+    | Some user -> repository.Put user.Id {user with PasswordHash = event.PasswordHash}
     | None -> ()
 
-let handleEvent (repository : IUserRepository) = function
+let handleEvent (repository : ISimpleRepository<User>) = function
     | UserCreated event -> userCreated repository event
     | NameChanged event -> nameChanged repository event
     | EmailChanged event -> emailChanged repository event
@@ -172,7 +172,7 @@ let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) has
                 CreationTime = createTimestamp()
         }))
 
-let runCommandIfUserExists (repository : IUserRepository) id command f =
+let runCommandIfUserExists (repository : ISimpleRepository<User>) id command f =
     match repository.Get(id) with
     | None -> Failure NotFound
     | _ -> f command
@@ -192,14 +192,14 @@ let setPassword hashFunc (command : SetPassword) =
     | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
     | Failure f -> Failure (BadRequest f)
 
-let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IUserRepository) =
+let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : ISimpleRepository<User>) =
     match command with
         | CreateUser command -> createUser createGuid createTimestamp hashFunc command
         | SetName command -> runCommandIfUserExists repository command.Id command  setName
         | SetEmail command -> runCommandIfUserExists repository command.Id command setEmail
         | SetPassword command -> runCommandIfUserExists repository command.Id command (setPassword hashFunc)
 
-let handleCommandWithAutoGeneration (command:Command) (repository : IUserRepository) =
+let handleCommandWithAutoGeneration (command:Command) (repository : ISimpleRepository<User>) =
     handleCommand
         Guid.NewGuid
         (fun () -> SystemClock.Instance.Now)

@@ -1,11 +1,11 @@
 ﻿module Jim.Tests.Domain.CommandTests
 
+open MicroCQRS.Common
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
 open MicroCQRS.Common.Testing.BDDHelpers
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
-open Jim.InMemoryUserRepository
 open NodaTime
 open System
 
@@ -18,7 +18,7 @@ let createEpoch () = new Instant(0L)
 let epoch = createEpoch()
 let identityHash s = s
 
-let Expect = Expect' (fun () -> new InMemoryUserRepository()) handleEvent (handleCommand createGuid1 createEpoch identityHash)
+let Expect = Expect' (fun () -> new SimpleInMemoryRepository<User>()) handleEvent (handleCommand createGuid1 createEpoch identityHash)
 let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
 let ExpectSuccess event = Expect (Success event)
 

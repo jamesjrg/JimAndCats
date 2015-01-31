@@ -51,6 +51,8 @@
     <Compile Include="EventStore.fs" />
     <Compile Include="InMemoryStore.fs" />
     <Compile Include="CommandAgent.fs" />
+    <Compile Include="ISimpleRepository.fs" />
+    <Compile Include="SimpleInMemoryRepository.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

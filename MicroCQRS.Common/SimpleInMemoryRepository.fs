@@ -1,20 +1,15 @@
-﻿namespace Jim.InMemoryUserRepository
+﻿namespace MicroCQRS.Common
 
 open MicroCQRS.Common
-open Jim.Domain.UserAggregate
-open Jim.Domain.IUserRepository
-open Jim.Domain.CommandsAndEvents
 open System
 open System.Collections.Generic
 
 (* An in-memory repository implementation. This might be a SQL database in a large system *)
 
-type State = Dictionary<Guid, User>
+type SimpleInMemoryRepository<'TAggregate>() =
+    let state = new Dictionary<Guid, 'TAggregate>()
 
-type InMemoryUserRepository() =
-    let state = new State()
-
-    member this.Load(store:IEventStore<Event>, streamId) =
+    member this.Load<'TEvent>(store:IEventStore<'TEvent>, streamId, handleEvent) =
             let rec fold version =
                 async {
                 let! events, lastEvent, nextEvent = 
@@ -26,14 +21,14 @@ type InMemoryUserRepository() =
                 | Some n -> return! fold n }
             fold 0
 
-    interface IUserRepository with
-        member this.List() = state.Values :> User seq
+    interface ISimpleRepository<'TAggregate> with
+        member this.List() = state.Values :> 'TAggregate seq
 
         member this.Get (id:Guid) =
             match state.TryGetValue(id) with
-            | true, user -> Some user
+            | true, x -> Some x
             | false, _ -> None
 
-        member this.Put (user:User) =
-            state.[user.Id] <- user
+        member this.Put id (x:'TAggregate) =
+            state.[id] <- x
         

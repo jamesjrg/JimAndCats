@@ -2,7 +2,6 @@
 
 open System
 open Cats.AppSettings
-open Cats.Domain.ICatRepository
 open Cats.Domain.CatAggregate
 open MicroCQRS.Common
 open Suave
@@ -39,11 +38,11 @@ let mapCatToCatResponse (cat:Cat) =
         CreationTime = cat.CreationTime.ToString()
     } 
 
-let getCat (repository:ICatRepository) id =
+let getCat (repository:ISimpleRepository<Cat>) id =
     match repository.Get(id) with
     | Some cat -> jsonOK (mapCatToCatResponse cat)
     | None -> genericNotFound
 
-let listCats (repository:ICatRepository) =
+let listCats (repository:ISimpleRepository<Cat>) =
     let cats = repository.List() |> Seq.map mapCatToCatResponse
     jsonOK {GetCatsResponse.Cats = cats}

@@ -11,7 +11,6 @@ open Jim.AppSettings
 open Jim.CommandContracts
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
-open Jim.InMemoryUserRepository
 
 open Suave
 open Suave.Http
@@ -25,8 +24,8 @@ let getCommandPosterAndRepository() =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
-    let repository = new InMemoryUserRepository()
-    let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
+    let repository = new SimpleInMemoryRepository<User>()
+    let initialVersion = repository.Load<Event>(store, streamId, handleEvent) |> Async.RunSynchronously
     let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     
     postCommand, repository

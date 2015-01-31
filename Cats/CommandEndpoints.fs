@@ -8,8 +8,8 @@ open MicroCQRS.Common.Result
 open MicroCQRS.Common.CommandAgent
 
 open Cats.AppSettings
-open Cats.InMemoryCatRepository
 open Cats.CommandContracts
+open Cats.Domain.CatAggregate
 open Cats.Domain.CommandsAndEvents
 
 open Suave
@@ -24,8 +24,8 @@ let getCommandPosterAndRepository() =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
-    let repository = new InMemoryCatRepository()
-    let initialVersion = repository.Load(store, streamId) |> Async.RunSynchronously
+    let repository = new SimpleInMemoryRepository<Cat>()
+    let initialVersion = repository.Load<Event>(store, streamId, handleEvent) |> Async.RunSynchronously
     let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion   
     
     postCommand, repository

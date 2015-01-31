@@ -2,8 +2,8 @@
 
 open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
-open Cats.InMemoryCatRepository
 open Fuchu
+open MicroCQRS.Common
 open MicroCQRS.Common.Result
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Testing.BDDHelpers
@@ -18,7 +18,7 @@ let epoch = createEpoch()
 
 let catHasBeenCreated = [CatCreated { Id = guid1; Title=PageTitle "My lovely crowdfunding ask template"; CreationTime = epoch }]
 
-let Expect: Result<Event,CommandFailure> -> Event list * Command -> unit = Expect' (fun () -> new InMemoryCatRepository()) handleEvent (handleCommand createGuid1 createEpoch)
+let Expect: Result<Event,CommandFailure> -> Event list * Command -> unit = Expect' (fun () -> new SimpleInMemoryRepository<Cat>()) handleEvent (handleCommand createGuid1 createEpoch)
 let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
 let ExpectSuccess event = Expect (Success event)
 

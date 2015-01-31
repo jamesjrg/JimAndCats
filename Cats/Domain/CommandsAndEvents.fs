@@ -1,8 +1,8 @@
 ﻿module Cats.Domain.CommandsAndEvents
 
+open MicroCQRS.Common
 open MicroCQRS.Common.Result
 open MicroCQRS.Common.CommandFailure
-open Cats.Domain.ICatRepository
 open Cats.Domain.CatAggregate
 
 open NodaTime
@@ -39,20 +39,20 @@ and TitleChanged = {
     Title: PageTitle
 }
 
-let catCreated (repository:ICatRepository) (event: CatCreated) =
-    repository.Put(
+let catCreated (repository:ISimpleRepository<Cat>) (event: CatCreated) =
+    repository.Put event.Id
         {
             Cat.Id = event.Id
             Title = event.Title
             CreationTime = event.CreationTime
-        })
+        }
 
-let titleChanged (repository:ICatRepository) (event: TitleChanged) =
-    match repository.Get(event.Id) with
-        | Some cat -> repository.Put({cat with Title = event.Title})
+let titleChanged (repository:ISimpleRepository<Cat>) (event: TitleChanged) =
+    match repository.Get event.Id with
+        | Some cat -> repository.Put event.Id {cat with Title = event.Title}
         | None -> ()
 
-let handleEvent (repository : ICatRepository) = function
+let handleEvent (repository : ISimpleRepository<Cat>) = function
     | CatCreated event -> catCreated repository event
     | TitleChanged event -> titleChanged repository event
 
@@ -69,8 +69,8 @@ let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (com
     | Success title -> Success (CatCreated { Id = createGuid(); Title = title; CreationTime = createTimestamp()})
     | Failure f -> Failure (BadRequest f)
 
-let runCommandIfCatExists (repository : ICatRepository) id command f =
-    match repository.Get(id) with
+let runCommandIfCatExists (repository : ISimpleRepository<Cat>) id command f =
+    match repository.Get id with
     | None -> Failure NotFound
     | _ -> f command
 
