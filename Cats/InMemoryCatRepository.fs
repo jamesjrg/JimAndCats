@@ -31,9 +31,9 @@ type InMemoryCatRepository() =
 
         member this.Get (id:Guid) =
             match state.TryGetValue(id) with
-            | true, user -> Some user
+            | true, cat -> Some cat
             | false, _ -> None
 
-        member this.Put (user:Cat) =
-            state.[user.Id] <- user
+        member this.Put (cat:Cat) =
+            state.[cat.Id] <- cat
         
