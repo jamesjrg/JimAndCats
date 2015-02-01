@@ -1,5 +1,0 @@
-source http://nuget.org/api/v2
-
-nuget RestSharp 105.0.1
-nuget Fuchu-Suave 0.6.1
-nuget Unquote 2.2.2

@@ -1,8 +1,0 @@
-NUGET
-  remote: http://nuget.org/api/v2
-  specs:
-    FSharp.Core (3.1.2.1)
-    Fuchu-suave (0.6.1)
-      FSharp.Core (>= 3.1.2.1)
-    RestSharp (105.0.1)
-    Unquote (2.2.2)
