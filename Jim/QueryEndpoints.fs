@@ -1,11 +1,11 @@
 ﻿module Jim.QueryEndpoints
 
-open System
 open MicroCQRS.Common
 open MicroCQRS.Common.Result
 open Jim.Domain.AuthenticationService
 open Jim.Domain.UserAggregate
 open Suave.Extensions.Json
+open System
 
 type AuthenticateRequest = {
     Password: string   

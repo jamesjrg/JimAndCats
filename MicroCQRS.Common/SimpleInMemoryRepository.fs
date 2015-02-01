@@ -4,7 +4,7 @@ open MicroCQRS.Common
 open System
 open System.Collections.Generic
 
-(* An in-memory repository implementation. This might be a SQL database in a large system *)
+(* An in-memory repository implementation. This might be persisted to disk using some sort of database in a large system *)
 
 type SimpleInMemoryRepository<'TAggregate>() =
     let state = new Dictionary<Guid, 'TAggregate>()

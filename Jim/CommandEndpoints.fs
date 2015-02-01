@@ -2,22 +2,21 @@
 
 open System
 
-open MicroCQRS.Common.CommandAgent
-open MicroCQRS.Common
-open MicroCQRS.Common.CommandFailure
-open MicroCQRS.Common.Result
-
 open Jim.AppSettings
 open Jim.CommandContracts
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
 
+open MicroCQRS.Common
+open MicroCQRS.Common.CommandAgent
+open MicroCQRS.Common.CommandFailure
+open MicroCQRS.Common.Result
+
 open Suave
 open Suave.Http
-open Suave.Types
 open Suave.Extensions.Json
 
-(* If the system used a SQL database to maintain state for the user repository then the repository instance would not need to be shared between the command and query services, and the query service would not rely on the event store at all *)
+(* If the system used a database to maintain state then the repository instance would not need to be shared between the command and query services, and the query service would not rely on the event store at all *)
 let getCommandPosterAndRepository() =
     let streamId = appSettings.PrivateIdentityStream
     let store =
@@ -59,3 +58,4 @@ let setEmail postCommand (id:Guid) (requestDetails:SetEmailRequest) =
 
 let setPassword postCommand (id:Guid) (requestDetails:SetPasswordRequest) =    
     runCommand postCommand ( SetPassword{ Id=id; Password = requestDetails.password})
+

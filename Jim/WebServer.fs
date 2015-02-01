@@ -2,9 +2,8 @@
 
 open Jim
 open Jim.AppSettings
-open MicroCQRS.Common.CommandAgent
-
 open Suave
+open Logary //must be opened after Suave
 open Suave.Http
 open Suave.Http.Applicatives
 open Suave.Types
@@ -12,10 +11,6 @@ open Suave.Web
 open Suave.Extensions.ConfigDefaults
 open Suave.Extensions.Guids
 open Suave.Extensions.Json
-
-open Logary
-
-open System
 open System.IO
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
