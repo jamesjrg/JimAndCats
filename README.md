@@ -22,7 +22,7 @@ MicroCQRS.Common.Testing - some utilities for testing Suave/EventStore microserv
 
 ###And some test projects
 
-Each project has an associated unit test project. These do not require access to a real EventStore instance, and run any required web server in-process.
+Almost all the projects have an associated unit test project. These do not require access to a real EventStore instance, and run any required web server in-process.
 
 There is also a separate solution called IntegrationTests in its own folder, containing tests which start the services in separate processes and interact with them soley via REST. These tests verify that the different services are successfully coordinated via EventStore.
 
