@@ -35,7 +35,7 @@ let runCommand postCommand (command:Command) : Types.WebPart =
 
         match result with
         | Success (UserCreated event) ->
-            return! jsonOK ( { UserCreatedResponse.Id = event.Id; Message = "User created: " + extractUsername event.Name }) httpContext
+            return! jsonResponse Successful.CREATED ( { UserCreatedResponse.Id = event.Id; Message = "User created: " + extractUsername event.Name }) httpContext
         | Success (NameChanged event) ->
             return! jsonOK ( { GenericResponse.Message = "Name changed to: " + extractUsername event.Name }) httpContext
         | Success (EmailChanged event) ->

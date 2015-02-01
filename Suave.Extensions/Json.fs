@@ -23,7 +23,8 @@ let private tryMapJson' (f: 'a -> Types.WebPart): Types.WebPart =
 let private serializeObject obj =
     JsonConvert.SerializeObject(obj)
 
-let jsonOK obj = Successful.OK (serializeObject obj) >>= Writers.set_mime_type "application/json"
+let jsonResponse responseType obj = responseType (serializeObject obj) >>= Writers.set_mime_type "application/json"
+let jsonOK obj = jsonResponse Successful.OK obj
 let genericNotFound = RequestErrors.NOT_FOUND "Not found"  
 
 let tryMapJson (f: 'a -> Types.WebPart): Types.WebPart =

@@ -35,7 +35,7 @@ let runCommand postCommand (command:Command) : Types.WebPart =
 
         match result with
         | Success (CatCreated event) ->
-            return! jsonOK ( { CatCreatedResponse.Id = event.Id; Message = "CAT created" }) httpContext
+            return! jsonResponse Successful.CREATED ( { CatCreatedResponse.Id = event.Id; Message = "CAT created" }) httpContext
         | Success (TitleChanged event) ->
             return! jsonOK ( { GenericResponse.Message = "CAT renamed" }) httpContext
         | Failure (BadRequest f) -> return! RequestErrors.BAD_REQUEST f httpContext

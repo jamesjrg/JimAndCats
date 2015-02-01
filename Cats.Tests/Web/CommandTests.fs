@@ -27,7 +27,7 @@ let commandTests =
         testCase "Should be able to create a cat" (fun () ->
             let content, statusCode = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.POST "/cats/create" """{"title":"My lovely cat"}""" statusCodeAndContent
 
-            test <@ content.Contains("\"Id\":") && statusCode = HttpStatusCode.OK @>)
+            test <@ content.Contains("\"Id\":") && statusCode = HttpStatusCode.Created @>)
 
         testCase "Creating a cat with too short a name returns bad request" (fun () ->
             let actualContent, actualStatusCode = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.POST "/cats/create" """{"title":"a"}""" statusCodeAndContent

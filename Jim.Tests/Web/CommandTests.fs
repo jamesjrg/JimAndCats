@@ -29,7 +29,7 @@ let commandTests =
         testCase "Should be able to create a user" (fun () ->
             let content, statusCode = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.POST "/users/create" """{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" statusCodeAndContent
 
-            test <@ content.Contains("\"Id\":") && statusCode = HttpStatusCode.OK @>)
+            test <@ content.Contains("\"Id\":") && statusCode = HttpStatusCode.Created @>)
 
         testCase "Attempting to create user with too short a username returns bad request" (fun () ->
             let actualContent, actualStatusCode = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.POST "/users/create" """{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" statusCodeAndContent
