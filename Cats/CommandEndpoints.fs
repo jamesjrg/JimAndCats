@@ -16,7 +16,6 @@ open Suave
 open Suave.Http
 open Suave.Extensions.Json
 
-(* If the system used a database to maintain state then the repository instance would not need to be shared between the command and query services, and the query service would not rely on the event store at all *)
 let getCommandPosterAndRepository() =
     let streamId = appSettings.PrivateCatStream
     let store =
