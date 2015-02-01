@@ -10,7 +10,7 @@ Jim: Just Identity Management. Manages authentication and basic user details.
 
 Cats: Crowdfunding Ask Templates. Manages a collection of projects asking for crowdfunding.
 
-Pledge: Allows people to make pledges to cats
+Pledges: Allows people to make pledges to cats
 
 ###There are also some shared libraries:
 
@@ -20,4 +20,10 @@ Suave.Extensions - some handy utilities for making Suave web services
 
 MicroCQRS.Common.Testing - some utilities for testing Suave/EventStore microservices
 
-...and of course a bunch of test projects
+###And some test projects
+
+Each project has an associated unit test project. These do not require access to a real EventStore instance, and run any required web server in-process.
+
+There is also a separate solution called IntegrationTests in its own folder, containing tests which start the services in separate processes and interact with them soley via REST. These tests verify that the different services are successfully coordinated via EventStore.
+
+###And some scripts in their own folder
