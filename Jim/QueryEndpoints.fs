@@ -5,8 +5,6 @@ open MicroCQRS.Common
 open MicroCQRS.Common.Result
 open Jim.Domain.AuthenticationService
 open Jim.Domain.UserAggregate
-open Suave
-open Suave.Types
 open Suave.Extensions.Json
 
 type AuthenticateRequest = {

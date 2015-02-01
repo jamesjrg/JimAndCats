@@ -7,7 +7,6 @@ open Cats.Domain.CatAggregate
 
 open NodaTime
 open System
-open System.Collections.Generic
 
 let minTitleLength = 3
 

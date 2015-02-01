@@ -4,8 +4,6 @@ open System
 open Cats.AppSettings
 open Cats.Domain.CatAggregate
 open MicroCQRS.Common
-open Suave
-open Suave.Types
 open Suave.Extensions.Json
 
 type GetCatResponse = {

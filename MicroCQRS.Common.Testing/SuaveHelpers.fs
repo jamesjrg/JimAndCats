@@ -10,9 +10,6 @@ open System.Net
 open System.Net.Http
 open System.Text
 
-open Fuchu
-open Swensen.Unquote.Assertions
-
 let run_with' = run_with default_config
 
 let createPostData (str:string) =

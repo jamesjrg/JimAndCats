@@ -2,7 +2,6 @@
 
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
-open System
 
 open Swensen.Unquote.Assertions
 

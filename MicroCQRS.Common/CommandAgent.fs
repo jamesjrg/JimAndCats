@@ -3,7 +3,6 @@
 open MicroCQRS.Common
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
-open System
 
 let getCommandPoster<'TCommand, 'TEvent, 'TRepository>
     (store:IEventStore<'TEvent>)
