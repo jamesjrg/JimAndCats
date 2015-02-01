@@ -1,6 +1,6 @@
 source http://nuget.org/api/v2
 
-nuget Fake 3.13.2
+nuget Fake 3.14.9
 nuget Suave 0.21.1
 nuget EventStore.Client 3.0.1
 nuget FsPickler 1.0.6

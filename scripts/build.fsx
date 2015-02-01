@@ -18,15 +18,17 @@ Target "CleanBuild" <| fun _ ->
     CleanDir @"..\Suave.Extensions\bin"
     CleanDir @"..\Suave.Extensions.Tests\bin"
 
-Target "Build" <| fun _ ->
+Target "BuildDebug" <| fun _ ->
+    !! @"..\JimAndCats.sln"
+    |> MSBuildDebug "" "Build"
+    |> Log "MsBuild"
+    
+Target "BuildRelease" <| fun _ ->
     !! @"..\JimAndCats.sln"
     |> MSBuildRelease "" "Build"
     |> Log "MsBuild"
 
-Target "All" DoNothing
+"CleanBuild" ==> "BuildDebug"
+"CleanBuild" ==> "BuildRelease"
 
-"CleanBuild" ==> "Build"
-
-"Build" ==> "All"
-
-RunTargetOrDefault "All"
+RunTargetOrDefault "BuildDebug"
