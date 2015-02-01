@@ -7,6 +7,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JimAndCats", "JimAndCats\Ji
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CatsAndPledges", "CatsAndPledges\CatsAndPledges.fsproj", "{5303523D-8216-455D-8202-374E26149ADF}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MicroCQRS.Common.IntegrationTests", "MicroCQRS.Common.IntegrationTests\MicroCQRS.Common.IntegrationTests.fsproj", "{5DAA41D2-6A6E-48BF-8C9D-1F64F5F307DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{5303523D-8216-455D-8202-374E26149ADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5303523D-8216-455D-8202-374E26149ADF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5303523D-8216-455D-8202-374E26149ADF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DAA41D2-6A6E-48BF-8C9D-1F64F5F307DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DAA41D2-6A6E-48BF-8C9D-1F64F5F307DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DAA41D2-6A6E-48BF-8C9D-1F64F5F307DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DAA41D2-6A6E-48BF-8C9D-1F64F5F307DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

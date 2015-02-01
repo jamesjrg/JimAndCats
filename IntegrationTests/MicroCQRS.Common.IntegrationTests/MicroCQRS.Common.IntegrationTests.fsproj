@@ -7,11 +7,11 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>5daa41d2-6a6e-48bf-8c9d-1f64f5f307df</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>MicroCQRS.Common.Tests</RootNamespace>
-    <AssemblyName>MicroCQRS.Common.Tests</AssemblyName>
+    <RootNamespace>MicroCQRS.Common.IntegrationTests</RootNamespace>
+    <AssemblyName>MicroCQRS.Common.IntegrationTests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>MicroCQRS.Common.Tests</Name>
+    <Name>MicroCQRS.Common</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -22,7 +22,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\MicroCQRS.Common.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\MicroCQRS.Common.IntegrationTests.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\MicroCQRS.Common.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\MicroCQRS.Common.IntegrationTests.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
