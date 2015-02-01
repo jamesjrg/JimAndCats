@@ -17,8 +17,6 @@ open Logary
 open System
 open System.IO
 
-let web_config = makeConfig appSettings.Port (Suave.SuaveAdapter(Logging.logary.GetLogger "suave"))
-
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
 let index = Successful.OK "Hello"
@@ -39,7 +37,9 @@ let webApp postCommand repository =
 
 [<EntryPoint>]
 let main argv = 
+    let web_config = makeConfig appSettings.Port (Suave.SuaveAdapter(Logging.logary.GetLogger "suave"))
     printfn "Starting CATS on %d" appSettings.Port
+
     try     
         let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
         QueryEndpoints.JimEventSubscriber.startSubscribingToIdentityEvents()
