@@ -9,5 +9,11 @@ let bind func result =
     | Success s -> func s
     | Failure f -> Failure f
 
-let (>>=) twoTrackInput switchFunction = 
-    bind switchFunction twoTrackInput
+type ResultBuilder() =
+    member this.Bind(x, f) = 
+        bind f x
+
+    member this.Return(x) = 
+        x
+
+let resultBuilder = new ResultBuilder()

@@ -143,34 +143,34 @@ let createPasswordHash hashFunc (s:string) =
     else
         Success (PasswordHash (hashFunc (trimmedPassword)))
 
-let createUser (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) hashFunc (command : CreateUser) =
-    let tryCreateUsername (command : CreateUser) =
-        match createUsername command.Name with
-        | Success name -> Success (name, command)
-        | Failure f -> Failure (BadRequest f)
-    
-    let tryCreateEmailAddress (name, command : CreateUser) =
-        match createEmailAddress command.Email with
-        | Success email -> Success (name, email, command)
-        | Failure f -> Failure (BadRequest f)
+let createUserOrFailureMsg
+    (createGuid: unit -> Guid)
+    (createTimestamp: unit -> Instant)
+    hashFunc
+    (command : CreateUser) =   
+    resultBuilder {
+        let! name = createUsername command.Name
+        let! email = createEmailAddress command.Email
+         //password hashing expensive so should come last
+        let! hash = createPasswordHash hashFunc command.Password
 
-    let tryCreatePasswordHash (name, email, command : CreateUser) =
-        match createPasswordHash hashFunc command.Password with
-        | Success hash -> Success (name, email, hash)
-        | Failure f -> Failure (BadRequest f)
-
-    //password hashing expensive so should come last
-    command
-    |> tryCreateUsername
-    >>= tryCreateEmailAddress
-    >>= tryCreatePasswordHash
-    >>= (fun (name, email, hash) -> Success (UserCreated {
+        return Success (UserCreated {
                 Id = createGuid()
                 Name = name
                 Email = email
                 PasswordHash = hash
                 CreationTime = createTimestamp()
-        }))
+        })
+    }
+
+let createUser
+    (createGuid: unit -> Guid)
+    (createTimestamp: unit -> Instant)
+    hashFunc
+    (command : CreateUser) =
+    match createUserOrFailureMsg createGuid createTimestamp hashFunc command with
+    | Failure f -> Failure (BadRequest f)
+    | Success s -> Success s
 
 let runCommandIfUserExists (repository : ISimpleRepository<User>) id command f =
     match repository.Get(id) with
