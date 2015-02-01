@@ -28,6 +28,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Suave.Extensions.Tests", "S
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MicroCQRS.Common.Testing", "MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj", "{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JimAndCats.IntegrationTests", "JimAndCats.IntegrationTests\JimAndCats.IntegrationTests.fsproj", "{05578E62-10E5-4BB9-82BB-02BEF55CC984}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,10 @@ Global
 		{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05578E62-10E5-4BB9-82BB-02BEF55CC984}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05578E62-10E5-4BB9-82BB-02BEF55CC984}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05578E62-10E5-4BB9-82BB-02BEF55CC984}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05578E62-10E5-4BB9-82BB-02BEF55CC984}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
