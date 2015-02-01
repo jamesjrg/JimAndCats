@@ -50,10 +50,10 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
-    <Compile Include="Integration\CreateWebServer.fs" />
-    <Compile Include="Integration\CommandTests.fs" />
-    <Compile Include="Integration\QueryTests.fs" />
     <Compile Include="Domain\CommandTests.fs" />
+    <Compile Include="Web\CreateWebServer.fs" />
+    <Compile Include="Web\CommandTests.fs" />
+    <Compile Include="Web\QueryTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

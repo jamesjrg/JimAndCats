@@ -1,10 +1,10 @@
-﻿module Jim.Tests.Integration.QueryTests
+﻿module Jim.Tests.Web.QueryTests
 
 open Fuchu
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
 open Jim.WebServer
-open Jim.Tests.Integration.CreateWebServer
+open Jim.Tests.Web.CreateWebServer
 open MicroCQRS.Common.Testing.SuaveHelpers
 open NodaTime
 open Suave.Testing
@@ -25,7 +25,7 @@ let getWebServerWithAUser() = getWebServer userHasBeenCreated
 
 [<Tests>]
 let queryTests =
-    testList "Query integration tests"
+    testList "Query web API tests"
         [
         testCase "Should be able to fetch a user" (fun () ->
             let actual = requestContentWithGet (getWebServerWithAUser) "/users/3C71C09A-2902-4682-B8AB-663432C8867B"

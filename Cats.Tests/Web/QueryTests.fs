@@ -1,9 +1,9 @@
-﻿module Cats.Tests.Integration.QueryTests
+﻿module Cats.Tests.Web.QueryTests
 
 open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
 open Cats.WebServer
-open Cats.Tests.Integration.CreateWebServer
+open Cats.Tests.Web.CreateWebServer
 open Fuchu
 open MicroCQRS.Common.Testing.SuaveHelpers
 open NodaTime
@@ -25,7 +25,7 @@ let getWebServerWithACat() = getWebServer catHasBeenCreated
 
 [<Tests>]
 let queryTests =
-    testList "Query integration tests"
+    testList "Query web API tests"
         [
         testCase "Should be able to fetch a CAT" (fun () ->
             let actual = requestContentWithGet getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B" 

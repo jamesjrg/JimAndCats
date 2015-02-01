@@ -1,9 +1,9 @@
-﻿module Jim.Tests.Integration.CommandTests
+﻿module Jim.Tests.Web.CommandTests
 
 open Fuchu
 open Jim.Domain.CommandsAndEvents
 open Jim.Domain.UserAggregate
-open Jim.Tests.Integration.CreateWebServer
+open Jim.Tests.Web.CreateWebServer
 open Jim.WebServer
 open MicroCQRS.Common.Testing.SuaveHelpers
 open NodaTime
@@ -24,7 +24,7 @@ let getWebServerWithAUser() = getWebServer userHasBeenCreated
 
 [<Tests>]
 let commandTests =
-    testList "Command integration tests"
+    testList "Command web API tests"
         [
         testCase "Should be able to create a user" (fun () ->
             let content, statusCode = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.POST "/users/create" """{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" statusCodeAndContent

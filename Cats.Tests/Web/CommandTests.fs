@@ -1,8 +1,8 @@
-﻿module Cats.Tests.Integration.CommandTests
+﻿module Cats.Tests.Web.CommandTests
 
 open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
-open Cats.Tests.Integration.CreateWebServer
+open Cats.Tests.Web.CreateWebServer
 open Fuchu
 open MicroCQRS.Common.Testing.SuaveHelpers
 open NodaTime
@@ -22,7 +22,7 @@ let getWebServerWithACat() = getWebServer catHasBeenCreated
 
 [<Tests>]
 let commandTests =
-    testList "Command integration tests"
+    testList "Command web API tests"
         [
         testCase "Should be able to create a cat" (fun () ->
             let content, statusCode = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.POST "/cats/create" """{"title":"My lovely cat"}""" statusCodeAndContent
