@@ -1,4 +1,4 @@
-Name: users-public
+Name: jim-users-public
 Mode: Continuous
 Emits Enabled:true
 
