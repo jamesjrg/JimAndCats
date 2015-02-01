@@ -28,7 +28,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Suave.Extensions.Tests", "S
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MicroCQRS.Common.Testing", "MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj", "{5FD77A37-8AED-4A7D-8134-6C0AEF0E09B3}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JimAndCats.IntegrationTests", "JimAndCats.IntegrationTests\JimAndCats.IntegrationTests.fsproj", "{05578E62-10E5-4BB9-82BB-02BEF55CC984}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JimAndCatsIntegrationTests", "JimAndCatsIntegrationTests\JimAndCatsIntegrationTests.fsproj", "{05578E62-10E5-4BB9-82BB-02BEF55CC984}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
