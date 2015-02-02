@@ -2,8 +2,7 @@
 
 open EventStoreProjections
 
-let projection = """
-fromStream("pledge-pledges-private").
+let projection = """fromStream("pledge-pledges-private").
     when({
         "PledgeCreated" : function(state,event) {
           emit("pledge-pledges-public", event.eventType, {

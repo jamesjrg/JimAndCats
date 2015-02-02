@@ -2,8 +2,7 @@
 
 open EventStoreProjections
 
-let projection = """
-fromStream("jim-users-private").
+let projection = """fromStream("jim-users-private").
     when({
         "UserCreated" : function(state,event) {
           emit("jim-users-public", event.eventType, {
