@@ -14,7 +14,7 @@ let postProjection name projection =
 
     let mutable request = new RestRequest(resource, Method.POST)
     request.RequestFormat <- DataFormat.Json
-    request.AddParameter(@"application\json", projection, ParameterType.RequestBody) |> ignore 
+    request.AddParameter(@"application/json", projection, ParameterType.RequestBody) |> ignore 
     printfn "Posting to: %s%s" host resource
     let response = client.Execute(request);
     printfn "Status code: %A" response.StatusCode
