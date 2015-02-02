@@ -4,6 +4,7 @@ open System
 
 type CreateCatRequest = {
     title : string
+    Owner : Guid
     }
 
 type SetTitleRequest = {

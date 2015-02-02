@@ -43,7 +43,7 @@ let private runCommand postCommand (command:Command) : Types.WebPart =
     }
 
 let createCat postCommand (request:CreateCatRequest) =   
-    runCommand postCommand (CreateCat { CreateCat.Title=request.title })
+    runCommand postCommand (CreateCat { CreateCat.Title=request.title; Owner=request.Owner })
 
 let setTitle postCommand (id:Guid) (request:SetTitleRequest) =   
     runCommand postCommand (SetTitle {Id=id; Title=request.title})

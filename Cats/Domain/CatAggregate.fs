@@ -8,5 +8,6 @@ type PageTitle = PageTitle of string
 type Cat = {
     Id: Guid
     Title: PageTitle
+    Owner: Guid
     CreationTime: Instant
 }

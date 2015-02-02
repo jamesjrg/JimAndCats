@@ -18,6 +18,7 @@ module Commands =
 
     and CreateCat = {
         Title: string
+        Owner: Guid
        }
 
     and SetTitle = {
@@ -34,6 +35,7 @@ module Events =
     and CatCreated = {
         Id: Guid
         Title: PageTitle
+        Owner: Guid
         CreationTime: Instant
     }
 
@@ -49,6 +51,7 @@ module private EventHandlers =
             {
                 Cat.Id = event.Id
                 Title = event.Title
+                Owner = event.Owner
                 CreationTime = event.CreationTime
             }
 
@@ -67,14 +70,15 @@ module private CommandHandlers =
         let trimmedTitle = s.Trim()
      
         if trimmedTitle.Length < minTitleLength then
-            Failure (sprintf "Title must be at least %d characters" minTitleLength)
+            Failure (BadRequest (sprintf "Title must be at least %d characters" minTitleLength))
         else
             Success (PageTitle trimmedTitle)
 
     let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command:CreateCat) =
-        match createTitle command.Title with
-        | Success title -> Success (CatCreated { Id = createGuid(); Title = title; CreationTime = createTimestamp()})
-        | Failure f -> Failure (BadRequest f)
+        resultBuilder {
+            let! title = createTitle command.Title
+            return Success (CatCreated { Id = createGuid(); Title = title; Owner = command.Owner; CreationTime = createTimestamp()})
+        }
 
     let runCommandIfCatExists (repository : ISimpleRepository<Cat>) id command f =
         match repository.Get id with
@@ -83,8 +87,8 @@ module private CommandHandlers =
 
     let setTitle (command:SetTitle) =
         match createTitle command.Title with
-        | Success title -> Success (TitleChanged { Id = command.Id; Title = PageTitle command.Title })
-        | Failure f -> Failure (BadRequest f)
+        | Success title -> Success (TitleChanged { Id = command.Id; Title = title })
+        | Failure f -> Failure f
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command repository =
     match command with

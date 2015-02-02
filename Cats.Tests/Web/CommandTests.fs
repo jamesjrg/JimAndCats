@@ -14,8 +14,9 @@ open System.Net
 open Swensen.Unquote.Assertions
 
 let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
+let ownerGuid1 = new Guid("9F2FFD7A-7B24-4B72-A4A5-8EF507306038")
 let epoch = new Instant(0L)
-let catHasBeenCreated = [CatCreated {Id = guid1; Title = PageTitle "My lovely cat"; CreationTime=epoch}]
+let catHasBeenCreated = [CatCreated {Id = guid1; Title = PageTitle "My lovely cat"; Owner=ownerGuid1; CreationTime=epoch}]
 
 let getWebServerWithNoEvents() = getWebServer []
 let getWebServerWithACat() = getWebServer catHasBeenCreated
