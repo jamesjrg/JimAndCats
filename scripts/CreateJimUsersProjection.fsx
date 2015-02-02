@@ -1,4 +1,6 @@
-#load EventStoreProjections
+#load "EventStoreProjections.fsx"
+
+open EventStoreProjections
 
 let projection = """
 fromStream("jim-users-private").
@@ -21,6 +23,7 @@ fromStream("jim-users-private").
             id: event.body.value.Item.Id,
             name : event.body.value.Item.Email.Item});
          }
+    })
 """
 
-postProjection "jim-users"
+postProjection "jim-users-public" projection

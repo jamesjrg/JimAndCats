@@ -1,4 +1,6 @@
-#load EventStoreProjections
+#load "EventStoreProjections.fsx"
+
+open EventStoreProjections
 
 let projection = """
 fromStream("pledge-pledges-private").
@@ -7,6 +9,7 @@ fromStream("pledge-pledges-private").
           emit("pledge-pledges-public", event.eventType, {
             id: event.body.value.Item.Id
           });
+        }
     });"""
 
 postProjection "pledge-pledges-public" projection

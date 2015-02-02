@@ -1,21 +1,17 @@
+module EventStoreProjections
+
+#I @"..\packages\RestSharp\lib\net4"
+#r "RestSharp.dll"
+
 open RestSharp
 
-"""
-Authorization: Basic YWRtaW46Y2hhbmdlaXQ=
-"""
-
 let postProjection name projection =
-    let resource = sprintf "http://localhost:2113/projections/continuous?name=%s&emit=yes&checkpoints=yes&enabled=yes" name
+    let host = "http://localhost:2113"
+    let client = new RestClient(host)
+    let resource = sprintf "/projections/continuous?name=%s&emit=yes&checkpoints=yes&enabled=yes" name
 
-let mutable post = new RestRequest(resource, Method.POST)
-post.RequestFormat <- DataFormat.Json
-request.AddBody(new { accountIds = accountIds });
-
-var response = _client.Post<ManyUserIdsResult>(request);
-
-ThrowOnResponseException(response, HttpStatusCode.OK);
-
-if (response.Data == null)
-    throw new UserServiceClientException(response);
-
-return response.Data.UserIdResponses;
+    let mutable request = new RestRequest(resource, Method.POST)
+    request.RequestFormat <- DataFormat.Json
+    request.AddParameter(@"application\json", projection, ParameterType.RequestBody) |> ignore 
+    printfn "Posting to: %s%s" host resource
+    client.Execute(request);
