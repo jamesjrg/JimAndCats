@@ -36,19 +36,4 @@ let queryTests =
             let actual = requestResponseWithGet getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B" status_code
             
             HttpStatusCode.NotFound =? actual)
-
-        testCase "Authentication with a valid password" (fun () ->
-            let actual = requestContentWithPostData getWebServerWithAUser HttpMethod.POST "/users/3C71C09A-2902-4682-B8AB-663432C8867B/authenticate" """{"password":"sxjdfls312w3w"}"""
-
-            """{"IsAuthenticated":true}""" =? actual)
-
-        testCase "Authentication with a invalid password" (fun () ->
-            let actual = requestContentWithPostData getWebServerWithAUser HttpMethod.POST "/users/3C71C09A-2902-4682-B8AB-663432C8867B/authenticate" """{"password":"plibbles"}"""
-
-            """{"IsAuthenticated":false}""" =? actual)
-
-        testCase "Authentication for a non-existent user" (fun () ->
-            let actual = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.POST "/users/3C71C09A-2902-4682-B8AB-663432C8867B/authenticate" """{"password":"p4ssw0rd"}""" status_code
-
-            HttpStatusCode.NotFound =? actual)
         ]

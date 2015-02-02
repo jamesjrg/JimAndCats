@@ -20,10 +20,6 @@ type SetPasswordRequest = {
     password : string
     }
 
-type AuthenticateRequest = {
-    password : string
-    }
-
 type GenericResponse = {
     Message: string
 }

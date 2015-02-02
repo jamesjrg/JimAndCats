@@ -25,8 +25,7 @@ let webApp postCommand repository =
         url_scan_guid "/users/%s" (fun id -> QueryEndpoints.getUser repository id)
         url "/" >>= index ]
     POST >>= choose [
-        url "/users/create" >>= tryMapJson (CommandEndpoints.createUser postCommand)
-        url_scan_guid "/users/%s/authenticate" (fun id -> tryMapJson <| QueryEndpoints.authenticate repository id) ]
+        url "/users/create" >>= tryMapJson (CommandEndpoints.createUser postCommand) ]
     PUT >>= choose [ 
         url_scan_guid "/users/%s/name" (fun id -> tryMapJson <| CommandEndpoints.setName postCommand id)
         url_scan_guid "/users/%s/email" (fun id -> tryMapJson <| CommandEndpoints.setEmail postCommand id)

@@ -7,10 +7,6 @@ open Jim.Domain.UserAggregate
 open Suave.Extensions.Json
 open System
 
-type AuthenticateRequest = {
-    Password: string   
-}
-
 type GetUserResponse = {
     Id: Guid
     Name: string
@@ -22,10 +18,6 @@ type GetUsersResponse = {
     Users: GetUserResponse seq
 }
 
-type AuthResponse = {
-    IsAuthenticated: bool
-}
-
 let mapUserToUserResponse (user:User) =
     {
         GetUserResponse.Id = user.Id
@@ -33,11 +25,6 @@ let mapUserToUserResponse (user:User) =
         Email = extractEmail user.Email
         CreationTime = user.CreationTime.ToString()
     } 
-
-let authenticate (repository:ISimpleRepository<User>) (id:Guid) (request:AuthenticateRequest) =
-    match authenticate repository id request.Password with
-    | Success authResult -> jsonOK ({ AuthResponse.IsAuthenticated = authResult})
-    | Failure f -> genericNotFound
 
 let getUser (repository:ISimpleRepository<User>) id =
     match repository.Get(id) with
