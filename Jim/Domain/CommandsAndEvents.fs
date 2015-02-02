@@ -122,7 +122,7 @@ let createUsername (s:string) =
     let trimmedName = s.Trim()
      
     if trimmedName.Length < minUsernameLength then
-        Failure (sprintf "Username must be at least %d characters" minUsernameLength)
+        Failure (BadRequest (sprintf "Username must be at least %d characters" minUsernameLength))
     else
         Success (Username trimmedName)
 
@@ -133,17 +133,17 @@ let createEmailAddress (s:string) =
     let canonicalized = canonicalizeEmail s
     if Regex.IsMatch(canonicalized, @"^\S+@\S+\.\S+$") 
         then Success (EmailAddress canonicalized)
-        else Failure "Invalid email address"
+        else Failure (BadRequest "Invalid email address")
 
 let createPasswordHash hashFunc (s:string) =
     let trimmedPassword = s.Trim()
 
     if trimmedPassword.Length < minPasswordLength then
-        Failure (sprintf "Password must be at least %d characters" minPasswordLength)
+        Failure (BadRequest (sprintf "Password must be at least %d characters" minPasswordLength))
     else
         Success (PasswordHash (hashFunc (trimmedPassword)))
 
-let createUserOrFailureMsg
+let createUser
     (createGuid: unit -> Guid)
     (createTimestamp: unit -> Instant)
     hashFunc
@@ -163,15 +163,6 @@ let createUserOrFailureMsg
         })
     }
 
-let createUser
-    (createGuid: unit -> Guid)
-    (createTimestamp: unit -> Instant)
-    hashFunc
-    (command : CreateUser) =
-    match createUserOrFailureMsg createGuid createTimestamp hashFunc command with
-    | Failure f -> Failure (BadRequest f)
-    | Success s -> Success s
-
 let runCommandIfUserExists (repository : ISimpleRepository<User>) id command f =
     match repository.Get(id) with
     | None -> Failure NotFound
@@ -180,17 +171,17 @@ let runCommandIfUserExists (repository : ISimpleRepository<User>) id command f =
 let setName (command : SetName) =
     match createUsername command.Name with
     | Success name -> Success (NameChanged { Id = command.Id; Name = name; })
-    | Failure f -> Failure (BadRequest f)
+    | Failure f -> Failure f
 
 let setEmail (command : SetEmail) =
     match createEmailAddress command.Email with
     | Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
-    | Failure f -> Failure (BadRequest f)
+    | Failure f -> Failure f
 
 let setPassword hashFunc (command : SetPassword) =
     match createPasswordHash hashFunc command.Password with
     | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
-    | Failure f -> Failure (BadRequest f)
+    | Failure f -> Failure f
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : ISimpleRepository<User>) =
     match command with
