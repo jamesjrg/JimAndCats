@@ -28,7 +28,7 @@ let getCommandPosterAndRepository() =
     
     postCommand, repository
 
-let runCommand postCommand (command:Command) : Types.WebPart =
+let private runCommand postCommand (command:Command) : Types.WebPart =
     fun httpContext ->
     async {
         let! result = postCommand command

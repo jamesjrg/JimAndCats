@@ -6,7 +6,7 @@ open System
 
 exception WrongExpectedVersion
 
-type Stream<'a> = { mutable Events:  ('a * int) list }
+type private Stream<'a> = { mutable Events:  ('a * int) list }
     with
     static member version stream = 
         stream.Events

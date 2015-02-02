@@ -11,102 +11,92 @@ open MicroCQRS.Common.Result
 open Jim.Domain.AuthenticationService
 open Jim.Domain.UserAggregate
 
-(* Constants *)
+[<AutoOpen>]
+module Commands =
+    type Command =
+        | CreateUser of CreateUser
+        | SetName of SetName
+        | SetEmail of SetEmail
+        | SetPassword of SetPassword
 
-let minPasswordLength = 7 //using PBKDF2 with lots of iterations so needn't be huge
-let minUsernameLength = 5
+    and CreateUser = {
+        Name: string
+        Email: string
+        Password: string
+    }
 
-(* End Constants *)
+    and SetName = {
+        Id: Guid
+        Name: string    
+    }
 
-(* Commands *)
+    and SetEmail = {
+        Id: Guid
+        Email: string   
+    }
 
-type Command =
-    | CreateUser of CreateUser
-    | SetName of SetName
-    | SetEmail of SetEmail
-    | SetPassword of SetPassword
+    and SetPassword = {
+        Id: Guid
+        Password: string   
+    }
 
-and CreateUser = {
-    Name: string
-    Email: string
-    Password: string
-}
-
-and SetName = {
-    Id: Guid
-    Name: string    
-}
-
-and SetEmail = {
-    Id: Guid
-    Email: string   
-}
-
-and SetPassword = {
-    Id: Guid
-    Password: string   
-}
-
-(* End commands *)
-
-(* Events *)
-
-type Event =
-    | UserCreated of UserCreated
-    | NameChanged of NameChanged
-    | EmailChanged of EmailChanged
-    | PasswordChanged of PasswordChanged
+[<AutoOpen>]
+module Events =
+    type Event =
+        | UserCreated of UserCreated
+        | NameChanged of NameChanged
+        | EmailChanged of EmailChanged
+        | PasswordChanged of PasswordChanged
     
-and UserCreated = {
-    Id: Guid
-    Name: Username
-    Email: EmailAddress
-    PasswordHash: PasswordHash
-    CreationTime: Instant
-}
+    and UserCreated = {
+        Id: Guid
+        Name: Username
+        Email: EmailAddress
+        PasswordHash: PasswordHash
+        CreationTime: Instant
+    }
 
-and NameChanged = {
-    Id: Guid
-    Name: Username
-}
+    and NameChanged = {
+        Id: Guid
+        Name: Username
+    }
 
-and EmailChanged = {
-    Id: Guid
-    Email: EmailAddress
-}
+    and EmailChanged = {
+        Id: Guid
+        Email: EmailAddress
+    }
 
-and PasswordChanged = {
-    Id: Guid
-    PasswordHash: PasswordHash
-}
+    and PasswordChanged = {
+        Id: Guid
+        PasswordHash: PasswordHash
+    }
 
-(* End events *)
+[<AutoOpen>]
+module private EventHandlers =
+    let userCreated (repository:ISimpleRepository<User>) (event: UserCreated) =
+        repository.Put event.Id
+            {
+                User.Id = event.Id
+                Name = event.Name
+                Email = event.Email
+                PasswordHash = event.PasswordHash
+                CreationTime = event.CreationTime
+            }
 
-(* Event handlers *)
-let userCreated (repository:ISimpleRepository<User>) (event: UserCreated) =
-    repository.Put event.Id
-        {
-            User.Id = event.Id
-            Name = event.Name
-            Email = event.Email
-            PasswordHash = event.PasswordHash
-            CreationTime = event.CreationTime
-        }
+    let nameChanged (repository:ISimpleRepository<User>) (event : NameChanged) =
+        match repository.Get(event.Id) with
+        | Some user -> repository.Put event.Id {user with Name = event.Name}
+        | None -> ()
 
-let nameChanged (repository:ISimpleRepository<User>) (event : NameChanged) =
-    match repository.Get(event.Id) with
-    | Some user -> repository.Put event.Id {user with Name = event.Name}
-    | None -> ()
+    let emailChanged (repository:ISimpleRepository<User>) (event : EmailChanged) =
+        match repository.Get(event.Id) with
+        | Some user -> repository.Put user.Id {user with Email = event.Email}
+        | None -> ()
 
-let emailChanged (repository:ISimpleRepository<User>) (event : EmailChanged) =
-    match repository.Get(event.Id) with
-    | Some user -> repository.Put user.Id {user with Email = event.Email}
-    | None -> ()
-
-let passwordChanged (repository:ISimpleRepository<User>) (event : PasswordChanged) =
-    match repository.Get(event.Id) with
-    | Some user -> repository.Put user.Id {user with PasswordHash = event.PasswordHash}
-    | None -> ()
+    let passwordChanged (repository:ISimpleRepository<User>) (event : PasswordChanged) =
+        match repository.Get(event.Id) with
+        | Some user -> repository.Put user.Id {user with PasswordHash = event.PasswordHash}
+        | None -> ()
 
 let handleEvent (repository : ISimpleRepository<User>) = function
     | UserCreated event -> userCreated repository event
@@ -114,74 +104,76 @@ let handleEvent (repository : ISimpleRepository<User>) = function
     | EmailChanged event -> emailChanged repository event
     | PasswordChanged event -> passwordChanged repository event
 
-(* End Event Handlers *)
+[<AutoOpen>]
+module private CommandHandlers =
+    module private Constants =
+        let minPasswordLength = 7 //using PBKDF2 with lots of iterations so needn't be huge
+        let minUsernameLength = 5
 
-(* Command Handlers *)
-
-let createUsername (s:string) =
-    let trimmedName = s.Trim()
+    let createUsername (s:string) =
+        let trimmedName = s.Trim()
      
-    if trimmedName.Length < minUsernameLength then
-        Failure (BadRequest (sprintf "Username must be at least %d characters" minUsernameLength))
-    else
-        Success (Username trimmedName)
+        if trimmedName.Length < Constants.minUsernameLength then
+            Failure (BadRequest (sprintf "Username must be at least %d characters" Constants.minUsernameLength))
+        else
+            Success (Username trimmedName)
 
-let canonicalizeEmail (input:string) =
-    input.Trim().ToLower()
+    let canonicalizeEmail (input:string) =
+        input.Trim().ToLower()
 
-let createEmailAddress (s:string) =
-    let canonicalized = canonicalizeEmail s
-    if Regex.IsMatch(canonicalized, @"^\S+@\S+\.\S+$") 
-        then Success (EmailAddress canonicalized)
-        else Failure (BadRequest "Invalid email address")
+    let createEmailAddress (s:string) =
+        let canonicalized = canonicalizeEmail s
+        if Regex.IsMatch(canonicalized, @"^\S+@\S+\.\S+$") 
+            then Success (EmailAddress canonicalized)
+            else Failure (BadRequest "Invalid email address")
 
-let createPasswordHash hashFunc (s:string) =
-    let trimmedPassword = s.Trim()
+    let createPasswordHash hashFunc (s:string) =
+        let trimmedPassword = s.Trim()
 
-    if trimmedPassword.Length < minPasswordLength then
-        Failure (BadRequest (sprintf "Password must be at least %d characters" minPasswordLength))
-    else
-        Success (PasswordHash (hashFunc (trimmedPassword)))
+        if trimmedPassword.Length < Constants.minPasswordLength then
+            Failure (BadRequest (sprintf "Password must be at least %d characters" Constants.minPasswordLength))
+        else
+            Success (PasswordHash (hashFunc (trimmedPassword)))
 
-let createUser
-    (createGuid: unit -> Guid)
-    (createTimestamp: unit -> Instant)
-    hashFunc
-    (command : CreateUser) =   
-    resultBuilder {
-        let! name = createUsername command.Name
-        let! email = createEmailAddress command.Email
-         //password hashing expensive so should come last
-        let! hash = createPasswordHash hashFunc command.Password
+    let createUser
+        (createGuid: unit -> Guid)
+        (createTimestamp: unit -> Instant)
+        hashFunc
+        (command : CreateUser) =   
+        resultBuilder {
+            let! name = createUsername command.Name
+            let! email = createEmailAddress command.Email
+             //password hashing expensive so should come last
+            let! hash = createPasswordHash hashFunc command.Password
 
-        return Success (UserCreated {
-                Id = createGuid()
-                Name = name
-                Email = email
-                PasswordHash = hash
-                CreationTime = createTimestamp()
-        })
-    }
+            return Success (UserCreated {
+                    Id = createGuid()
+                    Name = name
+                    Email = email
+                    PasswordHash = hash
+                    CreationTime = createTimestamp()
+            })
+        }
 
-let runCommandIfUserExists (repository : ISimpleRepository<User>) id command f =
-    match repository.Get(id) with
-    | None -> Failure NotFound
-    | _ -> f command
+    let runCommandIfUserExists (repository : ISimpleRepository<User>) id command f =
+        match repository.Get(id) with
+        | None -> Failure NotFound
+        | _ -> f command
 
-let setName (command : SetName) =
-    match createUsername command.Name with
-    | Success name -> Success (NameChanged { Id = command.Id; Name = name; })
-    | Failure f -> Failure f
+    let setName (command : SetName) =
+        match createUsername command.Name with
+        | Success name -> Success (NameChanged { Id = command.Id; Name = name; })
+        | Failure f -> Failure f
 
-let setEmail (command : SetEmail) =
-    match createEmailAddress command.Email with
-    | Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
-    | Failure f -> Failure f
+    let setEmail (command : SetEmail) =
+        match createEmailAddress command.Email with
+        | Success email -> Success (EmailChanged { Id = command.Id; Email = email; })
+        | Failure f -> Failure f
 
-let setPassword hashFunc (command : SetPassword) =
-    match createPasswordHash hashFunc command.Password with
-    | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
-    | Failure f -> Failure f
+    let setPassword hashFunc (command : SetPassword) =
+        match createPasswordHash hashFunc command.Password with
+        | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
+        | Failure f -> Failure f
 
 let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : ISimpleRepository<User>) =
     match command with
