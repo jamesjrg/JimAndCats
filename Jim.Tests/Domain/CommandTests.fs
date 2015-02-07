@@ -4,8 +4,8 @@ open MicroCQRS.Common
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
 open MicroCQRS.Common.Testing.BDDHelpers
-open Jim.Domain.CommandsAndEvents
-open Jim.Domain.UserAggregate
+open Jim
+open Jim.Domain
 open NodaTime
 open System
 
@@ -18,9 +18,11 @@ let createEpoch () = new Instant(0L)
 let epoch = createEpoch()
 let identityHash s = s
 
-let Expect = Expect' (fun () -> new SimpleInMemoryRepository<User>()) handleEvent (handleCommand createGuid1 createEpoch identityHash)
+let Expect = Expect' (fun () -> new UserRepository()) handleEvent (handleCommand createGuid1 createEpoch identityHash)
 let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
 let ExpectSuccess event = Expect (Success event)
+
+let GivenBobHolness = Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
 
 [<Tests>]
 let tests =
@@ -46,28 +48,33 @@ let tests =
                 |> When ( CreateUser { Name="Bob Holness"; Email="bob.holnessitv.com"; Password="p4ssw0rd" } )
                 |> ExpectBadRequest)
 
+            testCase "Should not be able to create a user with same email as existing user" (fun () ->            
+                GivenBobHolness
+                |> When ( CreateUser { Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
+                |> ExpectBadRequest)
+
             testCase "Should be able to rename a user" (fun () ->
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetName { Id = guid1; Name="Bob Mariachi"; } )
                 |> ExpectSuccess (NameChanged { Id = guid1; Name=Username "Bob Mariachi"; } ))
 
             testCase "Should not be able to change name to too short a username" (fun () ->            
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetName { Id = guid1; Name="Bob"; } )
                 |> ExpectBadRequest)
 
             testCase "Should not be able to change name to large amount of whitespace" (fun () ->            
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetName { Id = guid1; Name="                   "; } )
                 |> ExpectBadRequest)
 
             testCase "Usernames should be trimmed" (fun () ->            
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetName { Id = guid1; Name="        hello           "; } )
                 |> ExpectSuccess ( NameChanged { Id = guid1; Name=Username "hello"; } ))
 
             testCase "Should be able to change email" (fun () ->
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetEmail { Id = guid1; Email="bob@abc.com"; } )
                 |> ExpectSuccess ( EmailChanged { Id = guid1; Email=EmailAddress "bob@abc.com"; } ))
 
@@ -77,22 +84,22 @@ let tests =
                 |> ExpectSuccess ( EmailChanged { Id = guid1; Email=EmailAddress "bob@abc.com"; } ))
 
             testCase "Should not be able to change email to invalid email address" (fun () ->            
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetEmail { Id = guid1; Email="bobabc.com"; } )
                 |> ExpectBadRequest)
 
             testCase "Should be able to change password" (fun () ->
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetPassword { Id = guid1; Password="n3wp4ss"; } )
                 |> ExpectSuccess ( PasswordChanged { Id = guid1; PasswordHash=PasswordHash "n3wp4ss"; } ))
 
             testCase "Passwords should be trimmed before hashing" (fun () ->
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetPassword { Id = guid1; Password="    n3wp4ss   "; } )
                 |> ExpectSuccess ( PasswordChanged { Id = guid1; PasswordHash=PasswordHash "n3wp4ss"; } ))
 
             testCase "Should be able to change password to lots of whitespace" (fun () ->
-                Given [UserCreated { Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "p4ssw0rd"; CreationTime = epoch }]
+                GivenBobHolness
                 |> When ( SetPassword { Id = guid1; Password="                 "; } )
                 |> ExpectBadRequest)
 

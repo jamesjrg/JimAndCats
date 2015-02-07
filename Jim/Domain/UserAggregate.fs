@@ -1,4 +1,4 @@
-﻿module Jim.Domain.UserAggregate
+﻿namespace Jim.Domain
 
 open System
 open NodaTime
@@ -17,6 +17,8 @@ type User = {
     CreationTime: Instant
 }
 
-let extractUsername (Username s) = s
-let extractEmail (EmailAddress s) = s
-let extractPasswordHash (PasswordHash s) = s
+[<AutoOpen>]
+module Extraction =
+    let extractUsername (Username s) = s
+    let extractEmail (EmailAddress s) = s
+    let extractPasswordHash (PasswordHash s) = s

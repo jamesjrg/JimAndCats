@@ -1,14 +1,11 @@
 ﻿module Jim.Tests.Web.QueryTests
 
 open Fuchu
-open Jim.Domain.CommandsAndEvents
-open Jim.Domain.UserAggregate
-open Jim.WebServer
+open Jim.Domain
 open Jim.Tests.Web.CreateWebServer
 open MicroCQRS.Common.Testing.SuaveHelpers
 open NodaTime
 open Suave.Testing
-open Suave.Types
 open System
 open System.Text
 open System.Net

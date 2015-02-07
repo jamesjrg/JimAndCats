@@ -2,6 +2,7 @@
 
 open Jim
 open Jim.AppSettings
+open Jim.Hawk
 open Suave
 open Logary //must be opened after Suave
 open Suave.Http
@@ -17,7 +18,7 @@ let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
 let index = Successful.OK "Hello"
 
-let webApp postCommand repository =
+let webAppAfterAuth postCommand repository =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
@@ -33,6 +34,12 @@ let webApp postCommand repository =
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 
+let webAppWithAuth postCommand repository =
+    Hawk.authenticate'
+        (hawkSettings repository)
+        (fun err -> RequestErrors.UNAUTHORIZED (err.ToString()))
+        (fun (attr, creds, user) -> webAppAfterAuth postCommand repository)        
+
 [<EntryPoint>]
 let main argv = 
     let web_config = makeConfig appSettings.Port (Suave.SuaveAdapter(Logging.logary.GetLogger "suave"))
@@ -40,7 +47,7 @@ let main argv =
 
     try     
         let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
-        web_server web_config (webApp postCommand repository)        
+        web_server web_config (webAppWithAuth postCommand repository)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

@@ -1,9 +1,6 @@
 ﻿module Jim.QueryEndpoints
 
-open MicroCQRS.Common
-open MicroCQRS.Common.Result
-open Jim.Domain.AuthenticationService
-open Jim.Domain.UserAggregate
+open Jim.Domain
 open Suave.Extensions.Json
 open System
 
@@ -26,11 +23,11 @@ let mapUserToUserResponse (user:User) =
         CreationTime = user.CreationTime.ToString()
     } 
 
-let getUser (repository:ISimpleRepository<User>) id =
+let getUser (repository:IUserRepository) id =
     match repository.Get(id) with
     | Some user -> jsonOK (mapUserToUserResponse user)
     | None -> genericNotFound
 
-let listUsers (repository:ISimpleRepository<User>) =
+let listUsers (repository:IUserRepository) =
     let users = repository.List() |> Seq.map mapUserToUserResponse
     jsonOK {GetUsersResponse.Users = users}

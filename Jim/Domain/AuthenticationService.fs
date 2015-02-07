@@ -1,6 +1,5 @@
 ﻿module Jim.Domain.AuthenticationService
 
-open Jim.Domain.UserAggregate
 open MicroCQRS.Common
 open MicroCQRS.Common.Result
 open System

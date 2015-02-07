@@ -1,17 +1,14 @@
 ﻿module Jim.Tests.Web.CommandTests
 
 open Fuchu
-open Jim.Domain.CommandsAndEvents
-open Jim.Domain.UserAggregate
+open Jim.Domain
 open Jim.Tests.Web.CreateWebServer
-open Jim.WebServer
 open MicroCQRS.Common.Testing.SuaveHelpers
 open NodaTime
 open Suave.Types
 open Suave.Testing
 open System
 open System.Net
-open System.Text
 open Swensen.Unquote.Assertions
 
 let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
@@ -36,6 +33,11 @@ let commandTests =
 
             test <@ actualContent.Contains("Username must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
+        testCase "Attempting to create user with same email as existing user returns bad request" (fun () ->
+            let actualContent, actualStatusCode = requestResponseWithPostData getWebServerWithAUser HttpMethod.POST "/users/create" """{"name":"Bob Holness", "email":"bob.holness@itv.com","password":"p4ssw0rd"}""" statusCodeAndContent
+
+            test <@ actualContent.Contains("email") && actualStatusCode = HttpStatusCode.BadRequest @>)
+
         testCase "Should be able to rename a user" (fun () ->
             let actual = requestResponseWithPostData getWebServerWithAUser HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" status_code
 
@@ -52,9 +54,9 @@ let commandTests =
             test <@ actual.Contains("frank@itv.com") && actual.Contains("Email changed") @>)
 
         testCase "Should not be able to change email to invalid address" (fun () ->
-            let actual = requestContentWithPostData getWebServerWithAUser HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frankitv.com"}"""
+            let actualContent, actualStatusCode = requestResponseWithPostData getWebServerWithAUser HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frankitv.com"}""" statusCodeAndContent
 
-            test <@ actual.Contains("Invalid email") @>)
+            test <@ actualContent.Contains("email") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change password" (fun () ->
             let actual = requestContentWithPostData getWebServerWithAUser HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" """{"password":"n3wp4ss"}"""

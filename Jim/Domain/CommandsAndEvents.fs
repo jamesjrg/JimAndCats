@@ -1,15 +1,11 @@
-﻿module Jim.Domain.CommandsAndEvents
+﻿namespace Jim.Domain
 
+open Jim.Domain.AuthenticationService
 open NodaTime
-
-open System
-open System.Text.RegularExpressions
-
-open MicroCQRS.Common
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
-open Jim.Domain.AuthenticationService
-open Jim.Domain.UserAggregate
+open System
+open System.Text.RegularExpressions
 
 [<AutoOpen>]
 module Commands =
@@ -72,9 +68,20 @@ module Events =
     }
 
 [<AutoOpen>]
+module Email =
+    let canonicalizeEmail (input:string) =
+        input.Trim().ToLower()
+
+    let createEmailAddress (s:string) =
+        let canonicalized = canonicalizeEmail s
+        if Regex.IsMatch(canonicalized, @"^\S+@\S+\.\S+$") 
+            then Success (EmailAddress canonicalized)
+            else Failure (BadRequest "Not a valid email address")
+
+[<AutoOpen>]
 module private EventHandlers =
-    let userCreated (repository:ISimpleRepository<User>) (event: UserCreated) =
-        repository.Put event.Id
+    let userCreated (repository:IUserRepository) (event: UserCreated) =
+        repository.Put
             {
                 User.Id = event.Id
                 Name = event.Name
@@ -83,26 +90,28 @@ module private EventHandlers =
                 CreationTime = event.CreationTime
             }
 
-    let nameChanged (repository:ISimpleRepository<User>) (event : NameChanged) =
+    let nameChanged (repository:IUserRepository) (event : NameChanged) =
         match repository.Get(event.Id) with
-        | Some user -> repository.Put event.Id {user with Name = event.Name}
+        | Some user -> repository.Put {user with Name = event.Name}
         | None -> ()
 
-    let emailChanged (repository:ISimpleRepository<User>) (event : EmailChanged) =
+    let emailChanged (repository:IUserRepository) (event : EmailChanged) =
         match repository.Get(event.Id) with
-        | Some user -> repository.Put user.Id {user with Email = event.Email}
+        | Some user -> repository.Put {user with Email = event.Email}
         | None -> ()
 
-    let passwordChanged (repository:ISimpleRepository<User>) (event : PasswordChanged) =
+    let passwordChanged (repository:IUserRepository) (event : PasswordChanged) =
         match repository.Get(event.Id) with
-        | Some user -> repository.Put user.Id {user with PasswordHash = event.PasswordHash}
+        | Some user -> repository.Put {user with PasswordHash = event.PasswordHash}
         | None -> ()
 
-let handleEvent (repository : ISimpleRepository<User>) = function
-    | UserCreated event -> userCreated repository event
-    | NameChanged event -> nameChanged repository event
-    | EmailChanged event -> emailChanged repository event
-    | PasswordChanged event -> passwordChanged repository event
+[<AutoOpen>]
+module PublicEventHandler = 
+    let handleEvent (repository : IUserRepository) = function
+        | UserCreated event -> userCreated repository event
+        | NameChanged event -> nameChanged repository event
+        | EmailChanged event -> emailChanged repository event
+        | PasswordChanged event -> passwordChanged repository event
 
 [<AutoOpen>]
 module private CommandHandlers =
@@ -118,15 +127,6 @@ module private CommandHandlers =
         else
             Success (Username trimmedName)
 
-    let canonicalizeEmail (input:string) =
-        input.Trim().ToLower()
-
-    let createEmailAddress (s:string) =
-        let canonicalized = canonicalizeEmail s
-        if Regex.IsMatch(canonicalized, @"^\S+@\S+\.\S+$") 
-            then Success (EmailAddress canonicalized)
-            else Failure (BadRequest "Invalid email address")
-
     let createPasswordHash hashFunc (s:string) =
         let trimmedPassword = s.Trim()
 
@@ -135,27 +135,35 @@ module private CommandHandlers =
         else
             Success (PasswordHash (hashFunc (trimmedPassword)))
 
+    let checkForDuplicateEmail (repository:IUserRepository) (email:EmailAddress) =
+        match repository.GetByEmail(email) with
+        | Some _ -> Failure (BadRequest "User with this email address already exists")
+        | None -> Success email        
+
     let createUser
+        (repository:IUserRepository)
         (createGuid: unit -> Guid)
         (createTimestamp: unit -> Instant)
         hashFunc
-        (command : CreateUser) =   
+        (command : CreateUser) =
         resultBuilder {
             let! name = createUsername command.Name
             let! email = createEmailAddress command.Email
-             //password hashing expensive so should come last
+            let! uniqueEmail = checkForDuplicateEmail repository email
+            
+            //password hashing expensive so should come last
             let! hash = createPasswordHash hashFunc command.Password
 
             return Success (UserCreated {
                     Id = createGuid()
                     Name = name
-                    Email = email
+                    Email = uniqueEmail
                     PasswordHash = hash
                     CreationTime = createTimestamp()
             })
         }
 
-    let runCommandIfUserExists (repository : ISimpleRepository<User>) id command f =
+    let runCommandIfUserExists (repository :IUserRepository) id command f =
         match repository.Get(id) with
         | None -> Failure NotFound
         | _ -> f command
@@ -175,19 +183,21 @@ module private CommandHandlers =
         | Success hash -> Success (PasswordChanged { Id = command.Id; PasswordHash = hash; })
         | Failure f -> Failure f
 
-let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : ISimpleRepository<User>) =
-    match command with
-        | CreateUser command -> createUser createGuid createTimestamp hashFunc command
-        | SetName command -> runCommandIfUserExists repository command.Id command  setName
-        | SetEmail command -> runCommandIfUserExists repository command.Id command setEmail
-        | SetPassword command -> runCommandIfUserExists repository command.Id command (setPassword hashFunc)
+[<AutoOpen>]
+module PublicCommandHandlers = 
+    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IUserRepository) =
+        match command with
+            | CreateUser command -> createUser repository createGuid createTimestamp hashFunc command
+            | SetName command -> runCommandIfUserExists repository command.Id command  setName
+            | SetEmail command -> runCommandIfUserExists repository command.Id command setEmail
+            | SetPassword command -> runCommandIfUserExists repository command.Id command (setPassword hashFunc)
 
-let handleCommandWithAutoGeneration (command:Command) (repository : ISimpleRepository<User>) =
-    handleCommand
-        Guid.NewGuid
-        (fun () -> SystemClock.Instance.Now)
-        PBKDF2.getHash
-        command
-        repository
+    let handleCommandWithAutoGeneration (command:Command) (repository : IUserRepository) =
+        handleCommand
+            Guid.NewGuid
+            (fun () -> SystemClock.Instance.Now)
+            PBKDF2.getHash
+            command
+            repository
 
 (* End Command Handlers *)
