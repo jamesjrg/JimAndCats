@@ -19,7 +19,7 @@ open System.IO
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let index = Successful.OK "Hello"
+let index = Successful.OK "Hello from CATS"
 
 let webApp postCommand repository =
   choose [
