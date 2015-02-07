@@ -52,25 +52,13 @@ let deserialize<'a> converters s =
 let tests =
     testList "Serialization tests"
         [
-            (* this functionality never gets used, could maybe just remove it... *)
-            testCase "a value should be serialized as its content" (fun () ->            
-                let converters = [ valueConverter typeof<Digit> ]
-                let actual = serialize converters <| Digit 7
-                "7" =? actual)
-
-            (* this functionality never gets used, could maybe just remove it... *)
-            testCase "a value should be deserialized from its content" (fun () ->            
-                let converters = [ valueConverter typeof<Digit> ]    
-                let actual = deserialize<Digit> converters "7"
-                Digit 7 =? actual)
-
             testCase "a single case union should be serialized as its content" (fun () ->            
                 let converters = [ unionConverter ]
                 let actual = serialize converters <| WrapperUnion "testing testing"
-                "testing testing" =? actual)
+                "\"testing testing\"" =? actual)
 
             testCase "a single case union should be deserialized from its content" (fun () ->            
                 let converters = [ unionConverter ]    
-                let actual = deserialize<WrapperUnion> converters "testing testing"
+                let actual = deserialize<WrapperUnion> converters "\"testing testing\""
                 WrapperUnion "testing testing" =? actual)
         ]
