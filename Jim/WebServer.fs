@@ -34,7 +34,7 @@ let webApp postCommand repository =
             url "/users" >>= (requireAuth <| QueryEndpoints.listUsers repository)
             url_scan_guid "/users/%s" (fun id -> requireAuth <| QueryEndpoints.getUser repository id) ]
 
-        (* TODO this endpoint should always be via HTTPS *)
+        (* TODO this endpoint should have some sort of security - only open to pre-existing users sending their own Hawk credentials, or only available via HTTPS *)
         POST >>= url "/users/create" >>= tryMapJson (CommandEndpoints.createUser postCommand)
 
         PUT >>= choose [ 
