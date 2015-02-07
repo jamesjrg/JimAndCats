@@ -2,7 +2,7 @@
 
 open EventStore.ClientAPI
 open Microsoft.FSharp.Reflection
-open Nessos.FsPickler.Json
+open Newtonsoft.Json
 open System
 open System.Net
 
@@ -37,14 +37,12 @@ module AsyncExtensions =
             Async.AwaitTask(this.AppendToStreamAsync(stream, expectedVersion, events))
 
 type EventStore<'a>(ipAddress, port) =
-    let jsonPickler = FsPickler.CreateJson(indent = false)
-
     let deserialize (event: ResolvedEvent) =
-        jsonPickler.UnPickle<'a>(event.Event.Data)
+        JsonConvert.DeserializeObject<'a>(event.Event.Data.ToString())
 
     let serialize (event : 'a) =
         let case,_ = FSharpValue.GetUnionFields(event, typeof<'a>)
-        let data = jsonPickler.Pickle event
+        let data = Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(event))
         EventData(Guid.NewGuid(), case.Name, true, data, null)
 
     let create() = 

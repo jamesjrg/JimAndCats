@@ -1,3 +1,2 @@
 ﻿EventStore.Client
-FsPickler
-FsPickler.Json
+Newtonsoft.Json

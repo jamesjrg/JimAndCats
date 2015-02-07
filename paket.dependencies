@@ -3,7 +3,6 @@ source http://nuget.org/api/v2
 nuget Fake 3.14.9
 nuget Suave 0.23.0
 nuget EventStore.Client 3.0.1
-nuget FsPickler.Json 1.0.7
 nuget Intelliplan.Logary.Suave 2.4.1
 nuget NodaTime 1.3.0
 nuget ConfigMapper 0.0.6
