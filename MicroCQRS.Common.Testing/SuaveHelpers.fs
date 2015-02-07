@@ -33,18 +33,22 @@ let private from_suave_method =
     | HttpMethod.OPTIONS -> logibit.hawk.Types.OPTIONS
     | HttpMethod.OTHER s -> failwithf "method %s not supported" s
 
-let private getHawkRequestTransform resource methd (hawkOpts:HawkTestOptions) (request:HttpRequestMessage) = 
+let private getHawkRequestTransform methd (hawkOpts:HawkTestOptions) (postData:ByteArrayContent option) (request:HttpRequestMessage) = 
+    let payload =
+        match postData with
+        | Some data -> Some (Async.AwaitTask <| data.ReadAsByteArrayAsync() |> Async.RunSynchronously)
+        |_ -> None
     let creds = {Types.Credentials.id = hawkOpts.Id; Types.Credentials.key=hawkOpts.Key; Types.Credentials.algorithm=Types.SHA256}
-    let clientOptions = ClientOptions.mk' creds
+    let clientOptions = {ClientOptions.mk' creds with payload = payload}
 
-    match header' resource (from_suave_method methd) clientOptions with
+    match header' (request.RequestUri.ToString()) (from_suave_method methd) clientOptions with
     | Choice1Of2 data -> set_auth_header request data
     | Choice2Of2 error -> failwith <| error.ToString()
 
 let private requestResponse methd resource data (hawkOpts:HawkTestOptions option) fResult =
     let fRequest =
         match hawkOpts with
-        | Some opts -> getHawkRequestTransform resource methd opts
+        | Some opts -> getHawkRequestTransform methd opts data
         | None -> id
     req_resp methd resource "" data None DecompressionMethods.None fRequest fResult
 
