@@ -29,12 +29,12 @@ let queryTests =
     testList "Query web API tests"
         [
         testCase "Should be able to fetch a CAT" (fun () ->
-            let actual = requestContentWithGet getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B" 
+            let actual = get getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B" None content_string
 
             """{"Id":"3c71c09a-2902-4682-b8ab-663432c8867b","CreationTime":"1970-01-01T00:00:00Z"}""" =? actual)
 
         testCase "Should get 404 for non-existent CAT" (fun () ->
-            let actual = requestResponseWithGet getWebServerWithNoEvents "/cats/3C71C09A-2902-4682-B8AB-663432C8867B" status_code
+            let actual = get getWebServerWithNoEvents "/cats/3C71C09A-2902-4682-B8AB-663432C8867B" None status_code
 
             HttpStatusCode.NotFound =? actual)
         ]
