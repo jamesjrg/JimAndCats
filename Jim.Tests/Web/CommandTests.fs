@@ -82,4 +82,9 @@ let commandTests =
             let actual = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.PUT "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"n3wp4ss"}""" status_code
 
             HttpStatusCode.NotFound =? actual)
+
+        testCase "Should get 404 for posting to incorrect url" (fun () ->
+            let actual = requestResponseWithPostData getWebServerWithNoEvents HttpMethod.POST "/flibbles" "flobbles" status_code
+            
+            HttpStatusCode.NotFound =? actual)
         ]

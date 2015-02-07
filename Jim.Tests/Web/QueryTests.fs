@@ -33,4 +33,9 @@ let queryTests =
             let actual = requestResponseWithGet getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B" status_code
             
             HttpStatusCode.NotFound =? actual)
+
+        testCase "Should get 404 for get request to incorrect url" (fun () ->
+            let actual = requestResponseWithGet getWebServerWithNoEvents "/flibbles" status_code
+            
+            HttpStatusCode.NotFound =? actual)
         ]
