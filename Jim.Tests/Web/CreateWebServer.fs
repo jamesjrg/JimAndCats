@@ -14,4 +14,4 @@ let getWebServer events =
     let repository = new UserRepository()
     let initialVersion = repository.Load(store, streamId, handleEvent) |> Async.RunSynchronously
     let postCommand, repo = (CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion), repository
-    webAppAfterAuth postCommand repo
+    webApp postCommand repo

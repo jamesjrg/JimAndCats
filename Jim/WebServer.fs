@@ -16,29 +16,33 @@ open System.IO
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let index = Successful.OK "Hello"
+let index = Successful.OK "Hello from JIM"
 
-let webAppAfterAuth postCommand repository =
-  choose [
-    GET >>= choose [
-        url "/api-docs" >>= swaggerSpec
-        url "/users" >>= request (fun r -> QueryEndpoints.listUsers repository)
-        url_scan_guid "/users/%s" (fun id -> QueryEndpoints.getUser repository id)
-        url "/" >>= index ]
-    POST >>= choose [
-        url "/users/create" >>= tryMapJson (CommandEndpoints.createUser postCommand) ]
-    PUT >>= choose [ 
-        url_scan_guid "/users/%s/name" (fun id -> tryMapJson <| CommandEndpoints.setName postCommand id)
-        url_scan_guid "/users/%s/email" (fun id -> tryMapJson <| CommandEndpoints.setEmail postCommand id)
-        url_scan_guid "/users/%s/password"  (fun id -> tryMapJson <| CommandEndpoints.setPassword postCommand id) ]
-
-    RequestErrors.NOT_FOUND "404 not found" ] 
-
-let webAppWithAuth postCommand repository =
+let authenticateWithRepo repository partNeedingAuth =
     Hawk.authenticate'
         (hawkSettings repository)
         (fun err -> RequestErrors.UNAUTHORIZED (err.ToString()))
-        (fun (attr, creds, user) -> webAppAfterAuth postCommand repository)        
+        (fun (attr, creds, user) -> partNeedingAuth)
+
+let webApp postCommand repository =
+    let requireAuth = authenticateWithRepo repository
+
+    choose [
+        GET >>= choose [
+            url "/api-docs" >>= swaggerSpec
+            url "/" >>= index
+            url "/users" >>= (requireAuth <| QueryEndpoints.listUsers repository)
+            url_scan_guid "/users/%s" (fun id -> requireAuth <| QueryEndpoints.getUser repository id) ]
+
+        (* TODO this endpoint should always be via HTTPS *)
+        POST >>= url "/users/create" >>= tryMapJson (CommandEndpoints.createUser postCommand)
+
+        PUT >>= choose [ 
+            url_scan_guid "/users/%s/name" (fun id -> requireAuth (tryMapJson <| CommandEndpoints.setName postCommand id))
+            url_scan_guid "/users/%s/email" (fun id -> requireAuth (tryMapJson <| CommandEndpoints.setEmail postCommand id))
+            url_scan_guid "/users/%s/password"  (fun id -> requireAuth (tryMapJson <| CommandEndpoints.setPassword postCommand id)) ]
+
+        RequestErrors.NOT_FOUND "404 not found" ] 
 
 [<EntryPoint>]
 let main argv = 
@@ -47,7 +51,7 @@ let main argv =
 
     try     
         let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
-        web_server web_config (webAppWithAuth postCommand repository)
+        web_server web_config (webApp postCommand repository)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

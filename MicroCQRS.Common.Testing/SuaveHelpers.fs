@@ -1,5 +1,7 @@
 ﻿module MicroCQRS.Common.Testing.SuaveHelpers
 
+open logibit.hawk.Client
+
 open Suave
 open Suave.Types
 open Suave.Web
@@ -33,3 +35,9 @@ let requestContentWithPostData (getWebServer: unit -> Types.WebPart) methodType 
 
 let requestContentWithGet getWebServer resource =
     requestResponseWithGet getWebServer resource content_string
+
+let x uri meth paramters =
+    header' uri meth paramters
+
+let y req headerData = 
+    set_auth_header req headerData
