@@ -1,6 +1,7 @@
 ﻿namespace MicroCQRS.Common
 
 open EventStore.ClientAPI
+open MicroCQRS.Common.Serialization
 open Microsoft.FSharp.Reflection
 open Newtonsoft.Json
 open System
@@ -11,7 +12,6 @@ open System.Net
 [<AutoOpen>]
 module AsyncExtensions =
     open System
-    open System.Threading
     open System.Threading.Tasks
     type Microsoft.FSharp.Control.Async with
         static member Raise(ex) = Async.FromContinuations(fun (_,econt,_) -> econt ex)
@@ -38,12 +38,11 @@ module AsyncExtensions =
 
 type EventStore<'a>(ipAddress, port) =
     let deserialize (event: ResolvedEvent) =
-        JsonConvert.DeserializeObject<'a>(event.Event.Data.ToString())
+        deserializeUnion event.Event.EventType event.Event.Data 
 
-    let serialize (event : 'a) =
-        let case,_ = FSharpValue.GetUnionFields(event, typeof<'a>)
-        let data = Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(event))
-        EventData(Guid.NewGuid(), case.Name, true, data, null)
+    let serialize (event: 'a) =
+        let case, data = serializeUnion event
+        EventData(Guid.NewGuid(), case, true, data, null)
 
     let create() = 
         async {
@@ -61,8 +60,8 @@ type EventStore<'a>(ipAddress, port) =
                 let! slice = connection.AsyncReadStreamEventsForward streamId version count true
 
                 let events = 
-                    slice.Events 
-                    |> Seq.map deserialize
+                    slice.Events
+                    |> Seq.choose deserialize
                     |> Seq.toList
         
                 let nextEventNumber = 
@@ -85,7 +84,9 @@ type EventStore<'a>(ipAddress, port) =
             (handleEvent: 'a -> unit) =
         
             let handleRawEvent (subscription:EventStoreCatchUpSubscription) rawEvent =
-                handleEvent <| deserialize rawEvent
+                match deserialize rawEvent with
+                | Some event -> handleEvent event
+                | None -> () (* TODO this should be logged *)
 
             connection.SubscribeToStreamFrom(streamId,
                 new Nullable<int>(lastCheckpoint),
