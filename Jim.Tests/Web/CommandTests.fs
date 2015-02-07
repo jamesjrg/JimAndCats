@@ -71,22 +71,22 @@ let commandTests =
 
             test <@ actual.Contains("Password must be") @>)
 
-        testCase "Should get 404 trying to set name on non-existent user" (fun () ->
+        testCase "Should get unauthorized trying to set name on non-existent user if requester is not an admin" (fun () ->
             let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" bobCredentials status_code
 
-            HttpStatusCode.NotFound =? actual)
+            HttpStatusCode.Unauthorized =? actual)
 
-        testCase "Should get 404 trying to set email of non-existent user" (fun () ->
+        testCase "Should get unauthorized trying to set email of non-existent user if requester is not an admin" (fun () ->
             let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" """{"email":"a@b.com"}"""  bobCredentials status_code
 
-            HttpStatusCode.NotFound =? actual)
+            HttpStatusCode.Unauthorized =? actual)
 
-        testCase "Should get 404 trying to set password of non-existent user" (fun () ->
+        testCase "Should get unauthorized trying to set password of non-existent user if requester is not an admin" (fun () ->
             let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"n3wp4ss"}""" bobCredentials status_code
 
-            HttpStatusCode.NotFound =? actual)
+            HttpStatusCode.Unauthorized =? actual)
 
-        testCase "Should get 404 for posting to incorrect url" (fun () ->
+        testCase "Should get 404 for posting to totally incorrect url" (fun () ->
             let actual = post getWebServerWithNoEvents "/flibbles" "flobbles"  bobCredentials status_code
             
             HttpStatusCode.NotFound =? actual)

@@ -32,10 +32,10 @@ let queryTests =
 
             """{"Id":"3c71c09a-2902-4682-b8ab-663432c8867b","Name":"Bob Holness","Email":"bob.holness@itv.com","CreationTime":"1970-01-01T00:00:00Z"}""" =? actual)
 
-        testCase "Should get 404 for non-existent user" (fun () ->
+        testCase "Should get unauthorized for non-existent user if requester is not an admin" (fun () ->
             let actual = get getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B" bobCredentials status_code
             
-            HttpStatusCode.NotFound =? actual)
+            actual =? HttpStatusCode.Unauthorized)
 
         testCase "Should get 404 for get request to incorrect url" (fun () ->
             let actual = get getWebServerWithNoEvents "/flibbles" bobCredentials status_code
