@@ -23,15 +23,6 @@ type TestEvent =
         WrapperField: WrapperUnion
     }
 
-[<Struct>]
-type Digit =
-    val value: int
-    new(value) =
-        if value < 0 || value > 9 then 
-            invalidArg "value" "A digit value should be from 0 to 9" 
-        { value = value }
-    override this.ToString() = string this.value 
-
 let createSerializer converters =
     let serializer = JsonSerializer()
     converters |> List.iter serializer.Converters.Add

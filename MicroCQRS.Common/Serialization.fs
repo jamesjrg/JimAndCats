@@ -145,30 +145,8 @@ let private rootUnionConverter<'a> (case: UnionCaseInfo) =
         member this.CanConvert t =
             t = typeof<'a> || t.BaseType = typeof<'a> }
 
-// This converter writes options as value or null
-let private optionConverter =
-    { new JsonConverter() with
-        member this.WriteJson(w,v,s) = 
-            match FSharpValue.GetUnionFields(v,v.GetType()) with
-            | _, [|v|] -> s.Serialize(w, v)
-            | _ -> w.WriteNull()
-
-        member this.ReadJson(r,t,v,s) =
-            let optionType =
-                match t.GetGenericArguments() with
-                | [|o|] -> o
-                | _ -> failwith "Option should have a single generic argument"
-            let cases = FSharpType.GetUnionCases(t)
-            
-            if r.TokenType = JsonToken.Null then
-                FSharpValue.MakeUnion(cases.[0], null)
-            else
-                FSharpValue.MakeUnion(cases.[1], [| s.Deserialize(r,optionType) |])
-                                
-        member this.CanConvert t = isOption t }
-
 let converters =
-    [ unionConverter;optionConverter]
+    [ unionConverter;]
 
 let deserializeUnion<'a> eventType data = 
     FSharpType.GetUnionCases(typeof<'a>)
@@ -184,7 +162,6 @@ let deserializeUnion<'a> eventType data =
             serializer.Deserialize<'a>(reader)
             |> Some
        | None -> None
-
 
 let serializeUnion (o:'a)  =
     let case,_ = FSharpValue.GetUnionFields(o, typeof<'a>)
