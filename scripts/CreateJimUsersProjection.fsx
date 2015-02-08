@@ -6,21 +6,21 @@ let projection = """fromStream("jim-users-private").
     when({
         "UserCreated" : function(state,event) {
           emit("jim-users-public", event.eventType, {
-            id: event.body.value.Item.Id,
-            name : event.body.value.Item.Name.Item,
-            email : event.body.value.Item.Email.Item,
-            creationTime : event.body.value.Item.CreationTime.Ticks
+            id: event.body.Item.Id,
+            name : event.body.Item.Name,
+            email : event.body.Item.Email,
+            creationTime : event.body.Item.CreationTime.ticks
           });
          },
          "NameChanged" : function(state,event) {
           emit("jim-users-public", event.eventType, {
-            id: event.body.value.Item.Id,
-            name : event.body.value.Item.Name.Item});
+            id: event.body.Item.Id,
+            name : event.body.Item.Name});
          },
          "EmailChanged" : function(state,event) {
           emit("jim-users-public", event.eventType, {
-            id: event.body.value.Item.Id,
-            name : event.body.value.Item.Email.Item});
+            id: event.body.Item.Id,
+            name : event.body.Item.Email});
          }
     })
 """
