@@ -6,9 +6,24 @@ open NodaTime
 open System
 
 type PublicIdentityEvent =
-    | UserCreated of string
-    | NameChanged of string
-    | EmailChanged of string
+    | UserCreated of UserCreated
+    | NameChanged of SetName
+    | EmailChanged of SetEmail
+
+and UserCreated = {
+    Id: Guid
+    Name: string
+    Email: string
+}
+
+and SetName = {
+    Id: Guid
+    Name: string    
+}
+and SetEmail = {
+    Id: Guid
+    Email: string   
+}
 
 type PrivateCatsEvent =
     | CatCreated of CatCreated

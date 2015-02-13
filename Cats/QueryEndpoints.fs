@@ -14,16 +14,6 @@ type GetCatsResponse = {
     Cats: GetCatResponse seq
 }
 
-module JimEventSubscriber = 
-    type Event =
-        | UserCreated of UserCreated
-    
-    and UserCreated = {
-        Id: Guid
-        Name: string
-        Email: string
-    }    
-
 let mapCatToCatResponse (cat:Cat) =
     {
         GetCatResponse.Id = cat.Id
