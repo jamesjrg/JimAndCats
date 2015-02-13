@@ -1,7 +1,6 @@
 ﻿module Cats.QueryEndpoints
 
 open System
-open Cats.AppSettings
 open Cats.Domain.CatAggregate
 open MicroCQRS.Common
 open Suave.Extensions.Json
@@ -23,12 +22,7 @@ module JimEventSubscriber =
         Id: Guid
         Name: string
         Email: string
-    }
-
-    let startSubscribingToIdentityEvents() =
-        let handleUserEvent = (fun e -> ())
-        let store = new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
-        store.SubscribeToStreamFrom appSettings.PublicIdentityStream 0 handleUserEvent
+    }    
 
 let mapCatToCatResponse (cat:Cat) =
     {

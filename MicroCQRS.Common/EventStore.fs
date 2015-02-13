@@ -2,8 +2,6 @@
 
 open EventStore.ClientAPI
 open MicroCQRS.Common.Serialization
-open Microsoft.FSharp.Reflection
-open Newtonsoft.Json
 open System
 open System.Net
 

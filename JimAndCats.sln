@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jim", "Jim\Jim.fsproj", "{72FA52A4-85C8-40CC-8053-FB652AC186C3}"
 EndProject
@@ -31,6 +31,8 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Pledges.Tests", "Pledges.Tests\Pledges.Tests.fsproj", "{DDA90015-D004-460A-AA88-9F2DCD4464C4}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MicroCQRS.Common.Tests", "MicroCQRS.Common.Tests\MicroCQRS.Common.Tests.fsproj", "{20755572-A7A6-4D96-B80F-93106D63B283}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Cats.ReadModelUpdater", "Cats.ReadModelUpdater\Cats.ReadModelUpdater.fsproj", "{D043A72C-69D0-45EF-8B85-D2DB125C77F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,6 +84,10 @@ Global
 		{20755572-A7A6-4D96-B80F-93106D63B283}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20755572-A7A6-4D96-B80F-93106D63B283}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20755572-A7A6-4D96-B80F-93106D63B283}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D043A72C-69D0-45EF-8B85-D2DB125C77F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D043A72C-69D0-45EF-8B85-D2DB125C77F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D043A72C-69D0-45EF-8B85-D2DB125C77F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D043A72C-69D0-45EF-8B85-D2DB125C77F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

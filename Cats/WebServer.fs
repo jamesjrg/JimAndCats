@@ -42,7 +42,6 @@ let main argv =
 
     try     
         let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
-        QueryEndpoints.JimEventSubscriber.startSubscribingToIdentityEvents()
         web_server web_config (webApp postCommand repository)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
