@@ -1,6 +1,6 @@
 source http://nuget.org/api/v2
 
-nuget Fake 3.14.9
+nuget Fake
 nuget Suave 0.23.0
 nuget EventStore.Client 3.0.1
 nuget Intelliplan.Logary.Suave 2.4.1
