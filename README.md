@@ -6,23 +6,39 @@ If this was a real thing with lots of developers they would be in separate Visua
 
 ###The services are:
 
-####Jim: Just Identity Management.
+####Jim.CommandHandler: Just Identity Management Command Handler
 
-* Manages user authentication details and basic identity info (i.e. people's full name)
+* Manages commands relating to user authentication details and basic identity info (i.e. people's full name)
 
-* Commands result in events being written to a private stream in an Event Store cluster. An EventStore projection takes the private identity events resulting from commands and maps them to new events on a public stream (omitting events ment)
+* Commands result in events being written to a private stream in an Event Store cluster. An EventStore projection takes the private identity events resulting from commands and maps them to new events on a public stream (omitting all data and events related to password hashes)/
 
-* The command processor currently checks the legality of commands using and in-memory read model of all user aggregates. I may change this to use a SQL Server database at some point.
+* The command processor currently checks the legality of commands using and in-memory read model of all user aggregates. I will change this to use a SQL Server database at some point.
 
-* Commands are intentionally synchronous (via an F# MailboxProcessor) to avoid the creation of conflicting users via concurrent events (e.g. two users with the same email address). Because of this the service is not currently horizontally scalable. Given that everything other than the creation of new users will continue to function even if the service goes down, this
+* Commands are intentionally synchronous (via an F# MailboxProcessor) to avoid the creation of conflicting users via concurrent events (e.g. two users with the same email address). Because of this the service is not currently horizontally scalable. Given that the identity read model is scalable, this doesn't matter unless either:
 
-* xxx public stream
+a) any downtime on the ability to create users is considered totally unacceptable
+or
+b) There is an expectation of an extremely high number of user creation and modification commands
 
-####Cats: Crowdfunding Ask Templates.
+If either of these is considered a problem, then either:
 
-Manages a collection of projects asking for crowdfunding.
+a) The service instances would need to hold a cross-process lock whenever updating data
+or
+b) Logic would need to be written to decide what to do when conflicting events have both been written to the Event Store - e.g. two users with the same email address have been created.
+
+####Jim.QueryHandler: Just Identity Management Query Handler
+
+####Cats: Crowdfunding Ask Templates
+
+* Manages a collection of projects asking for crowdfunding
+
+* Handles both queries and commands
+
+* Can be horizontally scaled because xxx...
 
 ####Cats.ReadModelUpdater:
+
+Listens to the private Cats event stream and the public identity event stream, and uses them to update SQL Server read models for use by Cats services. There can only be one running instance to avoid conflicting writes to the read models.
 
 ####Pledges:
 
