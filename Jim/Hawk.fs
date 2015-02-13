@@ -20,7 +20,7 @@ let hawkSettings (userRepository:IUserRepository) =
                         {   id = extractEmail user.Email
                             key = extractPasswordHash user.PasswordHash
                             algorithm = SHA256 }, user)
-                | None -> Choice2Of2 CredentialsNotFound
+                | None -> Choice2Of2 CredsError.CredentialsNotFound
            | Failure (BadRequest f) -> Choice2Of2 (CredsError.Other "Not a valid email address")
            | _ -> Choice2Of2 (CredsError.Other "Internal server error finding credentials")
     }
