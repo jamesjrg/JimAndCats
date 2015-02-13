@@ -1,4 +1,4 @@
-﻿module Jim.Logging
+﻿module Jim.QueryHandler.Logging
 
 open Logary
 open Logary.Configuration

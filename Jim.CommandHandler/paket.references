@@ -1,0 +1,7 @@
+Suave
+EventStore.Client
+Intelliplan.Logary.Suave
+NodaTime
+ConfigMapper
+Hawk.Suave
+FSharp.Data.SqlClient

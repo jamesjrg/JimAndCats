@@ -5,15 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>101b878f-2542-4091-9361-e990a5ef896d</ProjectGuid>
+    <ProjectGuid>a4be2586-b78d-4840-8973-4f07f9bab6a0</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Jim.Tests</RootNamespace>
-    <AssemblyName>Jim.Tests</AssemblyName>
+    <RootNamespace>Jim.QueryHandler.Tests</RootNamespace>
+    <AssemblyName>Jim.QueryHandler.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>Jim.Tests</Name>
-    <TargetFrameworkProfile />
+    <Name>Jim.QueryHandler.Tests</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Jim.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Jim.QueryHandler.Tests.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -35,7 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Jim.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Jim.QueryHandler.Tests.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -45,36 +44,12 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
-    <Compile Include="AppSettings.fs" />
-    <Compile Include="Domain\Hashing.fs" />
-    <Compile Include="Domain\CommandTests.fs" />
-    <Compile Include="Web\CreateWebServer.fs" />
-    <Compile Include="Web\CommandTests.fs" />
-    <Compile Include="Web\QueryTests.fs" />
     <Compile Include="Program.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Jim\Jim.fsproj">
-      <Name>Jim</Name>
-      <Project>{72fa52a4-85c8-40cc-8053-fb652ac186c3}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj">
-      <Name>MicroCQRS.Common.Testing</Name>
-      <Project>{5fd77a37-8aed-4a7d-8134-6c0aef0e09b3}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\MicroCQRS.Common\MicroCQRS.Common.fsproj">
-      <Name>MicroCQRS.Common</Name>
-      <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

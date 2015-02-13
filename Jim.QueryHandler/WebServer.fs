@@ -1,7 +1,7 @@
-﻿module Jim.WebServer
+﻿module Jim.QueryHandler.WebServer
 
-open Jim
-open Jim.AppSettings
+open Jim.QueryHandler
+open Jim.QueryHandler.AppSettings
 open Jim.Hawk
 open Suave
 open Logary //must be opened after Suave

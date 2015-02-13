@@ -1,4 +1,4 @@
-﻿module Jim.QueryEndpoints
+﻿module Jim.QueryHandler.Endpoints
 
 open Jim.Domain
 open Suave.Extensions.Json

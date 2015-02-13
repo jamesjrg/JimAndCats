@@ -1,4 +1,4 @@
-﻿module Jim.CommandContracts
+﻿module Jim.CommandHandler.CommandContracts
 
 open System
 

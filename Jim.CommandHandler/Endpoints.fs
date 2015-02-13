@@ -1,4 +1,4 @@
-﻿module Jim.CommandEndpoints
+﻿module Jim.CommandHandler.Endpoints
 
 open System
 

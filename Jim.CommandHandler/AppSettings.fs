@@ -1,4 +1,4 @@
-﻿module Jim.AppSettings
+﻿module Jim.CommandHandler.AppSettings
 
 open ConfigMapping
 
