@@ -10,9 +10,9 @@ If this was a real thing with lots of developers they would be in separate Visua
 
 * Manages commands relating to user authentication details and basic identity info (i.e. people's full name).
 
-* Commands result in events being written to a private stream in an Event Store cluster. An Event Store projection takes the private identity events resulting from commands and maps them to new events on a public stream (omitting all data and events relating to password hashes).
+* Commands result in events being written to a private stream in an Event Store cluster. An Event Store projection takes the private identity events resulting from commands and maps them to new events on a public stream for use by other services. All data and events relating to password hashes are omitted.
 
-* The command processor currently checks the legality of commands using and in-memory read model of all user aggregates. I will change this to use a SQL Server database at some point.
+* After any events resulting from a command have been written to the Event Store cluster, the service updates the current state of the relevant user aggregate in a SQL Server table. This table is used both by the command handler itself (to check the legality of commands before executing them) and by the Jim query handler service.
 
 * Commands are intentionally synchronous (via an F# MailboxProcessor) to avoid the creation of conflicting users via concurrent events (e.g. two users with the same email address). Because of this the service is not currently horizontally scalable. Given that the identity read model is scalable, this doesn't matter unless either:
 
@@ -28,9 +28,7 @@ If either of these is considered a problem, then there would need to be some log
 
 * Verifies auth tokens for other microservices.
 
-* Also allows admins to query user details (currently all users are admins...).
-
-* Currently uses an in-memory model built from the event store, but once the command handler is changed to use a SQL database then this project will no longer need any knowledge of event store or event types 
+* Also allows admins to query user details (currently all users are admins...). All queries are served via SQL Server - this service does not require any knowledge of Event Store.
 
 ####Cats: Crowdfunding Ask Templates
 
