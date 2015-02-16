@@ -15,6 +15,9 @@ type GetUsersResponse = {
     Users: GetUserResponse seq
 }
 
+let getRepository = 
+    ()
+
 let mapUserToUserResponse (user:User) =
     {
         GetUserResponse.Id = user.Id

@@ -61,12 +61,6 @@
   </Target>
   -->
   <ItemGroup>
-    <Content Include="SqlServerTypes\Loader.cs">
-      <Paket>True</Paket>
-    </Content>
-    <Content Include="SqlServerTypes\readme.htm">
-      <Paket>True</Paket>
-    </Content>
     <None Include="paket.references" />
     <None Include="App.config" />
     <Compile Include="AppSettings.fs" />
@@ -82,10 +76,11 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Jim.Shared\Jim.Shared.fsproj">
-      <Name>Jim.Shared</Name>
+    <ProjectReference Include="..\Jim.UserRepository\Jim.UserRepository.fsproj">
+      <Name>Jim.UserRepository</Name>
       <Project>{0b090e33-f77f-4c4a-b0aa-2c7e67d79005}</Project>
       <Private>True</Private>
     </ProjectReference>
@@ -112,23 +107,6 @@
         <Reference Include="FSharp.Actor">
           <HintPath>..\packages\FSharp.Actor-logary\lib\net40\FSharp.Actor.dll</HintPath>
           <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
-      <ItemGroup>
-        <Reference Include="FSharp.Data.SqlClient">
-          <HintPath>..\packages\FSharp.Data.SqlClient\lib\net40\FSharp.Data.SqlClient.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="System.Data">
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="System.Xml">
           <Paket>True</Paket>
         </Reference>
       </ItemGroup>
@@ -192,17 +170,6 @@
       <ItemGroup>
         <Reference Include="Logary.Suave">
           <HintPath>..\packages\Intelliplan.Logary.Suave\lib\net40\Logary.Suave.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v2.0' Or $(TargetFrameworkVersion) == 'v3.0' Or $(TargetFrameworkVersion) == 'v3.5' Or $(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
-      <ItemGroup>
-        <Reference Include="Microsoft.SqlServer.Types">
-          <HintPath>..\packages\Microsoft.SqlServer.Types\lib\net20\Microsoft.SqlServer.Types.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

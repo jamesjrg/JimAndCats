@@ -10,7 +10,7 @@ If this was a real thing with lots of developers they would be in separate Visua
 
 * Manages commands relating to user authentication details and basic identity info (i.e. people's full name).
 
-* Commands result in events being written to a private stream in an Event Store cluster. An Event Store projection takes the private identity events resulting from commands and maps them to new events on a public stream for use by other services. All data and events relating to password hashes are omitted.
+* Commands result in events being written to a private stream in an Event Store cluster. An Event Store projection takes the private identity events resulting from commands and maps them to new events on a public stream for use by other services (currently the Cats service). All data and events relating to password hashes are omitted.
 
 * After any events resulting from a command have been written to the Event Store cluster, the service updates the current state of the relevant user aggregate in a SQL Server table. This table is used both by the command handler itself (to check the legality of commands before executing them) and by the Jim query handler service.
 
@@ -38,11 +38,15 @@ If either of these is considered a problem, then there would need to be some log
 
 ####Cats.ReadModelUpdater:
 
-* Listens to the private Cats event stream and the public identity event stream, and uses them to update SQL Server read models for use by Cats services. There can only be one running instance to avoid conflicting writes to the read models.
+* Listens to the private Cats event stream, the public identity event stream and the public pledges event stream. It uses them to update SQL Server tables for use by Cats services. There can only be one running instance to avoid conflicting writes to the read models.
 
 ####Pledges:
 
-* Allows people to make pledges to cats.
+* Allows people to make pledges to cats. It can be horizontally scaled across multiple instances because there is no command that will get the system into an illegal state.
+
+* Events are written to a private event stream, where an Event Store projection maps them to a public stream for consumption by other services (currently the Cats service).
+
+* Handles only commands.
 
 ###There are also some shared libraries:
 

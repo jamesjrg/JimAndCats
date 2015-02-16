@@ -16,7 +16,7 @@ open System.IO
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let index = Successful.OK "Hello from JIM"
+let index = Successful.OK "Hello from JIM Command Handler"
 
 let authenticateWithRepo repository partNeedingAuth =
     Hawk.authenticate'

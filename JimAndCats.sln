@@ -38,7 +38,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jim.CommandHandler.Tests", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jim.QueryHandler.Tests", "Jim.QueryHandler.Tests\Jim.QueryHandler.Tests.fsproj", "{A4BE2586-B78D-4840-8973-4F07F9BAB6A0}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jim.Shared", "Jim.Shared\Jim.Shared.fsproj", "{0B090E33-F77F-4C4A-B0AA-2C7E67D79005}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jim.UserRepository", "Jim.UserRepository\Jim.UserRepository.fsproj", "{0B090E33-F77F-4C4A-B0AA-2C7E67D79005}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

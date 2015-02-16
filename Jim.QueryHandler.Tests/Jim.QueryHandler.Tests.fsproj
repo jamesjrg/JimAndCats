@@ -58,8 +58,8 @@
       <Project>{49c281df-8033-4990-b768-fe7edbb588ca}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Jim.Shared\Jim.Shared.fsproj">
-      <Name>Jim.Shared</Name>
+    <ProjectReference Include="..\Jim.UserRepository\Jim.UserRepository.fsproj">
+      <Name>Jim.UserRepository</Name>
       <Project>{0b090e33-f77f-4c4a-b0aa-2c7e67d79005}</Project>
       <Private>True</Private>
     </ProjectReference>

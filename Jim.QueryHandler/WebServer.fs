@@ -16,7 +16,7 @@ open System.IO
 
 let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
 
-let index = Successful.OK "Hello from JIM"
+let index = Successful.OK "Hello from JIM Query Handler"
 
 let authenticateWithRepo repository partNeedingAuth =
     Hawk.authenticate'
@@ -42,7 +42,7 @@ let main argv =
     printfn "Starting JIM on %d" appSettings.Port
 
     try     
-        let postCommand, repository = Endpoints.getCommandPosterAndRepository()
+        let postCommand, repository = AppService.getRepository()
         web_server web_config (webApp postCommand repository)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
