@@ -1,7 +1,10 @@
 ﻿namespace Jim.Domain
 
+open MicroCQRS.Common.Result
+open MicroCQRS.Common.CommandFailure
 open System
 open NodaTime
+open System.Text.RegularExpressions
 
 type Username = Username of string
 
@@ -22,3 +25,14 @@ module Extraction =
     let extractUsername (Username s) = s
     let extractEmail (EmailAddress s) = s
     let extractPasswordHash (PasswordHash s) = s
+
+[<AutoOpen>]
+module Email =
+    let canonicalizeEmail (input:string) =
+        input.Trim().ToLower()
+
+    let createEmailAddress (s:string) =
+        let canonicalized = canonicalizeEmail s
+        if Regex.IsMatch(canonicalized, @"^\S+@\S+\.\S+$") 
+            then Success (EmailAddress canonicalized)
+            else Failure (BadRequest "Not a valid email address")

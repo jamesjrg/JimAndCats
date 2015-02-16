@@ -1,6 +1,6 @@
 ﻿module MicroCQRS.Common.CommandFailure
 
-type CommandFailure =
+type CQRSFailure =
     | BadRequest of string
     | NotFound
 

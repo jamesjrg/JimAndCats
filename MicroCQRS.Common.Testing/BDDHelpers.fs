@@ -15,8 +15,8 @@ let When<'TCommand, 'TEvent> (command: 'TCommand) (events:'TEvent list) = events
 let Expect'<'TEvent, 'TCommand, 'TRepository when 'TEvent:equality>
     (getRepository: unit -> 'TRepository)
     (handleEvent: 'TRepository -> 'TEvent -> unit)
-    (handleCommand: 'TCommand -> 'TRepository -> Result<'TEvent, CommandFailure>)
-    (expected: Result<'TEvent, CommandFailure>)
+    (handleCommand: 'TCommand -> 'TRepository -> Result<'TEvent, CQRSFailure>)
+    (expected: Result<'TEvent, CQRSFailure>)
     (events, command) =
 
     let repository = getRepository()  

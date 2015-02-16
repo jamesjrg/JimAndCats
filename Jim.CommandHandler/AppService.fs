@@ -17,19 +17,7 @@ open Suave
 open Suave.Http
 open Suave.Extensions.Json
 
-let getCommandPosterAndRepository() =
-    let streamId = appSettings.PrivateIdentityStream
-    let store =
-        match appSettings.WriteToInMemoryStoreOnly with
-        | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
-        | true -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
-    let repository = new UserRepository()
-    let initialVersion = repository.Load(store, streamId, handleEvent) |> Async.RunSynchronously
-    let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
-    
-    postCommand, repository
-
-let loadRepositoryFromEventStore (repository:IUserRepository) (store:IEventStore<Event>) streamId handleEvent =
+let private loadRepositoryFromEventStore (repository:IUserRepository) (store:IEventStore<Event>) streamId handleEvent =
     let rec fold version =
         async {
         let! events, lastEvent, nextEvent = 
@@ -39,7 +27,19 @@ let loadRepositoryFromEventStore (repository:IUserRepository) (store:IEventStore
         match nextEvent with
         | None -> return lastEvent
         | Some n -> return! fold n }
-    fold 0            
+    fold 0  
+
+let getCommandPosterAndRepository() =
+    let streamId = appSettings.PrivateIdentityStream
+    let store =
+        match appSettings.WriteToInMemoryStoreOnly with
+        | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
+        | true -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
+    let repository = new InMemoryUserRepository()
+    let initialVersion = loadRepositoryFromEventStore repository store streamId handleEvent |> Async.RunSynchronously
+    let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
+    
+    postCommand, repository        
 
 let private runCommand postCommand (command:Command) : Types.WebPart =
     fun httpContext ->

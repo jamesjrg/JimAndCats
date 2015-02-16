@@ -1,4 +1,4 @@
-﻿module Jim.CommandHandler.Hawk
+﻿module Jim.UserRepository.Hawk
 
 open Jim.Domain
 open MicroCQRS.Common.CommandFailure
@@ -7,7 +7,6 @@ open logibit.hawk
 open logibit.hawk.Server
 open logibit.hawk.Types
 
-(* FIXME this shouldn't need to match types of command failures *)
 let hawkSettings (userRepository:IUserRepository) =
     { Settings.empty<User>() with
      // sign: UserId -> Choice<Credentials * 'a, CredsError>

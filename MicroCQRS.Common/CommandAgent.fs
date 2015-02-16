@@ -7,14 +7,14 @@ open MicroCQRS.Common.Result
 let getCommandPoster<'TCommand, 'TEvent, 'TRepository>
     (store:IEventStore<'TEvent>)
     (repository:'TRepository)
-    (handleCommand:'TCommand -> 'TRepository -> Result<'TEvent, CommandFailure>)
+    (handleCommand:'TCommand -> 'TRepository -> Result<'TEvent, CQRSFailure>)
     (handleEvent:'TRepository -> 'TEvent -> unit)
     (streamId:string)
     (initialVersion:int) = 
     
     let save expectedVersion events = store.AppendToStream streamId expectedVersion events
 
-    let agent = MailboxProcessor<'TCommand * AsyncReplyChannel<Result<'TEvent, CommandFailure>>>.Start <| fun inbox -> 
+    let agent = MailboxProcessor<'TCommand * AsyncReplyChannel<Result<'TEvent, CQRSFailure>>>.Start <| fun inbox -> 
         let rec messageLoop version = async {
             let! command, replyChannel = inbox.Receive()
             

@@ -2,12 +2,11 @@
 
 open Jim.CommandHandler
 open Jim.CommandHandler.AppSettings
-open Jim.Hawk
+open Jim.UserRepository.Hawk
 open Suave
 open Logary //must be opened after Suave
 open Suave.Http
 open Suave.Http.Applicatives
-open Suave.Types
 open Suave.Web
 open Suave.Extensions.ConfigDefaults
 open Suave.Extensions.Guids
@@ -48,7 +47,7 @@ let main argv =
     printfn "Starting JIM on %d" appSettings.Port
 
     try     
-        let postCommand, repository = Endpoints.getCommandPosterAndRepository()
+        let postCommand, repository = AppService.getCommandPosterAndRepository()
         web_server web_config (webApp postCommand repository)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())

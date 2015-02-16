@@ -70,7 +70,6 @@
     <Compile Include="Logging.fs" />
     <Compile Include="CommandContracts.fs" />
     <Compile Include="AppService.fs" />
-    <Compile Include="Hawk.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>
   <ItemGroup>

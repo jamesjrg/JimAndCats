@@ -1,6 +1,7 @@
 ﻿module Jim.QueryHandler.AppService
 
 open Jim.Domain
+open Jim.UserRepository
 open Suave.Extensions.Json
 open System
 
@@ -15,8 +16,8 @@ type GetUsersResponse = {
     Users: GetUserResponse seq
 }
 
-let getRepository = 
-    ()
+let getRepository() = 
+    new InMemoryUserRepository()
 
 let mapUserToUserResponse (user:User) =
     {

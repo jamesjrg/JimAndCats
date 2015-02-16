@@ -5,7 +5,6 @@ open NodaTime
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result
 open System
-open System.Text.RegularExpressions
 
 [<AutoOpen>]
 module Commands =
@@ -66,17 +65,6 @@ module Events =
         Id: Guid
         PasswordHash: PasswordHash
     }
-
-[<AutoOpen>]
-module Email =
-    let canonicalizeEmail (input:string) =
-        input.Trim().ToLower()
-
-    let createEmailAddress (s:string) =
-        let canonicalized = canonicalizeEmail s
-        if Regex.IsMatch(canonicalized, @"^\S+@\S+\.\S+$") 
-            then Success (EmailAddress canonicalized)
-            else Failure (BadRequest "Not a valid email address")
 
 [<AutoOpen>]
 module private EventHandlers =
