@@ -1,4 +1,4 @@
-﻿module Jim.Tests.Web.CommandTests
+﻿module Jim.CommandHandler.Tests.Web.Tests
 
 open Fuchu
 open Jim.Domain

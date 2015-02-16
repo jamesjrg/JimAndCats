@@ -37,28 +37,6 @@
     <DocumentationFile>bin\Release\Jim.QueryHandler.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="SqlServerTypes\Loader.cs">
-      <Paket>True</Paket>
-    </Content>
-    <Content Include="SqlServerTypes\readme.htm">
-      <Paket>True</Paket>
-    </Content>
-    <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="paket.references" />
-    <None Include="App.config" />
-    <Compile Include="Logging.fs" />
-    <Compile Include="Endpoints.fs" />
-    <Compile Include="WebServer.fs" />
-  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>
@@ -82,6 +60,41 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Content Include="SqlServerTypes\Loader.cs">
+      <Paket>True</Paket>
+    </Content>
+    <Content Include="SqlServerTypes\readme.htm">
+      <Paket>True</Paket>
+    </Content>
+    <None Include="paket.references" />
+    <None Include="App.config" />
+    <Compile Include="AppSettings.fs" />
+    <Compile Include="Logging.fs" />
+    <Compile Include="AppService.fs" />
+    <Compile Include="WebServer.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Jim.Shared\Jim.Shared.fsproj">
+      <Name>Jim.Shared</Name>
+      <Project>{0b090e33-f77f-4c4a-b0aa-2c7e67d79005}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Suave.Extensions\Suave.Extensions.fsproj">
+      <Name>Suave.Extensions</Name>
+      <Project>{384df817-2d6b-48ff-b9af-9a96ab3f522b}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
       <ItemGroup>

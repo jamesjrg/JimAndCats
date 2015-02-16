@@ -1,8 +1,8 @@
-﻿module Jim.Tests.Web.QueryTests
+﻿module Jim.QueryHandler.Tests.WebTests
 
 open Fuchu
-open Jim.Domain
-open Jim.Tests.Web.CreateWebServer
+open Jim.QueryHandler.Domain
+open Jim.QueryHandler.Tests.Web.CreateWebServer
 open MicroCQRS.Common.Testing.SuaveHelpers
 open NodaTime
 open Suave.Testing

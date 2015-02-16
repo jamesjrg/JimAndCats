@@ -49,7 +49,25 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
+    <Compile Include="WebTests.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Jim.QueryHandler\Jim.QueryHandler.fsproj">
+      <Name>Jim.QueryHandler</Name>
+      <Project>{49c281df-8033-4990-b768-fe7edbb588ca}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Jim.Shared\Jim.Shared.fsproj">
+      <Name>Jim.Shared</Name>
+      <Project>{0b090e33-f77f-4c4a-b0aa-2c7e67d79005}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj">
+      <Name>MicroCQRS.Common.Testing</Name>
+      <Project>{5fd77a37-8aed-4a7d-8134-6c0aef0e09b3}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

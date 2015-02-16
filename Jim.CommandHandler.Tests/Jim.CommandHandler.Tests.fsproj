@@ -52,10 +52,26 @@
     <Compile Include="Domain\Hashing.fs" />
     <Compile Include="Domain\CommandTests.fs" />
     <Compile Include="Web\CreateWebServer.fs" />
-    <Compile Include="Web\CommandTests.fs" />
-    <Compile Include="Web\QueryTests.fs" />
+    <Compile Include="Web\Tests.fs" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Jim.CommandHandler\Jim.CommandHandler.fsproj">
+      <Name>Jim.CommandHandler</Name>
+      <Project>{138b26c4-4fcf-4160-8895-e603d0cfecaf}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Jim.Shared\Jim.Shared.fsproj">
+      <Name>Jim.Shared</Name>
+      <Project>{0b090e33-f77f-4c4a-b0aa-2c7e67d79005}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj">
+      <Name>MicroCQRS.Common.Testing</Name>
+      <Project>{5fd77a37-8aed-4a7d-8134-6c0aef0e09b3}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

@@ -1,4 +1,4 @@
-﻿module Jim.Hawk
+﻿module Jim.CommandHandler.Hawk
 
 open Jim.Domain
 open MicroCQRS.Common.CommandFailure

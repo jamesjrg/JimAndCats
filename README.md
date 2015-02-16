@@ -30,6 +30,8 @@ If either of these is considered a problem, then there would need to be some log
 
 * Also allows admins to query user details (currently all users are admins...).
 
+* Currently uses an in-memory model built from the event store, but once the command handler is changed to use a SQL database then this project will no longer need any knowledge of event store or event types 
+
 ####Cats: Crowdfunding Ask Templates
 
 * Manages a collection of projects asking for crowdfunding.

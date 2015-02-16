@@ -6,7 +6,7 @@ open Logary.Targets
 open Logary.Metrics
 
 let logary =
-    withLogary' "Jim" (
+    withLogary' "Jim.QueryHandler" (
       withTargets [
         Console.create Console.empty "console"
         Debugger.create Debugger.empty "debugger"

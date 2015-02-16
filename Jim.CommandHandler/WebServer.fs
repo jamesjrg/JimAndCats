@@ -30,17 +30,15 @@ let webApp postCommand repository =
     choose [
         GET >>= choose [
             url "/api-docs" >>= swaggerSpec
-            url "/" >>= index
-            url "/users" >>= (requireAuth <| QueryEndpoints.listUsers repository)
-            url_scan_guid "/users/%s" (fun id -> requireAuth <| QueryEndpoints.getUser repository id) ]
+            url "/" >>= index ]
 
         (* TODO this endpoint should have some sort of security - only open to pre-existing users sending their own Hawk credentials, or only available via HTTPS *)
-        POST >>= url "/users/create" >>= tryMapJson (CommandEndpoints.createUser postCommand)
+        POST >>= url "/users/create" >>= tryMapJson (AppService.createUser postCommand)
 
         PUT >>= choose [ 
-            url_scan_guid "/users/%s/name" (fun id -> requireAuth (tryMapJson <| CommandEndpoints.setName postCommand id))
-            url_scan_guid "/users/%s/email" (fun id -> requireAuth (tryMapJson <| CommandEndpoints.setEmail postCommand id))
-            url_scan_guid "/users/%s/password"  (fun id -> requireAuth (tryMapJson <| CommandEndpoints.setPassword postCommand id)) ]
+            url_scan_guid "/users/%s/name" (fun id -> requireAuth (tryMapJson <| AppService.setName postCommand id))
+            url_scan_guid "/users/%s/email" (fun id -> requireAuth (tryMapJson <| AppService.setEmail postCommand id))
+            url_scan_guid "/users/%s/password"  (fun id -> requireAuth (tryMapJson <| AppService.setPassword postCommand id)) ]
 
         RequestErrors.NOT_FOUND "404 not found" ] 
 
@@ -50,7 +48,7 @@ let main argv =
     printfn "Starting JIM on %d" appSettings.Port
 
     try     
-        let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
+        let postCommand, repository = Endpoints.getCommandPosterAndRepository()
         web_server web_config (webApp postCommand repository)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())

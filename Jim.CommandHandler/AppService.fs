@@ -1,10 +1,10 @@
-﻿module Jim.CommandHandler.Endpoints
+﻿module Jim.CommandHandler.AppService
 
 open System
 
 open Jim
-open Jim.AppSettings
-open Jim.CommandContracts
+open Jim.CommandHandler.AppSettings
+open Jim.CommandHandler.CommandContracts
 open Jim.Domain
 
 open MicroCQRS.Common
@@ -27,6 +27,18 @@ let getCommandPosterAndRepository() =
     let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     
     postCommand, repository
+
+let loadRepositoryFromEventStore (repository:IUserRepository) (store:IEventStore<Event>) streamId handleEvent =
+    let rec fold version =
+        async {
+        let! events, lastEvent, nextEvent = 
+            store.ReadStream streamId version 500
+
+        List.iter (handleEvent repository) events
+        match nextEvent with
+        | None -> return lastEvent
+        | Some n -> return! fold n }
+    fold 0            
 
 let private runCommand postCommand (command:Command) : Types.WebPart =
     fun httpContext ->
