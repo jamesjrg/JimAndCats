@@ -1,4 +1,4 @@
-﻿module MicroCQRS.Common.Testing.BDDHelpers
+﻿module TestingHelpers.BDDHelpers
 
 open MicroCQRS.Common.CommandFailure
 open MicroCQRS.Common.Result

@@ -1,7 +1,7 @@
 ﻿module Cats.ReadModelUpdater.Program
 
 open Cats.ReadModelUpdater.AppSettings
-open MicroCQRS.Common
+open EventStore.YetAnotherClient
 open NodaTime
 open System
 

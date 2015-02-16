@@ -1,4 +1,4 @@
-﻿module MicroCQRS.Common.CommandFailure
+﻿namespace GenericErrorHandling
 
 type CQRSFailure =
     | BadRequest of string

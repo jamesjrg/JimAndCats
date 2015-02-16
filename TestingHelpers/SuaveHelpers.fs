@@ -1,4 +1,4 @@
-﻿module MicroCQRS.Common.Testing.SuaveHelpers
+﻿module TestingHelpers.SuaveHelpers
 
 open logibit.hawk
 open logibit.hawk.Client

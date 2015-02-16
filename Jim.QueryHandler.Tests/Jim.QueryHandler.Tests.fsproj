@@ -63,11 +63,6 @@
       <Project>{0b090e33-f77f-4c4a-b0aa-2c7e67d79005}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\MicroCQRS.Common.Testing\MicroCQRS.Common.Testing.fsproj">
-      <Name>MicroCQRS.Common.Testing</Name>
-      <Project>{5fd77a37-8aed-4a7d-8134-6c0aef0e09b3}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

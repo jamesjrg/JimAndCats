@@ -7,11 +7,11 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>5fd77a37-8aed-4a7d-8134-6c0aef0e09b3</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>MicroCQRS.Common.Testing</RootNamespace>
-    <AssemblyName>MicroCQRS.Common.Testing</AssemblyName>
+    <RootNamespace>TestingHelpers</RootNamespace>
+    <AssemblyName>TestingHelpers</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>MicroCQRS.Common.Testing</Name>
+    <Name>TestingHelpers</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\MicroCQRS.Common.Testing.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\TestingHelpers.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\MicroCQRS.Common.Testing.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\TestingHelpers.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -62,13 +62,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MicroCQRS.Common\MicroCQRS.Common.fsproj">
-      <Name>MicroCQRS.Common</Name>
-      <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

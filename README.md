@@ -50,19 +50,27 @@ If either of these is considered a problem, then there would need to be some log
 
 ###There are also some shared libraries:
 
-####MicroCQRS.Common
+####GenericErrorHandling
 
-Some generic code for making F# microservices backed by EventStore and fronted by a Suave web server.
+* Description TODO
+
+####Jim.UserRepository
+
+* Description TODO
+
+####EventStore.YetAnotherClient
+
+* Description TODO
 
 ####Suave.Extensions
 
 Some handy utilities for making Suave web services.
 
-####MicroCQRS.Common.Testing
+####TestingHelpers
 
-Some utilities for testing Suave/EventStore microservices.
+Some utility methods using the official Suave.Testing library for writing tests on web server endpoints, as well as some minimal BDD helper functions for testing domain logic.
 
 ###Other:
-Almost all the projects have an associated unit test project. These do not require access to a real EventStore instance, and run any required web server in-process.
+Most of the projects have an associated unit test project. These do not require access to a real EventStore instance, and run any required web server in-process.
 
 There is also a separate solution called IntegrationTests in its own folder, containing tests which start the services in separate processes and interact with them soley via REST. These tests verify that the different services are successfully coordinated via EventStore.

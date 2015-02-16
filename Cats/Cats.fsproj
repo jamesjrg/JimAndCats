@@ -91,8 +91,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MicroCQRS.Common\MicroCQRS.Common.fsproj">
-      <Name>MicroCQRS.Common</Name>
+    <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">
+      <Name>EventStore.YetAnotherClient</Name>
+      <Project>{4e888127-662c-40e4-8f83-6202ea671bb4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\GenericErrorHandling\GenericErrorHandling.fsproj">
+      <Name>GenericErrorHandling</Name>
       <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>
       <Private>True</Private>
     </ProjectReference>
