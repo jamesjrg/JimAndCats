@@ -8,7 +8,7 @@ If this was a real thing with lots of developers they would be in separate Visua
 
 ####Jim.CommandHandler: Just Identity Management Command Handler
 
-* Manages commands relating to user authentication details and basic identity info (i.e. people's full name)
+* Manages commands relating to user authentication details and basic identity info (i.e. people's full name).
 
 * Commands result in events being written to a private stream in an Event Store cluster. An Event Store projection takes the private identity events resulting from commands and maps them to new events on a public stream (omitting all data and events relating to password hashes).
 
@@ -17,18 +17,22 @@ If this was a real thing with lots of developers they would be in separate Visua
 * Commands are intentionally synchronous (via an F# MailboxProcessor) to avoid the creation of conflicting users via concurrent events (e.g. two users with the same email address). Because of this the service is not currently horizontally scalable. Given that the identity read model is scalable, this doesn't matter unless either:
 
 a) any downtime on the ability to create and modify users is considered totally unacceptable
+
 or
+
 b) There is an expectation of an extremely high number of user creation and modification commands
 
 If either of these is considered a problem, then there would need to be some logic to handle the case where conflicting events have both been written to the Event Store - e.g. two users with the same email address have been created.
 
 ####Jim.QueryHandler: Just Identity Management Query Handler
 
-Handles authentication queries
+* Verifies auth tokens for other microservices.
+
+* Also allows admins to query user details (currently all users are admins...).
 
 ####Cats: Crowdfunding Ask Templates
 
-* Manages a collection of projects asking for crowdfunding
+* Manages a collection of projects asking for crowdfunding.
 
 * Handles both queries and commands. It can be horizontally scaled across multiple instances because there is no command that will get the system into an illegal state, even when the aggregate checked by a command handler is out of date.
 
@@ -38,21 +42,21 @@ Handles authentication queries
 
 ####Pledges:
 
-* Allows people to make pledges to cats
+* Allows people to make pledges to cats.
 
 ###There are also some shared libraries:
 
 ####MicroCQRS.Common
 
-Some generic code for making F# microservices backed by EventStore and fronted by a Suave web server
+Some generic code for making F# microservices backed by EventStore and fronted by a Suave web server.
 
 ####Suave.Extensions
 
-Some handy utilities for making Suave web services
+Some handy utilities for making Suave web services.
 
 ####MicroCQRS.Common.Testing
 
-Some utilities for testing Suave/EventStore microservices
+Some utilities for testing Suave/EventStore microservices.
 
 ###Other:
 Almost all the projects have an associated unit test project. These do not require access to a real EventStore instance, and run any required web server in-process.
