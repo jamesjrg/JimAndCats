@@ -3,6 +3,7 @@
 open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
 open Fuchu
+open EventStore.YetAnotherClient
 open GenericErrorHandling
 open TestingHelpers.BDDHelpers
 open NodaTime

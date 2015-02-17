@@ -1,27 +1,30 @@
 ﻿module Jim.QueryHandler.Tests.WebTests
 
 open Fuchu
-open Jim.QueryHandler.Domain
-open Jim.QueryHandler.Tests.Web.CreateWebServer
-open TestingHelpers.SuaveHelpers
+open Jim.Domain
+open Jim.QueryHandler.WebServer
+open Jim.UserRepository
 open NodaTime
 open Suave.Testing
 open System
-open System.Text
 open System.Net
+open TestingHelpers.SuaveHelpers
 
 open Swensen.Unquote.Assertions
 
 let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
 let epoch = new Instant(0L)
 
-let bob = { UserCreated.Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "128000:rp4MqoM6SelmRHtM8XF87Q==:MCtWeondG9hLIQ7zahxV6JTPSt4="; CreationTime = epoch}
+let bobEmail = "bob.holness@itv.com"
+let bobPasswordHash = "128000:rp4MqoM6SelmRHtM8XF87Q==:MCtWeondG9hLIQ7zahxV6JTPSt4="
+let bobCredentials = Some {HawkTestOptions.Id=bobEmail;Key=bobPasswordHash}
 
-let userHasBeenCreated = [UserCreated bob ]
-let bobCredentials = Some {HawkTestOptions.Id=extractEmail bob.Email;Key=extractPasswordHash bob.PasswordHash}
+let getWebServerWithNoEvents() = webApp (new InMemoryUserRepository())
 
-let getWebServerWithNoEvents() = getWebServer []
-let getWebServerWithAUser() = getWebServer userHasBeenCreated
+let getWebServerWithAUser() =
+    let repo = new InMemoryUserRepository() :> IUserRepository
+    repo.Put({User.Id=guid1; Name=Username "Bob Holness"; Email = EmailAddress bobEmail; PasswordHash=PasswordHash bobPasswordHash; CreationTime = epoch })
+    webApp repo
 
 [<Tests>]
 let queryTests =

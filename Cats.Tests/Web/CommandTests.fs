@@ -4,7 +4,7 @@ open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
 open Cats.Tests.Web.CreateWebServer
 open Fuchu
-open EventStore.YetAnotherClient.Testing.SuaveHelpers
+open TestingHelpers.SuaveHelpers
 open NodaTime
 open Suave.Testing
 open Suave.Types

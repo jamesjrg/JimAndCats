@@ -63,6 +63,11 @@
       <Project>{12b66eec-6091-4194-b790-284569c12335}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">
+      <Name>EventStore.YetAnotherClient</Name>
+      <Project>{4e888127-662c-40e4-8f83-6202ea671bb4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\GenericErrorHandling\GenericErrorHandling.fsproj">
       <Name>GenericErrorHandling</Name>
       <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>

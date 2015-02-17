@@ -43,6 +43,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
@@ -51,11 +52,15 @@
     <Compile Include="AppSettings.fs" />
     <Compile Include="Domain\Hashing.fs" />
     <Compile Include="Domain\CommandTests.fs" />
-    <Compile Include="Web\CreateWebServer.fs" />
-    <Compile Include="Web\Tests.fs" />
+    <Compile Include="WebTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">
+      <Name>EventStore.YetAnotherClient</Name>
+      <Project>{4e888127-662c-40e4-8f83-6202ea671bb4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\GenericErrorHandling\GenericErrorHandling.fsproj">
       <Name>GenericErrorHandling</Name>
       <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>

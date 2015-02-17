@@ -21,7 +21,7 @@ let getCommandPosterAndRepository() =
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new SimpleInMemoryRepository<Cat>()
-    let initialVersion = repository.Load<Event>(store, streamId, handleEvent) |> Async.RunSynchronously
+    let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
     let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion   
     
     postCommand, repository

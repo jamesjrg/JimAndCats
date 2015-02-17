@@ -15,18 +15,6 @@ open Suave
 open Suave.Http
 open Suave.Extensions.Json
 
-let private loadRepositoryFromEventStore (repository:IUserRepository) (store:IEventStore<Event>) streamId handleEvent =
-    let rec fold version =
-        async {
-        let! events, lastEvent, nextEvent = 
-            store.ReadStream streamId version 500
-
-        List.iter (handleEvent repository) events
-        match nextEvent with
-        | None -> return lastEvent
-        | Some n -> return! fold n }
-    fold 0  
-
 let getCommandPosterAndRepository() =
     let streamId = appSettings.PrivateIdentityStream
     let store =
@@ -34,7 +22,7 @@ let getCommandPosterAndRepository() =
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new InMemoryUserRepository()
-    let initialVersion = loadRepositoryFromEventStore repository store streamId handleEvent |> Async.RunSynchronously
+    let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
     let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     
     postCommand, repository        

@@ -1,15 +1,32 @@
-﻿module Jim.CommandHandler.Tests.Web.Tests
+﻿module Jim.CommandHandler.Tests.WebTests
 
+open EventStore.YetAnotherClient
 open Fuchu
 open Jim.Domain
-open Jim.Tests.Web.CreateWebServer
-open TestingHelpers.SuaveHelpers
+open Jim.Tests.AppSettings
+open Jim.CommandHandler.WebServer
+open Jim.UserRepository
 open NodaTime
 open Suave.Types
 open Suave.Testing
 open System
 open System.Net
 open Swensen.Unquote.Assertions
+open TestingHelpers.SuaveHelpers
+
+let streamId = "testStream"
+
+let getWebServer events =
+    let store =
+        match appSettings.WriteToInMemoryStoreOnly with
+        | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
+        | true -> new InMemoryStore<Event>() :> IEventStore<Event>
+    if not (List.isEmpty events) then
+        store.AppendToStream streamId -1 events |> Async.RunSynchronously
+    let repository = new InMemoryUserRepository()
+    let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
+    let postCommand, repo = (CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion), repository
+    webApp postCommand repo
 
 let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
 let epoch = new Instant(0L)
