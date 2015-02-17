@@ -50,15 +50,15 @@ let private requestResponse methd resource data (hawkOpts:HawkTestOptions option
         match hawkOpts with
         | Some opts -> getHawkRequestTransform methd opts data
         | None -> id
-    req_resp methd resource "" data None DecompressionMethods.None fRequest fResult
+    reqResp methd resource "" data None DecompressionMethods.None fRequest fResult
 
-let run_with' = run_with default_config
+let runWithDefaultConfig = runWith defaultConfig
 
 let statusCodeAndContent response =
-    content_string response, status_code response
+    contentString response, statusCode response
 
 let runWith (getWebServer: unit -> Types.WebPart) methd resource postData hawkOpts  fResult = 
-    run_with' (getWebServer()) |> requestResponse methd resource postData hawkOpts fResult
+    runWithDefaultConfig (getWebServer()) |> requestResponse methd resource postData hawkOpts fResult
 
 let get (getWebServer: unit -> Types.WebPart) resource hawkOpts fResult =
     runWith getWebServer HttpMethod.GET resource None hawkOpts fResult

@@ -36,7 +36,7 @@ let commandTests =
             test <@ actualContent.Contains("Title must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change title" (fun () ->
-            let actual = put getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" None status_code
+            let actual = put getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" None statusCode
 
             test <@ actual = HttpStatusCode.OK @>)
 
@@ -46,7 +46,7 @@ let commandTests =
             test <@ actualContent.Contains("Title must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should get 404 trying to set title of non-existent cat" (fun () ->
-            let actual = put getWebServerWithNoEvents "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" None status_code
+            let actual = put getWebServerWithNoEvents "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" None statusCode
 
             HttpStatusCode.NotFound =? actual)
         ]

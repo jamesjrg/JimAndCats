@@ -1,14 +1,13 @@
 source http://nuget.org/api/v2
 
 nuget Fake
-nuget Suave 0.23.0
+nuget Suave 0.25.0
 nuget EventStore.Client 3.0.1
-nuget Intelliplan.Logary.Suave 2.4.1
+nuget Intelliplan.Logary.Suave 2.5.1
 nuget NodaTime 1.3.0
 nuget ConfigMapper 0.0.6
 nuget Newtonsoft.Json 6.0.8
-nuget Suave.Testing 0.21.0
-nuget Suave.Testing
+nuget Suave.Testing 0.25.0
 nuget Fuchu-Suave 0.6.1
 nuget Unquote 2.2.2
 nuget RestSharp 105.0.1

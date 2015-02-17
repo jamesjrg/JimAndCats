@@ -12,7 +12,7 @@ open Suave.Extensions.ConfigDefaults
 open Suave.Extensions.Guids
 open System.IO
 
-let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
+let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json")
 
 let index = Successful.OK "Hello from JIM Query Handler"
 
@@ -30,7 +30,7 @@ let webApp repository =
             url "/api-docs" >>= swaggerSpec
             url "/" >>= index
             url "/users" >>= (requireAuth <| AppService.listUsers repository)
-            url_scan_guid "/users/%s" (fun id -> requireAuth <| AppService.getUser repository id) ]
+            urlScanGuid "/users/%s" (fun id -> requireAuth <| AppService.getUser repository id) ]
 
         RequestErrors.NOT_FOUND "404 not found" ] 
 
@@ -41,7 +41,7 @@ let main argv =
 
     try     
         let repository = AppService.getRepository()
-        web_server web_config (webApp repository)
+        startWebServer web_config (webApp repository)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

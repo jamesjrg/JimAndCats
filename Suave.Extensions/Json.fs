@@ -6,7 +6,7 @@ open Suave.Http
 open System.Text
 
 let private tryParseJson (r:Types.HttpRequest) =
-  let str = Encoding.UTF8.GetString(r.raw_form);
+  let str = Encoding.UTF8.GetString(r.rawForm);
   try
     Some (JsonConvert.DeserializeObject<'a>(str)), str
   with
@@ -15,7 +15,7 @@ let private tryParseJson (r:Types.HttpRequest) =
 let private serializeObject obj =
     JsonConvert.SerializeObject(obj)
 
-let jsonResponse responseType obj = responseType (serializeObject obj) >>= Writers.set_mime_type "application/json"
+let jsonResponse responseType obj = responseType (serializeObject obj) >>= Writers.setMimeType "application/json"
 let jsonOK obj = jsonResponse Successful.OK obj
 let genericNotFound = RequestErrors.NOT_FOUND "Not found"  
 

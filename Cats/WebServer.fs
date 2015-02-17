@@ -17,7 +17,7 @@ open Logary
 open System
 open System.IO
 
-let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
+let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json")
 
 let index = Successful.OK "Hello from CATS"
 
@@ -26,12 +26,12 @@ let webApp postCommand repository =
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
         url "/cats" >>= request (fun r -> QueryAppService.listCats repository)
-        url_scan_guid "/cats/%s" (fun id -> QueryAppService.getCat repository id)
+        urlScanGuid "/cats/%s" (fun id -> QueryAppService.getCat repository id)
         url "/" >>= index ]
     POST >>= choose [
         url "/cats/create" >>= tryMapJson (CommandAppService.createCat postCommand) ]
     PUT >>= choose [ 
-        url_scan_guid "/cats/%s/title" (fun id -> tryMapJson <| CommandAppService.setTitle postCommand id) ]
+        urlScanGuid "/cats/%s/title" (fun id -> tryMapJson <| CommandAppService.setTitle postCommand id) ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 
@@ -42,7 +42,7 @@ let main argv =
 
     try     
         let postCommand, repository = CommandAppService.getCommandPosterAndRepository()
-        web_server web_config (webApp postCommand repository)        
+        startWebServer web_config (webApp postCommand repository)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

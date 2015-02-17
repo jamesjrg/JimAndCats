@@ -15,10 +15,10 @@ open Suave.Extensions.Json
 open Fuchu
 open Swensen.Unquote.Assertions
 
-let run_with' = run_with default_config
+let runWithDefaultConfig = runWith defaultConfig
 
-let req_resp_with_defaults methd resource data f_result =
-    req_resp methd resource "" data None DecompressionMethods.None id f_result
+let reqResp_with_defaults methd resource data f_result =
+    reqResp methd resource "" data None DecompressionMethods.None id f_result
 
 type Foo = { foo : string; }
 
@@ -31,18 +31,18 @@ let tests =
     testList "Json tests"
         [
             testCase "Should map JSON from one class to another" (fun () ->
-            let post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":"foo"}"""))
+            let postData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":"foo"}"""))
             let response_data =
-                (run_with' (tryMapJson mappingFunc))
-                |> req HttpMethod.POST "/" (Some post_data)
+                (runWithDefaultConfig (tryMapJson mappingFunc))
+                |> req HttpMethod.POST "/" (Some postData)
 
             """{"bar":"foo"}""" =? response_data)
 
             testCase "Should return bad request for ill-formatted JSON" (fun () ->
-            let bad_post_data = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
-            let actual_status_code =
-                (run_with' (tryMapJson mappingFunc))
-                |> req_resp_with_defaults HttpMethod.POST "/" (Some bad_post_data) status_code
+            let badPostData = new ByteArrayContent(Encoding.UTF8.GetBytes("""{"foo":foo"}"""))
+            let actualStatusCode =
+                (runWithDefaultConfig (tryMapJson mappingFunc))
+                |> reqResp_with_defaults HttpMethod.POST "/" (Some badPostData) statusCode
 
-            HttpStatusCode.BadRequest =? actual_status_code)
+            HttpStatusCode.BadRequest =? actualStatusCode)
         ]

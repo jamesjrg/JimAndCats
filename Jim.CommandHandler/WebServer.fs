@@ -13,7 +13,7 @@ open Suave.Extensions.Guids
 open Suave.Extensions.Json
 open System.IO
 
-let swaggerSpec = Files.browse_file' <| Path.Combine("static", "api-docs.json")
+let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json")
 
 let index = Successful.OK "Hello from JIM Command Handler"
 
@@ -35,9 +35,9 @@ let webApp postCommand repository =
         POST >>= url "/users/create" >>= tryMapJson (AppService.createUser postCommand)
 
         PUT >>= choose [ 
-            url_scan_guid "/users/%s/name" (fun id -> requireAuth (tryMapJson <| AppService.setName postCommand id))
-            url_scan_guid "/users/%s/email" (fun id -> requireAuth (tryMapJson <| AppService.setEmail postCommand id))
-            url_scan_guid "/users/%s/password"  (fun id -> requireAuth (tryMapJson <| AppService.setPassword postCommand id)) ]
+            urlScanGuid "/users/%s/name" (fun id -> requireAuth (tryMapJson <| AppService.setName postCommand id))
+            urlScanGuid "/users/%s/email" (fun id -> requireAuth (tryMapJson <| AppService.setEmail postCommand id))
+            urlScanGuid "/users/%s/password"  (fun id -> requireAuth (tryMapJson <| AppService.setPassword postCommand id)) ]
 
         RequestErrors.NOT_FOUND "404 not found" ] 
 
@@ -48,7 +48,7 @@ let main argv =
 
     try     
         let postCommand, repository = AppService.getCommandPosterAndRepository()
-        web_server web_config (webApp postCommand repository)
+        startWebServer web_config (webApp postCommand repository)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

@@ -60,7 +60,7 @@ let commandTests =
             test <@ actualContent.Contains("email") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to rename a user" (fun () ->
-            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" bobCredentials status_code
+            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" bobCredentials statusCode
 
             test <@ actual = HttpStatusCode.OK @>)
 
@@ -70,7 +70,7 @@ let commandTests =
             test <@ content.Contains("Username must be at least") && statusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change email address" (fun () ->
-            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frank@itv.com"}""" bobCredentials content_string
+            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frank@itv.com"}""" bobCredentials contentString
             test <@ actual.Contains("frank@itv.com") && actual.Contains("Email changed") @>)
 
         testCase "Should not be able to change email to invalid address" (fun () ->
@@ -79,32 +79,32 @@ let commandTests =
             test <@ actualContent.Contains("email") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change password" (fun () ->
-            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" """{"password":"n3wp4ss"}""" bobCredentials content_string
+            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" """{"password":"n3wp4ss"}""" bobCredentials contentString
 
             test <@ actual.Contains("Password changed") @>)
 
         testCase "Should not be able to change password to something too short" (fun () ->
-            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"p4ss"}""" bobCredentials content_string
+            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"p4ss"}""" bobCredentials contentString
 
             test <@ actual.Contains("Password must be") @>)
 
         testCase "Should get unauthorized trying to set name on non-existent user if requester is not an admin" (fun () ->
-            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" bobCredentials status_code
+            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" bobCredentials statusCode
 
             HttpStatusCode.Unauthorized =? actual)
 
         testCase "Should get unauthorized trying to set email of non-existent user if requester is not an admin" (fun () ->
-            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" """{"email":"a@b.com"}"""  bobCredentials status_code
+            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" """{"email":"a@b.com"}"""  bobCredentials statusCode
 
             HttpStatusCode.Unauthorized =? actual)
 
         testCase "Should get unauthorized trying to set password of non-existent user if requester is not an admin" (fun () ->
-            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"n3wp4ss"}""" bobCredentials status_code
+            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"n3wp4ss"}""" bobCredentials statusCode
 
             HttpStatusCode.Unauthorized =? actual)
 
         testCase "Should get 404 for posting to totally incorrect url" (fun () ->
-            let actual = post getWebServerWithNoEvents "/flibbles" "flobbles"  bobCredentials status_code
+            let actual = post getWebServerWithNoEvents "/flibbles" "flobbles"  bobCredentials statusCode
             
             HttpStatusCode.NotFound =? actual)
         ]
