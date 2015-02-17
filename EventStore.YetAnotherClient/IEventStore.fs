@@ -1,4 +1,4 @@
-﻿namespace MicroCQRS.Common
+﻿namespace EventStore.YetAnotherClient
 
 type IEventStore<'a> =
     abstract member ReadStream : string -> int -> int -> Async<'a list * int * int option>

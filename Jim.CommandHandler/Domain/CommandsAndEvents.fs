@@ -2,8 +2,7 @@
 
 open Jim.Domain.AuthenticationService
 open NodaTime
-open MicroCQRS.Common.CommandFailure
-open MicroCQRS.Common.Result
+open GenericErrorHandling
 open System
 
 [<AutoOpen>]

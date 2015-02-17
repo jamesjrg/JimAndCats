@@ -5,7 +5,7 @@ open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
 open Cats.Tests.AppSettings
 open Cats.WebServer
-open MicroCQRS.Common
+open EventStore.YetAnotherClient
 
 let streamId = "testStream"
 

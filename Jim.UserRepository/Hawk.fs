@@ -1,8 +1,7 @@
 ﻿module Jim.UserRepository.Hawk
 
 open Jim.Domain
-open MicroCQRS.Common.CommandFailure
-open MicroCQRS.Common.Result
+open GenericErrorHandling
 open logibit.hawk
 open logibit.hawk.Server
 open logibit.hawk.Types

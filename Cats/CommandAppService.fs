@@ -1,11 +1,9 @@
-﻿module Cats.CommandEndpoints
+﻿module Cats.CommandAppService
 
 open System
 
-open MicroCQRS.Common
-open MicroCQRS.Common.CommandFailure
-open MicroCQRS.Common.Result
-open MicroCQRS.Common.CommandAgent
+open EventStore.YetAnotherClient
+open GenericErrorHandling
 
 open Cats.AppSettings
 open Cats.CommandContracts
@@ -21,10 +19,10 @@ let getCommandPosterAndRepository() =
     let store =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
-        | true -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
+        | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new SimpleInMemoryRepository<Cat>()
     let initialVersion = repository.Load<Event>(store, streamId, handleEvent) |> Async.RunSynchronously
-    let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion   
+    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion   
     
     postCommand, repository
 

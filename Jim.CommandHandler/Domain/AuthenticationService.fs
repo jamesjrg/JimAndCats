@@ -1,7 +1,7 @@
 ﻿module Jim.Domain.AuthenticationService
 
-open MicroCQRS.Common
-open MicroCQRS.Common.Result
+open GenericErrorHandling
+open Jim.UserRepository
 open System
 
 open System
@@ -52,7 +52,7 @@ module PBKDF2 =
 
         slowEquals hash testHash
 
-let authenticate (repository : ISimpleRepository<User>) (id:Guid) password =
+let authenticate (repository : IUserRepository) (id:Guid) password =
     match repository.Get id with
     | Some user -> Success (PBKDF2.validatePassword (extractPasswordHash user.PasswordHash) password)
     | None -> Failure "User not found"

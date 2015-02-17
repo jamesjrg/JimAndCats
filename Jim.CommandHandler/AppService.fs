@@ -8,10 +8,8 @@ open Jim.CommandHandler.AppSettings
 open Jim.CommandHandler.CommandContracts
 open Jim.Domain
 
-open MicroCQRS.Common
-open MicroCQRS.Common.CommandAgent
-open MicroCQRS.Common.CommandFailure
-open MicroCQRS.Common.Result
+open EventStore.YetAnotherClient
+open GenericErrorHandling
 
 open Suave
 open Suave.Http
@@ -34,10 +32,10 @@ let getCommandPosterAndRepository() =
     let store =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
-        | true -> new MicroCQRS.Common.InMemoryStore<Event>() :> IEventStore<Event>
+        | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new InMemoryUserRepository()
     let initialVersion = loadRepositoryFromEventStore repository store streamId handleEvent |> Async.RunSynchronously
-    let postCommand = getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
+    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     
     postCommand, repository        
 

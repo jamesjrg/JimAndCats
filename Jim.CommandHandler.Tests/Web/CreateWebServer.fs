@@ -5,7 +5,7 @@ open Jim.Domain
 open Jim.Tests.AppSettings
 open Jim.CommandHandler.WebServer
 open Jim.UserRepository
-open MicroCQRS.Common
+open EventStore.YetAnotherClient
 
 let streamId = "testStream"
 

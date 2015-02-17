@@ -76,8 +76,8 @@
     <Compile Include="AppSettings.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="CommandContracts.fs" />
-    <Compile Include="CommandEndpoints.fs" />
-    <Compile Include="QueryEndpoints.fs" />
+    <Compile Include="CommandAppService.fs" />
+    <Compile Include="QueryAppService.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>
   <ItemGroup>

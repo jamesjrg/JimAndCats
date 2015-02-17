@@ -1,8 +1,7 @@
-﻿module MicroCQRS.Common.CommandAgent
+﻿module EventStore.YetAnotherClient.CommandAgent
 
-open MicroCQRS.Common
-open MicroCQRS.Common.CommandFailure
-open MicroCQRS.Common.Result
+open EventStore.YetAnotherClient
+open GenericErrorHandling
 
 let getCommandPoster<'TCommand, 'TEvent, 'TRepository>
     (store:IEventStore<'TEvent>)

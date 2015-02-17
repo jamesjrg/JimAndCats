@@ -1,4 +1,4 @@
-﻿namespace MicroCQRS.Common
+﻿namespace EventStore.YetAnotherClient
 
 open System
 

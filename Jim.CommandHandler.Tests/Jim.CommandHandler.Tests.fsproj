@@ -56,6 +56,11 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GenericErrorHandling\GenericErrorHandling.fsproj">
+      <Name>GenericErrorHandling</Name>
+      <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Jim.CommandHandler\Jim.CommandHandler.fsproj">
       <Name>Jim.CommandHandler</Name>
       <Project>{138b26c4-4fcf-4160-8895-e603d0cfecaf}</Project>

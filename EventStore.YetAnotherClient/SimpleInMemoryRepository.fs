@@ -1,6 +1,5 @@
-﻿namespace MicroCQRS.Common
+﻿namespace EventStore.YetAnotherClient
 
-open MicroCQRS.Common
 open System
 open System.Collections.Generic
 

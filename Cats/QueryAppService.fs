@@ -1,8 +1,8 @@
-﻿module Cats.QueryEndpoints
+﻿module Cats.QueryAppService
 
 open System
 open Cats.Domain.CatAggregate
-open MicroCQRS.Common
+open EventStore.YetAnotherClient
 open Suave.Extensions.Json
 
 type GetCatResponse = {

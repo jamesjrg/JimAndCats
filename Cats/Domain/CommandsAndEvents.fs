@@ -1,8 +1,7 @@
 ﻿module Cats.Domain.CommandsAndEvents
 
-open MicroCQRS.Common
-open MicroCQRS.Common.Result
-open MicroCQRS.Common.CommandFailure
+open GenericErrorHandling
+open EventStore.YetAnotherClient
 open Cats.Domain.CatAggregate
 
 open NodaTime

@@ -25,13 +25,13 @@ let webApp postCommand repository =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
-        url "/cats" >>= request (fun r -> QueryEndpoints.listCats repository)
-        url_scan_guid "/cats/%s" (fun id -> QueryEndpoints.getCat repository id)
+        url "/cats" >>= request (fun r -> QueryAppService.listCats repository)
+        url_scan_guid "/cats/%s" (fun id -> QueryAppService.getCat repository id)
         url "/" >>= index ]
     POST >>= choose [
-        url "/cats/create" >>= tryMapJson (CommandEndpoints.createCat postCommand) ]
+        url "/cats/create" >>= tryMapJson (CommandAppService.createCat postCommand) ]
     PUT >>= choose [ 
-        url_scan_guid "/cats/%s/title" (fun id -> tryMapJson <| CommandEndpoints.setTitle postCommand id) ]
+        url_scan_guid "/cats/%s/title" (fun id -> tryMapJson <| CommandAppService.setTitle postCommand id) ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 
@@ -41,7 +41,7 @@ let main argv =
     printfn "Starting CATS on %d" appSettings.Port
 
     try     
-        let postCommand, repository = CommandEndpoints.getCommandPosterAndRepository()
+        let postCommand, repository = CommandAppService.getCommandPosterAndRepository()
         web_server web_config (webApp postCommand repository)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())

@@ -1,6 +1,6 @@
-﻿module MicroCQRS.Common.Tests.Serialization
+﻿module EventStore.YetAnotherClient.Tests.Serialization
 
-open MicroCQRS.Common.Serialization
+open EventStore.YetAnotherClient.Serialization
 
 open Newtonsoft.Json
 open System.IO

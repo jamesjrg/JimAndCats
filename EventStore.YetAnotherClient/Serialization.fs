@@ -1,4 +1,4 @@
-﻿module MicroCQRS.Common.Serialization
+﻿module EventStore.YetAnotherClient.Serialization
 
 (* Based on code in FsUno.Prod by Jérémie Chassaing *)
 

@@ -3,7 +3,7 @@
 open Fuchu
 open Jim.Domain
 open Jim.Tests.Web.CreateWebServer
-open MicroCQRS.Common.Testing.SuaveHelpers
+open TestingHelpers.SuaveHelpers
 open NodaTime
 open Suave.Types
 open Suave.Testing

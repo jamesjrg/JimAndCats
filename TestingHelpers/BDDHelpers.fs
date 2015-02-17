@@ -1,7 +1,6 @@
 ﻿module TestingHelpers.BDDHelpers
 
-open MicroCQRS.Common.CommandFailure
-open MicroCQRS.Common.Result
+open GenericErrorHandling
 
 open Swensen.Unquote.Assertions
 

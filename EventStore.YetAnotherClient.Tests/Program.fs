@@ -1,4 +1,4 @@
-﻿module MicroCQRS.Common.Tests.Program
+﻿module EventStore.YetAnotherClient.Tests.Program
 
 open Fuchu
 

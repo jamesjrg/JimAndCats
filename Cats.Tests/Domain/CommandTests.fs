@@ -3,10 +3,8 @@
 open Cats.Domain.CommandsAndEvents
 open Cats.Domain.CatAggregate
 open Fuchu
-open MicroCQRS.Common
-open MicroCQRS.Common.Result
-open MicroCQRS.Common.CommandFailure
-open MicroCQRS.Common.Testing.BDDHelpers
+open GenericErrorHandling
+open TestingHelpers.BDDHelpers
 open NodaTime
 open System
 

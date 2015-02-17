@@ -1,6 +1,6 @@
 ﻿(* Based on the client in FsUno by Jérémie Chassaing *)
 
-namespace MicroCQRS.Common
+namespace EventStore.YetAnotherClient
 
 open System
 

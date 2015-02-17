@@ -1,7 +1,6 @@
 ﻿namespace Jim.Domain
 
-open MicroCQRS.Common.Result
-open MicroCQRS.Common.CommandFailure
+open GenericErrorHandling
 open System
 open NodaTime
 open System.Text.RegularExpressions

@@ -1,7 +1,7 @@
-﻿namespace MicroCQRS.Common
+﻿namespace EventStore.YetAnotherClient
 
 open EventStore.ClientAPI
-open MicroCQRS.Common.Serialization
+open EventStore.YetAnotherClient.Serialization
 open System
 open System.Net
 
