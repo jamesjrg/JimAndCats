@@ -2,7 +2,7 @@
 
 open Jim.CommandHandler
 open Jim.CommandHandler.AppSettings
-open Jim.UserRepository.Hawk
+open Jim.CommandHandler.Hawk
 open Suave
 open Logary //must be opened after Suave
 open Suave.Http

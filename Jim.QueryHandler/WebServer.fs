@@ -1,6 +1,6 @@
 ﻿module Jim.QueryHandler.WebServer
 
-open Jim.UserRepository.Hawk
+open Jim.QueryHandler.Hawk
 open Jim.QueryHandler
 open Jim.QueryHandler.AppSettings
 open Suave

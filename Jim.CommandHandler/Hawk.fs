@@ -1,4 +1,4 @@
-﻿module Jim.UserRepository.Hawk
+﻿module Jim.CommandHandler.Hawk
 
 open Jim.Domain
 open GenericErrorHandling
