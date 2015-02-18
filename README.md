@@ -54,6 +54,10 @@ If either of these is considered a problem, then there would need to be some log
 
 * Description TODO
 
+####Cats.CatRepository
+
+* Description TODO
+
 ####Jim.UserRepository
 
 * Description TODO
