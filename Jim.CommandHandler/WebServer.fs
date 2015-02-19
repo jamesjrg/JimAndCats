@@ -18,7 +18,7 @@ let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json"
 let index = Successful.OK "Hello from JIM Command Handler"
 
 let authenticateWithRepo repository partNeedingAuth =
-    Hawk.authenticate'
+    Hawk.authenticateDefault
         (hawkSettings repository)
         (fun err -> RequestErrors.UNAUTHORIZED (err.ToString()))
         (fun (attr, creds, user) -> partNeedingAuth)
