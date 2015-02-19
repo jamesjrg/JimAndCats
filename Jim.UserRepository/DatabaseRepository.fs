@@ -55,5 +55,11 @@ type DatabaseUserRepository() =
         member this.Put (x:User) =
             ()
     
+        //FIXME try get
         member this.GetByEmail(email:EmailAddress) =
-            None
+            let cmd = new GetUserByEmailQuery()
+            cmd.AsyncExecute(Email=extractEmail email)
+            |> Async.RunSynchronously
+            |> Seq.head
+            |> fun result -> mapResultToUser result.Id result.Name result.Email result.PasswordHash result.CreationTime
+            |> Some
