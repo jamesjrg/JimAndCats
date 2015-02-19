@@ -41,8 +41,8 @@ let private getHawkRequestTransform methd (hawkOpts:HawkTestOptions) (postData:B
     let creds = {Types.Credentials.id = hawkOpts.Id; Types.Credentials.key=hawkOpts.Key; Types.Credentials.algorithm=Types.SHA256}
     let clientOptions = {ClientOptions.mk' creds with payload = payload}
 
-    match header' (request.RequestUri.ToString()) (from_suave_method methd) clientOptions with
-    | Choice1Of2 data -> set_auth_header request data
+    match headerStr (request.RequestUri.ToString()) (from_suave_method methd) clientOptions with
+    | Choice1Of2 data -> setAuthHeader request data
     | Choice2Of2 error -> failwith <| error.ToString()
 
 let private requestResponse methd resource data (hawkOpts:HawkTestOptions option) fResult =
