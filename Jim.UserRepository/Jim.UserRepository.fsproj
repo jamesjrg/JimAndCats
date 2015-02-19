@@ -56,6 +56,7 @@
       <Paket>True</Paket>
     </Content>
     <None Include="paket.references" />
+    <Content Include="App.config" />
     <Compile Include="Domain\UserAggregate.fs" />
     <Compile Include="Domain\IUserRepository.fs" />
     <Compile Include="InMemoryRepository.fs" />
