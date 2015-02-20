@@ -54,13 +54,9 @@ If either of these is considered a problem, then there would need to be some log
 
 * Description TODO
 
-####Cats.CatRepository
-
-* Description TODO
-
 ####Jim.UserRepository
 
-* Description TODO
+* Used by both Jim.QueryHandler and Jim.CommandHandler. Contains both a SQL Server implementation and an in-memory implementation. The in-memory implementation is chiefly for use by tests, though unless there are many millions of users there is no technical reason in-memory data stores can't be used in production environments (alongside EventStore checkpoints for quick restore of new/restarted nodes), which would make the architecture much simpler.
 
 ####EventStore.YetAnotherClient
 
