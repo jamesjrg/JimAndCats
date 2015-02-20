@@ -78,19 +78,28 @@ module private EventHandlers =
             }
 
     let nameChanged (repository:IUserRepository) (event : NameChanged) =
-        match repository.Get(event.Id) with
-        | Some user -> repository.Put {user with Name = event.Name}
-        | None -> ()
+        async {
+            let! maybeUser = repository.Get(event.Id)
+            match maybeUser with
+            | Some user -> repository.Put {user with Name = event.Name} |> ignore
+            | None -> ()
+        }
 
     let emailChanged (repository:IUserRepository) (event : EmailChanged) =
-        match repository.Get(event.Id) with
-        | Some user -> repository.Put {user with Email = event.Email}
-        | None -> ()
+        async {
+            let! maybeUser = repository.Get(event.Id)
+            match maybeUser with
+            | Some user -> repository.Put {user with Email = event.Email} |> ignore
+            | None -> ()
+        }
 
     let passwordChanged (repository:IUserRepository) (event : PasswordChanged) =
-        match repository.Get(event.Id) with
-        | Some user -> repository.Put {user with PasswordHash = event.PasswordHash}
-        | None -> ()
+        async {
+            let! maybeUser = repository.Get(event.Id)
+            match maybeUser with
+            | Some user -> repository.Put {user with PasswordHash = event.PasswordHash} |> ignore
+            | None -> ()
+        }
 
 [<AutoOpen>]
 module PublicEventHandler = 
@@ -123,9 +132,13 @@ module private CommandHandlers =
             Success (PasswordHash (hashFunc (trimmedPassword)))
 
     let checkForDuplicateEmail (repository:IUserRepository) (email:EmailAddress) =
-        match repository.GetByEmail(email) with
-        | Some _ -> Failure (BadRequest "User with this email address already exists")
-        | None -> Success email        
+        async {
+            let! user = repository.GetByEmail(email)
+            return
+                match user with
+                | Some _ -> Failure (BadRequest "User with this email address already exists")
+                | None -> Success email        
+        }
 
     let createUser
         (repository:IUserRepository)
@@ -133,13 +146,14 @@ module private CommandHandlers =
         (createTimestamp: unit -> Instant)
         hashFunc
         (command : CreateUser) =
+        //possibly an abuse of custom computation expressions, if this was C# I could just use async combined with early returns
         resultBuilder {
-            let! name = createUsername command.Name
-            let! email = createEmailAddress command.Email
+            let! name = async { return createUsername command.Name} 
+            let! email = async { return createEmailAddress command.Email }
             let! uniqueEmail = checkForDuplicateEmail repository email
             
             //password hashing expensive so should come last
-            let! hash = createPasswordHash hashFunc command.Password
+            let! hash = async { return createPasswordHash hashFunc command.Password }
 
             return Success (UserCreated {
                     Id = createGuid()
@@ -151,9 +165,13 @@ module private CommandHandlers =
         }
 
     let runCommandIfUserExists (repository :IUserRepository) id command f =
-        match repository.Get(id) with
-        | None -> Failure NotFound
-        | _ -> f command
+        async {
+            let! user = repository.Get(id)
+            return
+                match user with
+                | None -> Failure NotFound
+                | _ -> f command
+        }
 
     let setName (command : SetName) =
         match createUsername command.Name with
@@ -173,9 +191,9 @@ module private CommandHandlers =
 [<AutoOpen>]
 module PublicCommandHandlers = 
     let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IUserRepository) =
-        match command with
+            match command with
             | CreateUser command -> createUser repository createGuid createTimestamp hashFunc command
-            | SetName command -> runCommandIfUserExists repository command.Id command  setName
+            | SetName command -> runCommandIfUserExists repository command.Id command setName
             | SetEmail command -> runCommandIfUserExists repository command.Id command setEmail
             | SetPassword command -> runCommandIfUserExists repository command.Id command (setPassword hashFunc)
 

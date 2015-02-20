@@ -12,10 +12,13 @@ module Result =
         | Failure f -> Failure f
 
     type ResultBuilder() =
-        member this.Bind(x, f) = 
-            bind f x
+        member this.Bind(x, f) =
+            async {
+                let! result = x 
+                return bind f result
+            }
 
         member this.Return(x) = 
-            x
+            x            
 
     let resultBuilder = new ResultBuilder()

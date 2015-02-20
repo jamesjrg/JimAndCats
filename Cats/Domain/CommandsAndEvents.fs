@@ -46,18 +46,22 @@ module Events =
 [<AutoOpen>]
 module private EventHandlers =
     let catCreated (repository:ISimpleRepository<Cat>) (event: CatCreated) =
-        repository.Put event.Id
-            {
-                Cat.Id = event.Id
-                Title = event.Title
-                Owner = event.Owner
-                CreationTime = event.CreationTime
-            }
+        async {
+            repository.Put event.Id
+                {
+                    Cat.Id = event.Id
+                    Title = event.Title
+                    Owner = event.Owner
+                    CreationTime = event.CreationTime
+                }
+        }
 
     let titleChanged (repository:ISimpleRepository<Cat>) (event: TitleChanged) =
-        match repository.Get event.Id with
-            | Some cat -> repository.Put event.Id {cat with Title = event.Title}
-            | None -> ()
+        async {
+            match repository.Get event.Id with
+                | Some cat -> repository.Put event.Id {cat with Title = event.Title}
+                | None -> ()
+        }
 
 let handleEvent (repository : ISimpleRepository<Cat>) = function
     | CatCreated event -> catCreated repository event
@@ -74,10 +78,9 @@ module private CommandHandlers =
             Success (PageTitle trimmedTitle)
 
     let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command:CreateCat) =
-        resultBuilder {
-            let! title = createTitle command.Title
-            return Success (CatCreated { Id = createGuid(); Title = title; Owner = command.Owner; CreationTime = createTimestamp()})
-        }
+        match createTitle command.Title with
+        | Success title -> Success (CatCreated { Id = createGuid(); Title = title; Owner = command.Owner; CreationTime = createTimestamp()})
+        | Failure f -> Failure f
 
     let runCommandIfCatExists (repository : ISimpleRepository<Cat>) id command f =
         match repository.Get id with

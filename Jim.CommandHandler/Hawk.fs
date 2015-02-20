@@ -8,7 +8,6 @@ open logibit.hawk.Types
 
 let hawkSettings (userRepository:IUserRepository) =
     { Settings.empty<User>() with
-     // sign: UserId -> Choice<Credentials * 'a, CredsError>
         credsRepo = fun id ->
            match createEmailAddress id with
            | Success email ->

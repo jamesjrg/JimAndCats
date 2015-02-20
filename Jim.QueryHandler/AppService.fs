@@ -28,10 +28,17 @@ let mapUserToUserResponse (user:User) =
     } 
 
 let getUser (repository:IUserRepository) id =
-    match repository.Get(id) with
-    | Some user -> jsonOK (mapUserToUserResponse user)
-    | None -> genericNotFound
+    async {
+        let! result = repository.Get(id)
+        return
+            match result with
+            | Some user -> jsonOK (mapUserToUserResponse user)
+            | None -> genericNotFound
+    }
 
 let listUsers (repository:IUserRepository) =
-    let users = repository.List() |> Seq.map mapUserToUserResponse
-    jsonOK {GetUsersResponse.Users = users}
+    async {    
+        let! users = repository.List()
+        let mappedUsers = Seq.map mapUserToUserResponse users
+        return jsonOK {GetUsersResponse.Users = mappedUsers}
+    }

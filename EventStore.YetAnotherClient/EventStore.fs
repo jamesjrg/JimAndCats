@@ -101,7 +101,7 @@ module RepositoryLoader =
             let! events, lastEvent, nextEvent = 
                 store.ReadStream streamId version 500
 
-            List.iter handleEvent events
+            List.iter (fun x -> handleEvent x |> Async.RunSynchronously) events
             match nextEvent with
             | None -> return lastEvent
             | Some n -> return! fold n }

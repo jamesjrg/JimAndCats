@@ -40,37 +40,41 @@ type DatabaseUserRepository() =
 
     interface IUserRepository with
         //FIXME async
-        member this.List() =
+        member this.List() =            
             let cmd = new GetAllUsersQuery()
-            cmd.AsyncExecute()
-            |> Async.RunSynchronously
-            |> Seq.map (fun result ->
-                mapResultToUser result.Id result.Name result.Email result.PasswordHash result.CreationTime)
+            async {
+                let! result = cmd.AsyncExecute()
+                return result |> Seq.map (fun result ->
+                    mapResultToUser result.Id result.Name result.Email result.PasswordHash result.CreationTime)
+            }
 
         //FIXME try get
         member this.Get (id:Guid) =
             let cmd = new GetUserByIdQuery()
-            cmd.AsyncExecute(Id=id)
-            |> Async.RunSynchronously
-            |> Seq.head
-            |> fun result -> mapResultToUser result.Id result.Name result.Email result.PasswordHash result.CreationTime
-            |> Some
+            async {                
+                let! result = cmd.AsyncExecute(Id=id)
+                return result |> Seq.head
+                |> fun result -> mapResultToUser result.Id result.Name result.Email result.PasswordHash result.CreationTime
+                |> Some
+            }
 
-        member this.Put (user:User) =
+        member this.Put (user:User) =            
             let cmd = new InsertUserCommand()
-            cmd.AsyncExecute(
-                Id=user.Id,
-                Name=extractUsername user.Name,
-                Email=extractEmail user.Email,
-                PasswordHash=extractPasswordHash user.PasswordHash,
-                CreationTime=user.CreationTime.Ticks)
-            |> Async.RunSynchronously |> ignore
+            async {
+                cmd.AsyncExecute(
+                    Id=user.Id,
+                    Name=extractUsername user.Name,
+                    Email=extractEmail user.Email,
+                    PasswordHash=extractPasswordHash user.PasswordHash,
+                    CreationTime=user.CreationTime.Ticks) |> ignore
+            }
     
         //FIXME try get
         member this.GetByEmail(email:EmailAddress) =
             let cmd = new GetUserByEmailQuery()
-            cmd.AsyncExecute(Email=extractEmail email)
-            |> Async.RunSynchronously
-            |> Seq.head
-            |> fun result -> mapResultToUser result.Id result.Name result.Email result.PasswordHash result.CreationTime
-            |> Some
+            async {
+                let! result = cmd.AsyncExecute(Email=extractEmail email)
+                return result |> Seq.head
+                |> fun result -> mapResultToUser result.Id result.Name result.Email result.PasswordHash result.CreationTime
+                |> Some
+            }

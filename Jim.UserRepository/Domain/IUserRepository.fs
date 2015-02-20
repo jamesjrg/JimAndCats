@@ -3,7 +3,7 @@
 open System
 
 type IUserRepository =
-    abstract member List: unit -> User seq
-    abstract member Get: Guid -> User option
-    abstract member Put: User -> unit
-    abstract member GetByEmail: EmailAddress -> User option
+    abstract member List: unit -> Async<User seq>
+    abstract member Get: Guid -> Async<User option>
+    abstract member Put: User -> Async<unit>
+    abstract member GetByEmail: EmailAddress -> Async<User option>

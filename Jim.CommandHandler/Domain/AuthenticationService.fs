@@ -53,6 +53,10 @@ module PBKDF2 =
         slowEquals hash testHash
 
 let authenticate (repository : IUserRepository) (id:Guid) password =
-    match repository.Get id with
-    | Some user -> Success (PBKDF2.validatePassword (extractPasswordHash user.PasswordHash) password)
-    | None -> Failure "User not found"
+    async {
+        let! maybeUser = repository.Get id
+        return
+            match maybeUser with
+            | Some user -> Success (PBKDF2.validatePassword (extractPasswordHash user.PasswordHash) password)
+            | None -> Failure "User not found"
+    }
