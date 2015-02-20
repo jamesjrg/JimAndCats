@@ -40,7 +40,8 @@ GO
 IF SCHEMA_ID(N'Jim') IS NULL EXECUTE(N'CREATE SCHEMA [Jim]');
 GO
 
-CREATE TABLE Jim.Users
+--User is a reserved ODBC keyword
+CREATE TABLE Jim.JimUser
     (
     Id uniqueidentifier PRIMARY KEY,
     -- apparently there was once a UK government document that said names could reasonably be up to 70 characters
@@ -52,6 +53,9 @@ CREATE TABLE Jim.Users
     PasswordHash char(60) NOT NULL,
     CreationTime bigint NOT NULL
     )
+GO
+
+CREATE NONCLUSTERED INDEX IX_Email ON Jim.JimUser (Email)
 GO
     
 COMMIT

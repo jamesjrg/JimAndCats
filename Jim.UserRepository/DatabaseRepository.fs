@@ -8,21 +8,25 @@ open System
 [<Literal>]
 let getUserById = "
     SELECT *
-    FROM Jim.Users
+    FROM Jim.JimUser
     WHERE Id = @Id"
 
 [<Literal>]
 let getUserByEmail = "
     SELECT *
-    FROM Jim.Users
+    FROM Jim.JimUser
     WHERE Email = @Email"
 
 [<Literal>]
-let getAllUsers = "SELECT * FROM Jim.Users"
+let insertUser = "INSERT INTO Jim.JimUser VALUES (@Id, @Name, @Email, @PasswordHash, @CreationTime)"
 
-type GetUserByIdQuery = SqlCommandProvider<getUserById, "name=JimUsers">
-type GetUserByEmailQuery = SqlCommandProvider<getUserByEmail, "name=JimUsers">
-type GetAllUsersQuery = SqlCommandProvider<getAllUsers, "name=JimUsers">
+[<Literal>]
+let getAllUsers = "SELECT * FROM Jim.JimUser"
+
+type GetUserByIdQuery = SqlCommandProvider<getUserById, "name=Jim">
+type GetUserByEmailQuery = SqlCommandProvider<getUserByEmail, "name=Jim">
+type GetAllUsersQuery = SqlCommandProvider<getAllUsers, "name=Jim">
+type InsertUserCommand = SqlCommandProvider<insertUser, "name=Jim">
 
 type DatabaseUserRepository() = 
 
@@ -52,8 +56,15 @@ type DatabaseUserRepository() =
             |> fun result -> mapResultToUser result.Id result.Name result.Email result.PasswordHash result.CreationTime
             |> Some
 
-        member this.Put (x:User) =
-            ()
+        member this.Put (user:User) =
+            let cmd = new InsertUserCommand()
+            cmd.AsyncExecute(
+                Id=user.Id,
+                Name=extractUsername user.Name,
+                Email=extractEmail user.Email,
+                PasswordHash=extractPasswordHash user.PasswordHash,
+                CreationTime=user.CreationTime.Ticks)
+            |> Async.RunSynchronously |> ignore
     
         //FIXME try get
         member this.GetByEmail(email:EmailAddress) =
