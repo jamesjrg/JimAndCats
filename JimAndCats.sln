@@ -5,6 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7A5A2FD1-931A-4107-B336-261164689676}"
 	ProjectSection(SolutionItems) = preProject
+		build.fsx = build.fsx
 		paket.dependencies = paket.dependencies
 		paket.lock = paket.lock
 		paket.references = paket.references

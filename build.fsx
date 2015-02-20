@@ -28,18 +28,16 @@ Target "BuildRelease" <| fun _ ->
     |> Log "MsBuild"
 
 Target "Test" <| fun _ ->
-    let errorCode =
-        [
-            @"Cats.Tests\bin\Debug\Cats.Tests.exe"
-            @"EventStore.YetAnotherClient.Tests\bin\Debug\EventStore.YetAnotherClient.Tests.exe"
-            @"Jim.CommandHandler.Tests\bin\Debug\Jim.CommandHandler.Tests.exe"
-            @"Jim.QueryHandler.Tests\bin\Debug\Jim.QueryHandler.Tests.exe"
-            @"Pledges.Tests\bin\Debug\Pledges.Tests.exe"
-            @"Suave.Extensions.Tests\bin\Debug\Suave.Extensions.Tests.exe"
-        ]
-        |> Seq.map (fun p -> (p, "")) //empty command line args
-        |> RunConsoleTests (fun p -> p)
-    if errorCode <> 0 then failwith "Error in tests"
+    [
+        @"Cats.Tests\bin\Debug\Cats.Tests.exe"
+        @"EventStore.YetAnotherClient.Tests\bin\Debug\EventStore.YetAnotherClient.Tests.exe"
+        @"Jim.CommandHandler.Tests\bin\Debug\Jim.CommandHandler.Tests.exe"
+        @"Jim.QueryHandler.Tests\bin\Debug\Jim.QueryHandler.Tests.exe"
+        @"Pledges.Tests\bin\Debug\Pledges.Tests.exe"
+        @"Suave.Extensions.Tests\bin\Debug\Suave.Extensions.Tests.exe"
+    ]
+    |> Seq.map (fun p -> (p, "")) //empty command line args
+    |> RunConsoleTests (fun p -> p)
 
 "CleanBuildDebug" ==> "BuildDebug"
 "CleanBuildRelease" ==> "BuildRelease"
