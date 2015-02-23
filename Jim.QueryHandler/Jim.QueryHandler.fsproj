@@ -66,7 +66,6 @@
     <Compile Include="AppSettings.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="AppService.fs" />
-    <Compile Include="Hawk.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -132,28 +131,6 @@
       <ItemGroup>
         <Reference Include="FsPickler">
           <HintPath>..\packages\FsPickler\lib\net45\FsPickler.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
-      <ItemGroup>
-        <Reference Include="logibit.hawk">
-          <HintPath>..\packages\Hawk\lib\net40\logibit.hawk.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
-      <ItemGroup>
-        <Reference Include="logibit.hawk.suave">
-          <HintPath>..\packages\Hawk.Suave\lib\net40\logibit.hawk.suave.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

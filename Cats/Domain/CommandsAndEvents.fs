@@ -63,9 +63,11 @@ module private EventHandlers =
                 | None -> ()
         }
 
-let handleEvent (repository : ISimpleRepository<Cat>) = function
-    | CatCreated event -> catCreated repository event
-    | TitleChanged event -> titleChanged repository event
+[<AutoOpen>]
+module PublicEventHandler = 
+    let handleEvent (repository : ISimpleRepository<Cat>) = function
+        | CatCreated event -> catCreated repository event
+        | TitleChanged event -> titleChanged repository event
 
 [<AutoOpen>]
 module private CommandHandlers =
@@ -78,24 +80,33 @@ module private CommandHandlers =
             Success (PageTitle trimmedTitle)
 
     let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command:CreateCat) =
-        match createTitle command.Title with
-        | Success title -> Success (CatCreated { Id = createGuid(); Title = title; Owner = command.Owner; CreationTime = createTimestamp()})
-        | Failure f -> Failure f
+        async {
+            return
+                match createTitle command.Title with
+                | Success title -> Success (CatCreated { Id = createGuid(); Title = title; Owner = command.Owner; CreationTime = createTimestamp()})
+                | Failure f -> Failure f
+        }
 
     let runCommandIfCatExists (repository : ISimpleRepository<Cat>) id command f =
-        match repository.Get id with
-        | None -> Failure NotFound
-        | _ -> f command
+        async {
+        return
+            match repository.Get id with
+            | None -> Failure NotFound
+            | _ -> f command
+        }        
 
     let setTitle (command:SetTitle) =
         match createTitle command.Title with
         | Success title -> Success (TitleChanged { Id = command.Id; Title = title })
         | Failure f -> Failure f
 
-let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command repository =
-    match command with
-        | CreateCat command -> createCat createGuid createTimestamp command
-        | SetTitle command -> runCommandIfCatExists repository command.Id command setTitle
+[<AutoOpen>]
+module PublicCommandHandlers = 
+    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command repository =
+        match command with
+            | CreateCat command -> createCat createGuid createTimestamp command
+            | SetTitle command -> runCommandIfCatExists repository command.Id command setTitle
 
-let handleCommandWithAutoGeneration command repository =
-    handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository
+    let handleCommandWithAutoGeneration command repository =
+        handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository
+    

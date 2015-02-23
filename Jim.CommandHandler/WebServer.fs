@@ -2,7 +2,6 @@
 
 open Jim.CommandHandler
 open Jim.CommandHandler.AppSettings
-open Jim.CommandHandler.Hawk
 open Suave
 open Logary //must be opened after Suave
 open Suave.Http
@@ -17,15 +16,7 @@ let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json"
 
 let index = Successful.OK "Hello from JIM Command Handler"
 
-let authenticateWithRepo repository partNeedingAuth =
-    Hawk.authenticateDefault
-        (hawkSettings repository)
-        (fun err -> RequestErrors.UNAUTHORIZED (err.ToString()))
-        (fun (attr, creds, user) -> partNeedingAuth)
-
 let webApp postCommand repository =
-    let requireAuth = authenticateWithRepo repository
-
     choose [
         GET >>= choose [
             url "/api-docs" >>= swaggerSpec
@@ -35,9 +26,9 @@ let webApp postCommand repository =
         POST >>= url "/users/create" >>= tryMapJson (AppService.createUser postCommand)
 
         PUT >>= choose [ 
-            urlScanGuid "/users/%s/name" (fun id -> requireAuth (tryMapJson <| AppService.setName postCommand id))
-            urlScanGuid "/users/%s/email" (fun id -> requireAuth (tryMapJson <| AppService.setEmail postCommand id))
-            urlScanGuid "/users/%s/password"  (fun id -> requireAuth (tryMapJson <| AppService.setPassword postCommand id)) ]
+            urlScanGuid "/users/%s/name" (fun id -> tryMapJson <| AppService.setName postCommand id)
+            urlScanGuid "/users/%s/email" (fun id -> tryMapJson <| AppService.setEmail postCommand id)
+            urlScanGuid "/users/%s/password"  (fun id -> tryMapJson <| AppService.setPassword postCommand id) ]
 
         RequestErrors.NOT_FOUND "404 not found" ] 
 

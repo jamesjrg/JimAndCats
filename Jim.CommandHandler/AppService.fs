@@ -2,7 +2,6 @@
 
 open System
 
-open Jim
 open Jim.UserRepository
 open Jim.CommandHandler.AppSettings
 open Jim.CommandHandler.CommandContracts

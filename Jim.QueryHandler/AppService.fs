@@ -2,6 +2,7 @@
 
 open Jim.Domain
 open Jim.UserRepository
+open Suave.Types
 open Suave.Extensions.Json
 open System
 
@@ -27,18 +28,20 @@ let mapUserToUserResponse (user:User) =
         CreationTime = user.CreationTime.ToString()
     } 
 
-let getUser (repository:IUserRepository) id =
-    async {
-        let! result = repository.Get(id)
-        return
-            match result with
-            | Some user -> jsonOK (mapUserToUserResponse user)
-            | None -> genericNotFound
-    }
+let getUser (repository:IUserRepository) id : WebPart =
+    fun httpContext ->
+        async {
+            let! result = repository.Get(id)
+            return!
+                match result with
+                | Some user -> jsonOK (mapUserToUserResponse user) httpContext
+                | None -> genericNotFound httpContext
+        }
 
-let listUsers (repository:IUserRepository) =
-    async {    
-        let! users = repository.List()
-        let mappedUsers = Seq.map mapUserToUserResponse users
-        return jsonOK {GetUsersResponse.Users = mappedUsers}
-    }
+let listUsers (repository:IUserRepository) : WebPart =
+    fun httpContext ->
+        async {
+            let! users = repository.List()
+            let mappedUsers = Seq.map mapUserToUserResponse users
+            return! jsonOK {GetUsersResponse.Users = mappedUsers} httpContext
+        }

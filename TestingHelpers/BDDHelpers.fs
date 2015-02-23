@@ -4,8 +4,8 @@ open GenericErrorHandling
 
 open Swensen.Unquote.Assertions
 
-let inline replay (handleEvent: 'TRepository -> 'TEvent -> unit) events repository =
-    List.iter (handleEvent repository) events
+let inline replay (handleEvent: 'TRepository -> 'TEvent -> Async<unit>) events repository =
+    List.iter (fun event -> handleEvent repository event |> Async.RunSynchronously) events
 
 let Given<'TEvent>(events: 'TEvent list) = events
 
@@ -13,14 +13,14 @@ let When<'TCommand, 'TEvent> (command: 'TCommand) (events:'TEvent list) = events
 
 let Expect'<'TEvent, 'TCommand, 'TRepository when 'TEvent:equality>
     (getRepository: unit -> 'TRepository)
-    (handleEvent: 'TRepository -> 'TEvent -> unit)
-    (handleCommand: 'TCommand -> 'TRepository -> Result<'TEvent, CQRSFailure>)
+    (handleEvent: 'TRepository -> 'TEvent -> Async<unit>)
+    (handleCommand: 'TCommand -> 'TRepository -> Async<Result<'TEvent, CQRSFailure>>)
     (expected: Result<'TEvent, CQRSFailure>)
     (events, command) =
 
     let repository = getRepository()  
     replay handleEvent events repository
-    let actual = handleCommand command repository
+    let actual = handleCommand command repository |> Async.RunSynchronously
 
     match expected, actual with
     | Failure (BadRequest e), Failure (BadRequest a) -> a =? a //not concerned about the precise error message

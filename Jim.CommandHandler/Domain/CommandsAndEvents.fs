@@ -140,28 +140,44 @@ module private CommandHandlers =
                 | None -> Success email        
         }
 
+    let tryCreateUserAfterEmailValidation
+        (uniqueEmail: EmailAddress)
+        (createGuid: unit -> Guid)
+        (createTimestamp: unit -> Instant)
+        hashFunc
+        (command : CreateUser) =
+        //don't really need to use a custom computation builder here
+        resultBuilder {
+            let! name = createUsername command.Name
+            
+            //password hashing expensive so should come last
+            let! hash = createPasswordHash hashFunc command.Password
+
+            return Success (UserCreated {
+                Id = createGuid()
+                Name = name
+                Email = uniqueEmail
+                PasswordHash = hash
+                CreationTime = createTimestamp()
+            })
+        }
+
+    //FIXME there has to be a better way of doing this, if this was C# I could just use async combined with early returns
     let createUser
         (repository:IUserRepository)
         (createGuid: unit -> Guid)
         (createTimestamp: unit -> Instant)
         hashFunc
         (command : CreateUser) =
-        //possibly an abuse of custom computation expressions, if this was C# I could just use async combined with early returns
-        resultBuilder {
-            let! name = async { return createUsername command.Name} 
-            let! email = async { return createEmailAddress command.Email }
-            let! uniqueEmail = checkForDuplicateEmail repository email
-            
-            //password hashing expensive so should come last
-            let! hash = async { return createPasswordHash hashFunc command.Password }
-
-            return Success (UserCreated {
-                    Id = createGuid()
-                    Name = name
-                    Email = uniqueEmail
-                    PasswordHash = hash
-                    CreationTime = createTimestamp()
-            })
+        async { 
+            let maybeEmail = createEmailAddress command.Email
+            match maybeEmail with
+            | Success email -> 
+                let! uniqueEmailResult = checkForDuplicateEmail repository email
+                match uniqueEmailResult with
+                | Success uniqueEmail -> return tryCreateUserAfterEmailValidation uniqueEmail createGuid createTimestamp hashFunc command
+                | Failure f -> return Failure f
+            | Failure f -> return Failure f
         }
 
     let runCommandIfUserExists (repository :IUserRepository) id command f =

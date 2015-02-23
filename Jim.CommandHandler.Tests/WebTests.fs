@@ -35,8 +35,6 @@ let bob = { UserCreated.Id = guid1; Name=Username "Bob Holness"; Email=EmailAddr
 
 let userHasBeenCreated = [UserCreated bob ]
 
-let bobCredentials = Some {HawkTestOptions.Id=extractEmail bob.Email;Key=extractPasswordHash bob.PasswordHash}
-
 let getWebServerWithNoEvents() = getWebServer []
 let getWebServerWithAUser() = getWebServer userHasBeenCreated
 
@@ -45,66 +43,66 @@ let commandTests =
     testList "Command web API tests"
         [
         testCase "Should be able to create a user" (fun () ->
-            let content, statusCode = post getWebServerWithNoEvents "/users/create" """{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" None statusCodeAndContent
+            let content, statusCode = post getWebServerWithNoEvents "/users/create" """{"name":"Frank Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" statusCodeAndContent
 
             test <@ content.Contains("\"Id\":") && statusCode = HttpStatusCode.Created @>)
 
         testCase "Attempting to create user with too short a username returns bad request" (fun () ->
-            let actualContent, actualStatusCode = post getWebServerWithNoEvents "/users/create" """{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" None statusCodeAndContent
+            let actualContent, actualStatusCode = post getWebServerWithNoEvents "/users/create" """{"name":"Moss", "email":"frank@somewhere.com","password":"p4ssw0rd"}""" statusCodeAndContent
 
             test <@ actualContent.Contains("Username must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Attempting to create user with same email as existing user returns bad request" (fun () ->
-            let actualContent, actualStatusCode = post getWebServerWithAUser "/users/create" """{"name":"Bob Holness", "email":"bob.holness@itv.com","password":"p4ssw0rd"}""" None statusCodeAndContent
+            let actualContent, actualStatusCode = post getWebServerWithAUser "/users/create" """{"name":"Bob Holness", "email":"bob.holness@itv.com","password":"p4ssw0rd"}""" statusCodeAndContent
 
             test <@ actualContent.Contains("email") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to rename a user" (fun () ->
-            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" bobCredentials statusCode
+            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}"""  statusCode
 
             test <@ actual = HttpStatusCode.OK @>)
 
         testCase "Should not be able to change name to invalid username" (fun () ->
-            let content, statusCode = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Bob"}""" bobCredentials statusCodeAndContent
+            let content, statusCode = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Bob"}""" statusCodeAndContent
 
             test <@ content.Contains("Username must be at least") && statusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change email address" (fun () ->
-            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frank@itv.com"}""" bobCredentials contentString
+            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frank@itv.com"}""" contentString
             test <@ actual.Contains("frank@itv.com") && actual.Contains("Email changed") @>)
 
         testCase "Should not be able to change email to invalid address" (fun () ->
-            let actualContent, actualStatusCode = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frankitv.com"}""" bobCredentials statusCodeAndContent
+            let actualContent, actualStatusCode = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email"  """{"email":"frankitv.com"}""" statusCodeAndContent
 
             test <@ actualContent.Contains("email") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change password" (fun () ->
-            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" """{"password":"n3wp4ss"}""" bobCredentials contentString
+            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password" """{"password":"n3wp4ss"}""" contentString
 
             test <@ actual.Contains("Password changed") @>)
 
         testCase "Should not be able to change password to something too short" (fun () ->
-            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"p4ss"}""" bobCredentials contentString
+            let actual = put getWebServerWithAUser "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"p4ss"}""" contentString
 
             test <@ actual.Contains("Password must be") @>)
 
         testCase "Should get unauthorized trying to set name on non-existent user if requester is not an admin" (fun () ->
-            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" bobCredentials statusCode
+            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/name" """{"name":"Frank Moss"}""" statusCode
 
             HttpStatusCode.Unauthorized =? actual)
 
         testCase "Should get unauthorized trying to set email of non-existent user if requester is not an admin" (fun () ->
-            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" """{"email":"a@b.com"}"""  bobCredentials statusCode
+            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/email" """{"email":"a@b.com"}"""  statusCode
 
             HttpStatusCode.Unauthorized =? actual)
 
         testCase "Should get unauthorized trying to set password of non-existent user if requester is not an admin" (fun () ->
-            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"n3wp4ss"}""" bobCredentials statusCode
+            let actual = put getWebServerWithNoEvents "/users/3C71C09A-2902-4682-B8AB-663432C8867B/password"  """{"password":"n3wp4ss"}""" statusCode
 
             HttpStatusCode.Unauthorized =? actual)
 
         testCase "Should get 404 for posting to totally incorrect url" (fun () ->
-            let actual = post getWebServerWithNoEvents "/flibbles" "flobbles"  bobCredentials statusCode
+            let actual = post getWebServerWithNoEvents "/flibbles" "flobbles"  statusCode
             
             HttpStatusCode.NotFound =? actual)
         ]

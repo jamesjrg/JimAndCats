@@ -1,6 +1,5 @@
 ﻿module Jim.QueryHandler.WebServer
 
-open Jim.QueryHandler.Hawk
 open Jim.QueryHandler
 open Jim.QueryHandler.AppSettings
 open Suave
@@ -16,21 +15,13 @@ let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json"
 
 let index = Successful.OK "Hello from JIM Query Handler"
 
-let authenticateWithRepo repository partNeedingAuth =
-    Hawk.authenticateDefault
-        (hawkSettings repository)
-        (fun err -> RequestErrors.UNAUTHORIZED (err.ToString()))
-        (fun (attr, creds, user) -> partNeedingAuth)
-
 let webApp repository =
-    let requireAuth = authenticateWithRepo repository
-
     choose [
         GET >>= choose [
             url "/api-docs" >>= swaggerSpec
             url "/" >>= index
-            url "/users" >>= (requireAuth <| AppService.listUsers repository)
-            urlScanGuid "/users/%s" (fun id -> requireAuth <| AppService.getUser repository id) ]
+            url "/users" >>= AppService.listUsers repository
+            urlScanGuid "/users/%s" (fun id -> AppService.getUser repository id) ]
 
         RequestErrors.NOT_FOUND "404 not found" ] 
 

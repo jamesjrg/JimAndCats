@@ -26,27 +26,27 @@ let commandTests =
     testList "Command web API tests"
         [
         testCase "Should be able to create a cat" (fun () ->
-            let content, statusCode = post getWebServerWithNoEvents "/cats/create" """{"title":"My lovely cat"}""" None statusCodeAndContent
+            let content, statusCode = post getWebServerWithNoEvents "/cats/create" """{"title":"My lovely cat"}""" statusCodeAndContent
 
             test <@ content.Contains("\"Id\":") && statusCode = HttpStatusCode.Created @>)
 
         testCase "Creating a cat with too short a name returns bad request" (fun () ->
-            let actualContent, actualStatusCode = post getWebServerWithNoEvents "/cats/create" """{"title":"a"}""" None statusCodeAndContent
+            let actualContent, actualStatusCode = post getWebServerWithNoEvents "/cats/create" """{"title":"a"}""" statusCodeAndContent
 
             test <@ actualContent.Contains("Title must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should be able to change title" (fun () ->
-            let actual = put getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" None statusCode
+            let actual = put getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" statusCode
 
             test <@ actual = HttpStatusCode.OK @>)
 
         testCase "Should not be able to change title to something too short" (fun () ->
-            let actualContent, actualStatusCode = put getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"a"}""" None statusCodeAndContent
+            let actualContent, actualStatusCode = put getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"a"}""" statusCodeAndContent
 
             test <@ actualContent.Contains("Title must be at least") && actualStatusCode = HttpStatusCode.BadRequest @>)
 
         testCase "Should get 404 trying to set title of non-existent cat" (fun () ->
-            let actual = put getWebServerWithNoEvents "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" None statusCode
+            let actual = put getWebServerWithNoEvents "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" statusCode
 
             HttpStatusCode.NotFound =? actual)
         ]

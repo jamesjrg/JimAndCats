@@ -13,10 +13,8 @@ module Result =
 
     type ResultBuilder() =
         member this.Bind(x, f) =
-            async {
-                let! result = x 
-                return bind f result
-            }
+            let result = x 
+            bind f result
 
         member this.Return(x) = 
             x            
