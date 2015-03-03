@@ -18,10 +18,10 @@ let epoch = new Instant(0L)
 let bobEmail = "bob.holness@itv.com"
 let bobPasswordHash = "128000:rp4MqoM6SelmRHtM8XF87Q==:MCtWeondG9hLIQ7zahxV6JTPSt4="
 
-let getWebServerWithNoEvents() = webApp (new InMemoryUserRepository())
+let getWebServerWithNoEvents() = webApp (new InMemory.UserRepository())
 
 let getWebServerWithAUser() =
-    let repo = new InMemoryUserRepository() :> IUserRepository
+    let repo = new InMemory.UserRepository() :> IUserRepository
     repo.Put({User.Id=guid1; Name=Username "Bob Holness"; Email = EmailAddress bobEmail; PasswordHash=PasswordHash bobPasswordHash; CreationTime = epoch }) |> ignore
     webApp repo
 

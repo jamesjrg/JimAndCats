@@ -1,10 +1,10 @@
-﻿namespace Jim.UserRepository
+﻿namespace Jim.UserRepository.InMemory
 
 open Jim.Domain
 open System
 open System.Collections.Generic
 
-type InMemoryUserRepository() =
+type UserRepository() =
 
     let usersById = new Dictionary<Guid, User>()
     let usersByEmail = new Dictionary<EmailAddress, User>()     

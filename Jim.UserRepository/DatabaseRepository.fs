@@ -1,4 +1,4 @@
-﻿module Jim.UserRepository.DatabaseUserRepository
+﻿module Jim.UserRepository.SqlServer
 
 open FSharp.Data
 open Jim.Domain
@@ -28,7 +28,7 @@ type GetUserByEmailQuery = SqlCommandProvider<getUserByEmail, "name=Jim">
 type GetAllUsersQuery = SqlCommandProvider<getAllUsers, "name=Jim">
 type InsertUserCommand = SqlCommandProvider<insertUser, "name=Jim">
 
-type DatabaseUserRepository() = 
+type UserRepository() = 
 
     let mapResultToUser id name email passwordHash creationTime= {
         User.Id = id

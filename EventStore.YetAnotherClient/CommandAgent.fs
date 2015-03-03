@@ -3,11 +3,11 @@
 open EventStore.YetAnotherClient
 open GenericErrorHandling
 
-let getCommandPoster<'TCommand, 'TEvent, 'TRepository>
+let getCommandPoster<'TCommand, 'TEvent, 'TState>
     (store:IEventStore<'TEvent>)
-    (repository:'TRepository)
-    (handleCommand:'TCommand -> 'TRepository -> Async<Result<'TEvent, CQRSFailure>>)
-    (handleEvent:'TRepository -> 'TEvent -> Async<unit>)
+    (state:'TState)
+    (handleCommand:'TCommand -> 'TState -> Async<Result<'TEvent, CQRSFailure>>)
+    (handleEvent:'TState -> 'TEvent -> Async<unit>)
     (streamId:string)
     (initialVersion:int) = 
     
@@ -17,11 +17,11 @@ let getCommandPoster<'TCommand, 'TEvent, 'TRepository>
         let rec messageLoop version = async {
             let! command, replyChannel = inbox.Receive()
             
-            let! result = handleCommand command repository
+            let! result = handleCommand command state
             match result with
             | Success newEvent ->
                 do! save version [newEvent]
-                handleEvent repository newEvent |> ignore
+                handleEvent state newEvent |> ignore
                 replyChannel.Reply(result)
                 return! messageLoop (version + 1)
             | Failure f ->

@@ -18,7 +18,7 @@ type GetUsersResponse = {
 }
 
 let getRepository() = 
-    new InMemoryUserRepository()
+    new InMemory.UserRepository()
 
 let mapUserToUserResponse (user:User) =
     {

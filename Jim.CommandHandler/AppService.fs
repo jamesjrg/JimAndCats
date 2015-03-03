@@ -20,7 +20,7 @@ let getCommandPosterAndRepository() =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
-    let repository = new InMemoryUserRepository()
+    let repository = new InMemory.UserRepository()
     let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
     let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     

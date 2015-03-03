@@ -23,7 +23,7 @@ let getWebServer events =
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     if not (List.isEmpty events) then
         store.AppendToStream streamId -1 events |> Async.RunSynchronously
-    let repository = new InMemoryUserRepository()
+    let repository = new InMemory.UserRepository()
     let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
     let postCommand, repo = (CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion), repository
     webApp postCommand repo

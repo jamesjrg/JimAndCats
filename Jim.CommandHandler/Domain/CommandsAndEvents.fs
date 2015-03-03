@@ -66,50 +66,6 @@ module Events =
     }
 
 [<AutoOpen>]
-module private EventHandlers =
-    let userCreated (repository:IUserRepository) (event: UserCreated) =
-        repository.Put
-            {
-                User.Id = event.Id
-                Name = event.Name
-                Email = event.Email
-                PasswordHash = event.PasswordHash
-                CreationTime = event.CreationTime
-            }
-
-    let nameChanged (repository:IUserRepository) (event : NameChanged) =
-        async {
-            let! maybeUser = repository.Get(event.Id)
-            match maybeUser with
-            | Some user -> repository.Put {user with Name = event.Name} |> ignore
-            | None -> ()
-        }
-
-    let emailChanged (repository:IUserRepository) (event : EmailChanged) =
-        async {
-            let! maybeUser = repository.Get(event.Id)
-            match maybeUser with
-            | Some user -> repository.Put {user with Email = event.Email} |> ignore
-            | None -> ()
-        }
-
-    let passwordChanged (repository:IUserRepository) (event : PasswordChanged) =
-        async {
-            let! maybeUser = repository.Get(event.Id)
-            match maybeUser with
-            | Some user -> repository.Put {user with PasswordHash = event.PasswordHash} |> ignore
-            | None -> ()
-        }
-
-[<AutoOpen>]
-module PublicEventHandler = 
-    let handleEvent (repository : IUserRepository) = function
-        | UserCreated event -> userCreated repository event
-        | NameChanged event -> nameChanged repository event
-        | EmailChanged event -> emailChanged repository event
-        | PasswordChanged event -> passwordChanged repository event
-
-[<AutoOpen>]
 module private CommandHandlers =
     module private Constants =
         let minPasswordLength = 7 //using PBKDF2 with lots of iterations so needn't be huge
