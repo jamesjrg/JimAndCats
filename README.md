@@ -1,6 +1,6 @@
 #Jim and Cats
 
-Nominally this repository is a bunch of microservices providing a RESTful API for a fictional crowd funding website.
+Nominally this repository is a bunch of web services providing a RESTful API for a fictional crowd funding website.
 
 More practically this is a playground for trying out different approaches to problems, and for trying out various technologies and techniques to improve my knowledge.
 
@@ -18,7 +18,7 @@ c) having event listeners watch all event streams and update aggregates in SQL S
 
 The services here are currently a broken mish-mash of the above ideas as I have experimented with the pros and cons of each.
 
-3. I have spent some time reading about and toying with different approaches to managing centralized authorization for a set of microservices, again currently still a work in progress as I try out various options.
+3. I have spent some time reading about and toying with different approaches to managing centralized authorization for a set of web services, again currently still a work in progress as I try out various options.
 
 4. I have been trying out EventStore. My current workplace uses EventStore, but at the time I started this project it was basically just used as a service bus/persistent messaging mechanism, and no use was made of projections.
 
@@ -42,7 +42,7 @@ If this was a real live project with lots of developers each project would be in
 
 ####Jim.QueryHandler: Just Identity Management Query Handler
 
-* Verifies auth tokens for other microservice (though this is only half-way implemented at the moment)
+* Verifies auth tokens for other services (though this is only half-way implemented at the moment)
 
 * Also allows admins to query user details (currently all users are admins...).
 
