@@ -1,6 +1,5 @@
 Suave
 EventStore.Client
 Intelliplan.Logary.Suave
-FSharp.Data.SqlClient
 NodaTime
 ConfigMapper

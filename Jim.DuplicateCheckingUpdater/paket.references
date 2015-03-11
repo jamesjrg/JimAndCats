@@ -1,0 +1,5 @@
+EventStore.Client
+ConfigMapper
+EventStore.Client
+FSharp.Data.SqlClient
+NodaTime

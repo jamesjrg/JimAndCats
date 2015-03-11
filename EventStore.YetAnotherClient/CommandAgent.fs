@@ -2,26 +2,27 @@
 
 open EventStore.YetAnotherClient
 open GenericErrorHandling
+open System
 
-let getCommandPoster<'TCommand, 'TEvent, 'TState>
+let getCommandPoster<'TCommand, 'TEvent, 'TAggregate>
     (store:IEventStore<'TEvent>)
-    (state:'TState)
-    (handleCommand:'TCommand -> 'TState -> Async<Result<'TEvent, CQRSFailure>>)
-    (handleEvent:'TState -> 'TEvent -> Async<unit>)
+    (handleCommand:'TCommand -> 'TAggregate -> Async<Result<'TEvent, CQRSFailure>>)
+    (handleEvent:'TEvent -> 'TAggregate -> 'TAggregate)
     (streamId:string)
+    (buildAggregate:Guid)
     (initialVersion:int) = 
     
     let save expectedVersion events = store.AppendToStream streamId expectedVersion events
 
-    let agent = MailboxProcessor<'TCommand * AsyncReplyChannel<Result<'TEvent, CQRSFailure>>>.Start <| fun inbox -> 
+    let agent = MailboxProcessor<Guid * 'TCommand * AsyncReplyChannel<Result<'TEvent, CQRSFailure>>>.Start <| fun inbox -> 
         let rec messageLoop version = async {
-            let! command, replyChannel = inbox.Receive()
+            let! aggregateId, command, replyChannel = inbox.Receive()
             
-            let! result = handleCommand command state
+            let! aggregate = buildAggregate
+            let! result = handleCommand command aggregate
             match result with
             | Success newEvent ->
                 do! save version [newEvent]
-                handleEvent state newEvent |> ignore
                 replyChannel.Reply(result)
                 return! messageLoop (version + 1)
             | Failure f ->
@@ -33,3 +34,4 @@ let getCommandPoster<'TCommand, 'TEvent, 'TState>
             }
 
     fun command -> agent.PostAndAsyncReply(fun replyChannel -> command, replyChannel)
+

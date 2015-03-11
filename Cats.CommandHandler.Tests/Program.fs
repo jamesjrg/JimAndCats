@@ -1,0 +1,6 @@
+﻿module Cats.CommandHandler.Tests.Program
+
+open Fuchu
+
+[<EntryPoint>]
+let main args = defaultMainThisAssembly args
