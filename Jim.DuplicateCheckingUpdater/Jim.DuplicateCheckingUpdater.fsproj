@@ -54,13 +54,13 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <None Include="paket.references" />
     <Content Include="SqlServerTypes\Loader.cs">
       <Paket>True</Paket>
     </Content>
     <Content Include="SqlServerTypes\readme.htm">
       <Paket>True</Paket>
     </Content>
-    <None Include="paket.references" />
     <Content Include="App.config" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="Program.fs" />
