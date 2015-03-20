@@ -10,13 +10,13 @@ In particular:
 
 2. The system experiments with event sourcing, a term which seems to mean different things to different people. Versions of "event sourcing" that I have been exposed to are:
 
-a) giving each aggregate its own event stream, allowing aggregates to be reconsistuted when requested from that small subset of events relevant to the aggregate. Optionally some or all aggregates can be transiently cached in memory or in database in the query model.
+	a) giving each aggregate its own event stream, allowing aggregates to be reconsistuted when requested from that small subset of events relevant to the aggregate. Optionally some or all aggregates can be transiently cached in memory or in database in the query model.
 
-b) restoring all aggregates from a persistent event stream whenever a new server is started up, and thereafter serving both commands and queries on all aggregates from state stored in RAM
+	b) restoring all aggregates from a persistent event stream whenever a new server is started up, and thereafter serving both commands and queries on all aggregates from state stored in RAM
 
-c) having event listeners watch all event streams and update aggregates in SQL Server, and then writing all service logic directly against the SQL, using the event stream only for interacting with other services and maintaining a history log (which in my opinion isn't really event sourcing at all)
+	c) having event listeners watch all event streams and update aggregates in SQL Server, and then writing all service logic directly against the SQL, using the event stream only for interacting with other services and maintaining a history log (which in my opinion isn't really event sourcing at all)
 
-The services here started out as (b), then started borrowing some elements (c), and are now being entirely re-written as (a). This is such a major change that the entire codebase is currently undergoing a major rewrite and doesn't even compile.
+	The services here started out as (b), then started borrowing some elements (c), and are now being entirely re-written as (a). This is such a major change that the entire codebase is currently undergoing a major rewrite and doesn't even compile.
 
 3. I have spent some time reading about and toying with different approaches to managing centralized authorization for a set of web services, again currently still a work in progress as I try out various options.
 
@@ -61,10 +61,6 @@ If this was a real live project with lots of developers each project would be in
 ####GenericErrorHandling
 
 * Generic types for representing successes and failures
-
-####Jim.UserRepository
-
-* Doc TODO
 
 ####EventStore.YetAnotherClient
 
