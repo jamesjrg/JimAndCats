@@ -1,6 +1,7 @@
-﻿module Jim.UserRepository.EventStore
+﻿module Jim.CommandHandler.UserRepository.EventStore
 
 open Jim.Domain
+open NodaTime
 open System
 
 type EventStoreRepository() = 

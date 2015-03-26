@@ -1,4 +1,4 @@
-﻿namespace Jim
+﻿module Jim.CommandHandler.DuplicateEmailChecker
 
 open FSharp.Data
 

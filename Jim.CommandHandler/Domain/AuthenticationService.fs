@@ -1,4 +1,4 @@
-﻿module Jim.Domain.AuthenticationService
+﻿module Jim.CommandHandler.Domain.AuthenticationService
 
 open GenericErrorHandling
 open Jim.UserRepository

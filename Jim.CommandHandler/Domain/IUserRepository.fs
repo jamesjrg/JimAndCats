@@ -1,4 +1,4 @@
-﻿namespace Jim.Domain
+﻿namespace Jim.CommandHandler.Domain
 
 open System
 
