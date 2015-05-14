@@ -22,7 +22,10 @@ let webApp postCommand repository =
             url "/api-docs" >>= swaggerSpec
             url "/" >>= index ]
 
-        (* TODO this endpoint should have some sort of security - only open to pre-existing users sending their own Hawk credentials, or only available via HTTPS *)
+        (* These methods are just utility methods for debugging etc, other services should listen to Event Store events and build their own read models *)
+        url "/users" >>= AppService.QueryUtilities.listUsers repository
+        urlScanGuid "/users/%s" (fun id -> AppService.QueryUtilities.getUser repository id)
+
         POST >>= url "/users/create" >>= tryMapJson (AppService.createUser postCommand)
 
         PUT >>= choose [ 
