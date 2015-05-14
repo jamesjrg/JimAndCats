@@ -54,13 +54,13 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <None Include="paket.references" />
     <Content Include="SqlServerTypes\Loader.cs">
       <Paket>True</Paket>
     </Content>
     <Content Include="SqlServerTypes\readme.htm">
       <Paket>True</Paket>
     </Content>
+    <None Include="paket.references" />
     <Content Include="App.config" />
     <Compile Include="AppSettings.fs" />
     <Compile Include="Program.fs" />
@@ -73,6 +73,13 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">
+      <Name>EventStore.YetAnotherClient</Name>
+      <Project>{4e888127-662c-40e4-8f83-6202ea671bb4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
