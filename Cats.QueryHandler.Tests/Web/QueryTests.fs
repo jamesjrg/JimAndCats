@@ -21,6 +21,20 @@ let ownerGuid1 = new Guid("9F2FFD7A-7B24-4B72-A4A5-8EF507306038")
 let epoch = new Instant(0L)
 let catHasBeenCreated = [CatCreated {Id = guid1; Title = PageTitle "My lovely cat"; Owner=ownerGuid1; CreationTime=epoch}]
 
+let streamId = "testStream"
+
+let getWebServer events =
+    let store =
+        match appSettings.WriteToInMemoryStoreOnly with
+        | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
+        | true -> new InMemoryStore<Event>() :> IEventStore<Event>
+    if not (List.isEmpty events) then
+        store.AppendToStream streamId -1 events |> Async.RunSynchronously
+    let repository = new SimpleInMemoryRepository<Cat>()
+    let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
+    let postCommand, repo = (CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion), repository
+    webApp postCommand repo
+
 let getWebServerWithNoEvents() = getWebServer []
 let getWebServerWithACat() = getWebServer catHasBeenCreated
 

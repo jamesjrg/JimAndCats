@@ -49,6 +49,9 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
+    <Compile Include="AppSettings.fs" />
+    <Compile Include="Domain\CommandTests.fs" />
+    <Compile Include="Web\CommandTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

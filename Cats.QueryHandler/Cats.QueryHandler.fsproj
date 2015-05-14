@@ -49,8 +49,10 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
-    <Compile Include="Web\QueryTests.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="AppSettings.fs" />
+    <Compile Include="Logging.fs" />
+    <Compile Include="AppService.fs" />
+    <Compile Include="WebServer.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

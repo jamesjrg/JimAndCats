@@ -49,10 +49,13 @@
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
-    <Compile Include="Domain\CommandTests.fs" />
-    <Compile Include="Web\CommandTests.fs" />
-    <Compile Include="Web\QueryTests.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="AppSettings.fs" />
+    <Compile Include="CommandContracts.fs" />
+    <Compile Include="AppService.fs" />
+    <Compile Include="WebServer.fs" />
+    <Compile Include="Logging.fs" />
+    <Compile Include="Domain\CatAggregate.fs" />
+    <Compile Include="Domain\CommandsAndEvents.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">

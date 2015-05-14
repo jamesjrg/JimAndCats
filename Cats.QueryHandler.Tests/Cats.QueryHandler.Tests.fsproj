@@ -47,9 +47,11 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <Compile Include="Program.fs" />
     <None Include="paket.references" />
+    <None Include="App.config" />
+    <Compile Include="AppSettings.fs" />
+    <Compile Include="Web\QueryTests.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cats.QueryHandler\Cats.QueryHandler.fsproj">
