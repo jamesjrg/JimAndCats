@@ -37,18 +37,22 @@ module Events =
 
 module private EventHandlers =
     let private userCreated (event: UserCreated) =
-        ()
+        async {
+            ()
+        }
 
     let private emailChanged (event : EmailChanged) =
-        ()
+        async {
+            ()
+        }
 
     let handleEvent = function
         | UserCreated event -> userCreated event
         | EmailChanged event -> emailChanged event
 
 let subscribe() =
-    let store = new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
-    store.SubscribeToStreamFrom appSettings.PublicIdentityStream 0 (fun e -> EventHandlers.handleEvent repository e |> Async.RunSynchronously)
+    let store = new EventStore<Event>(appSettings.PublicEventStoreIp, appSettings.PublicEventStorePort) :> IEventStore<Event>
+    store.SubscribeToStreamFrom appSettings.PublicIdentityStream 0 (fun e -> EventHandlers.handleEvent e |> Async.RunSynchronously)
 
 [<EntryPoint>]
 let main argv = 

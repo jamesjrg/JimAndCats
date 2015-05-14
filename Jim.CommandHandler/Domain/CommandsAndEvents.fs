@@ -89,7 +89,7 @@ module private CommandHandlers =
             Success (PasswordHash (hashFunc (trimmedPassword)))
 
     let createUser
-        (repository:IGenericRepository<User>)
+        (repository:GenericRepository<User>)
         (createGuid: unit -> Guid)
         (createTimestamp: unit -> Instant)
         hashFunc
@@ -109,7 +109,7 @@ module private CommandHandlers =
             })
         }
 
-    let runCommandIfUserExists (repository :IGenericRepository<User>) id command f =
+    let runCommandIfUserExists (repository :GenericRepository<User>) id command f =
         async {
             let! user = repository.Get(id)
             return
@@ -135,14 +135,14 @@ module private CommandHandlers =
 
 [<AutoOpen>]
 module PublicCommandHandlers = 
-    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IGenericRepository<User>) =
+    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : GenericRepository<User>) =
             match command with
             | CreateUser command -> createUser repository createGuid createTimestamp hashFunc command
             | SetName command -> runCommandIfUserExists repository command.Id command setName
             | SetEmail command -> runCommandIfUserExists repository command.Id command setEmail
             | SetPassword command -> runCommandIfUserExists repository command.Id command (setPassword hashFunc)
 
-    let handleCommandWithAutoGeneration (command:Command) (repository : IGenericRepository<User>) =
+    let handleCommandWithAutoGeneration (command:Command) (repository : GenericRepository<User>) =
         handleCommand
             Guid.NewGuid
             (fun () -> SystemClock.Instance.Now)

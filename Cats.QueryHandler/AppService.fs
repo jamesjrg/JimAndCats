@@ -32,11 +32,11 @@ let mapCatToCatResponse (cat:Cat) =
         CreationTime = cat.CreationTime.ToString()
     } 
 
-let getCat (repository:IGenericRepository<Cat>) id =
+let getCat (repository:GenericRepository<Cat>) id =
     match repository.Get(id) with
     | Some cat -> jsonOK (mapCatToCatResponse cat)
     | None -> genericNotFound
 
-let listCats (repository:IGenericRepository<Cat>) =
+let listCats (repository:GenericRepository<Cat>) =
     let cats = repository.List() |> Seq.map mapCatToCatResponse
     jsonOK {GetCatsResponse.Cats = cats}

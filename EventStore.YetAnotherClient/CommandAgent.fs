@@ -5,11 +5,9 @@ open GenericErrorHandling
 open System
 
 let getCommandPoster<'TCommand, 'TEvent, 'TAggregate>
-    (store:IEventStore<'TEvent>)
-    (handleCommand:'TCommand -> 'TAggregate -> Async<Result<'TEvent, CQRSFailure>>)
-    (handleEvent:'TEvent -> 'TAggregate -> 'TAggregate)
-    (streamId:string)
-    (buildAggregate:Guid -> Async<'TAggregate>)
+    (repository:GenericRepository<'TAggregate>)
+    (handleCommand:'TCommand -> 'TAggregate option -> Async<Result<'TEvent, CQRSFailure>>)
+    (streamId:string)    
     (initialVersion:int) = 
     
     let save expectedVersion events = store.AppendToStream streamId expectedVersion events
@@ -18,7 +16,7 @@ let getCommandPoster<'TCommand, 'TEvent, 'TAggregate>
         let rec messageLoop version = async {
             let! aggregateId, command, replyChannel = inbox.Receive()
             
-            let! aggregate = buildAggregate aggregateId
+            let! aggregate = repository.Get aggregateId
             let! result = handleCommand command aggregate
             match result with
             | Success newEvent ->

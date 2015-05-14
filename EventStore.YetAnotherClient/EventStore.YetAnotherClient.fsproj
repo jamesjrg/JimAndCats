@@ -54,9 +54,8 @@
     <Compile Include="IEventStore.fs" />
     <Compile Include="EventStore.fs" />
     <Compile Include="InMemoryStore.fs" />
+    <Compile Include="GenericRepository.fs" />
     <Compile Include="CommandAgent.fs" />
-    <Compile Include="IGenericRepository.fs" />
-    <Compile Include="GenericInMemoryRepository.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

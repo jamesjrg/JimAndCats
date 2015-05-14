@@ -43,9 +43,8 @@ module Events =
 
 [<AutoOpen>]
 module private EventHandlers =
-    let catCreated (repository:IGenericRepository<Cat>) (event: CatCreated) =
+    let catCreated (repository:GenericRepository<Cat>) (event: CatCreated) =
         async {
-            repository.Put event.Id
                 {
                     Cat.Id = event.Id
                     Title = event.Title
@@ -54,7 +53,7 @@ module private EventHandlers =
                 }
         }
 
-    let titleChanged (repository:IGenericRepository<Cat>) (event: TitleChanged) =
+    let titleChanged (repository:GenericRepository<Cat>) (event: TitleChanged) =
         async {
             match repository.Get event.Id with
                 | Some cat -> repository.Put event.Id {cat with Title = event.Title}
@@ -63,9 +62,9 @@ module private EventHandlers =
 
 [<AutoOpen>]
 module PublicEventHandler = 
-    let handleEvent (repository : IGenericRepository<Cat>) = function
-        | CatCreated event -> catCreated repository event
-        | TitleChanged event -> titleChanged repository event
+    let handleEvent (cat : Cat) = function
+        | CatCreated event -> catCreated event
+        | TitleChanged event -> titleChanged event
 
 [<AutoOpen>]
 module private CommandHandlers =
@@ -87,7 +86,7 @@ module private CommandHandlers =
                 | Failure f -> Failure f
         }
 
-    let runCommandIfCatExists (repository : IGenericRepository<Cat>) id command f =
+    let runCommandIfCatExists (repository : GenericRepository<Cat>) id command f =
         async {
         return
             match repository.Get id with

@@ -76,7 +76,7 @@ module QueryUtilities =
             CreationTime = user.CreationTime.ToString()
         } 
 
-    let getUser (repository:IGenericRepository<User>) id : Suave.Types.WebPart =
+    let getUser (repository:GenericRepository<User>) id : Suave.Types.WebPart =
         fun httpContext ->
             async {
                 let! result = repository.Get(id)
@@ -86,7 +86,7 @@ module QueryUtilities =
                     | None -> genericNotFound httpContext
             }
 
-    let listUsers (repository:IGenericRepository<User>) : Suave.Types.WebPart =
+    let listUsers (repository:GenericRepository<User>) : Suave.Types.WebPart =
         fun httpContext ->
             async {
                 let! users = repository.List()

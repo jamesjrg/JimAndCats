@@ -21,7 +21,7 @@ let getCommandPosterAndRepository() =
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let repository = new GenericInMemoryRepository<Cat>()
     let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
-    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion   
+    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store handleEvent handleCommandWithAutoGeneration streamId initialVersion   
     
     postCommand, repository
 
