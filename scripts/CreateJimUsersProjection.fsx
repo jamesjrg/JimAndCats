@@ -20,7 +20,7 @@ let projection = """fromStream("jim-users-private").
          "EmailChanged" : function(state,event) {
           emit("jim-users-public", event.eventType, {
             id: event.body.Item.Id,
-            name : event.body.Item.Email});
+            email : event.body.Item.Email});
          }
     })
 """
