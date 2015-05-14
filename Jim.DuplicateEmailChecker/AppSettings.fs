@@ -1,4 +1,4 @@
-﻿module Jim.DuplicateCheckingUpdater.AppSettings
+﻿module Jim.DuplicateEmailChecker.AppSettings
 
 open ConfigMapping
 

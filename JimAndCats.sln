@@ -27,7 +27,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jim.CommandHandler.Tests", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EventStore.YetAnotherClient", "EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj", "{4E888127-662C-40E4-8F83-6202EA671BB4}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jim.DuplicateCheckingUpdater", "Jim.DuplicateCheckingUpdater\Jim.DuplicateCheckingUpdater.fsproj", "{8903774B-2881-4315-BEDE-67B03B1901EE}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Jim.DuplicateEmailChecker", "Jim.DuplicateEmailChecker\Jim.DuplicateEmailChecker.fsproj", "{8903774B-2881-4315-BEDE-67B03B1901EE}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Cats.CommandHandler", "Cats.CommandHandler\Cats.CommandHandler.fsproj", "{C0C855E0-A805-436B-B430-F7D4CA04A660}"
 EndProject

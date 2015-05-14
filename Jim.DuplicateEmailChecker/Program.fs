@@ -1,4 +1,4 @@
-﻿module Jim.DuplicateCheckingUpdater.Program
+﻿module Jim.DuplicateEmailChecker.Program
 
 open FSharp.Data
 open System

@@ -7,12 +7,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>8903774b-2881-4315-bede-67b03b1901ee</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Jim.DuplicateCheckingUpdater</RootNamespace>
+    <RootNamespace>Jim.DuplicateEmailChecker</RootNamespace>
     <AssemblyName>Jim.DuplicateCheckingUpdater</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>Jim.DuplicateCheckingUpdater</Name>
+    <Name>Jim.DuplicateEmailChecker</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Jim.DuplicateCheckingUpdater.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Jim.DuplicateEmailChecker.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -34,7 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Jim.DuplicateCheckingUpdater.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Jim.DuplicateEmailChecker.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
