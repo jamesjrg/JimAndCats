@@ -9,7 +9,7 @@ let getCommandPoster<'TCommand, 'TEvent, 'TAggregate>
     (handleCommand:'TCommand -> 'TAggregate -> Async<Result<'TEvent, CQRSFailure>>)
     (handleEvent:'TEvent -> 'TAggregate -> 'TAggregate)
     (streamId:string)
-    (buildAggregate:Guid)
+    (buildAggregate:Guid -> Async<'TAggregate>)
     (initialVersion:int) = 
     
     let save expectedVersion events = store.AppendToStream streamId expectedVersion events
@@ -18,7 +18,7 @@ let getCommandPoster<'TCommand, 'TEvent, 'TAggregate>
         let rec messageLoop version = async {
             let! aggregateId, command, replyChannel = inbox.Receive()
             
-            let! aggregate = buildAggregate
+            let! aggregate = buildAggregate aggregateId
             let! result = handleCommand command aggregate
             match result with
             | Success newEvent ->
@@ -33,5 +33,5 @@ let getCommandPoster<'TCommand, 'TEvent, 'TAggregate>
             return! messageLoop initialVersion
             }
 
-    fun command -> agent.PostAndAsyncReply(fun replyChannel -> command, replyChannel)
+    fun guid command -> agent.PostAndAsyncReply(fun replyChannel -> guid, command, replyChannel)
 
