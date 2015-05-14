@@ -2,10 +2,9 @@
 
 open System
 
-open Jim.UserRepository
 open Jim.CommandHandler.AppSettings
 open Jim.CommandHandler.CommandContracts
-open Jim.Domain
+open Jim.CommandHandler.Domain
 
 open EventStore.YetAnotherClient
 open GenericErrorHandling

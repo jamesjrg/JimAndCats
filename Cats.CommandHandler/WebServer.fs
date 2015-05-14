@@ -2,8 +2,8 @@
 
 module Cats.WebServer
 
-open Cats
-open Cats.AppSettings
+open Cats.CommandHandler
+open Cats.CommandHandler.AppSettings
 
 open Suave
 open Suave.Http

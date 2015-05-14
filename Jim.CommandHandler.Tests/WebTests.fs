@@ -2,10 +2,9 @@
 
 open EventStore.YetAnotherClient
 open Fuchu
-open Jim.Domain
-open Jim.Tests.AppSettings
+open Jim.CommandHandler.Domain
+open Jim.CommandHandler.Tests.AppSettings
 open Jim.CommandHandler.WebServer
-open Jim.UserRepository
 open NodaTime
 open Suave.Types
 open Suave.Testing

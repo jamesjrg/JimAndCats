@@ -1,4 +1,4 @@
-﻿module Cats.AppSettings
+﻿module Cats.CommandHandler.AppSettings
 
 open ConfigMapping
 

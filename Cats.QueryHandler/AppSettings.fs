@@ -1,4 +1,4 @@
-﻿module Cats.AppSettings
+﻿module Cats.QueryHandler.AppSettings
 
 open ConfigMapping
 

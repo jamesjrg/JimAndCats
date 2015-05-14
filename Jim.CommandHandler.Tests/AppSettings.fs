@@ -1,4 +1,4 @@
-﻿module Jim.Tests.AppSettings
+﻿module Jim.CommandHandler.Tests.AppSettings
 
 open ConfigMapping
 

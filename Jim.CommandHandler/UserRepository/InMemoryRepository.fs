@@ -1,4 +1,4 @@
-﻿namespace Jim.CommandHandler.UserRepository.InMemory
+﻿namespace Jim.CommandHandler.UserRepository
 
 open Jim.Domain
 open System

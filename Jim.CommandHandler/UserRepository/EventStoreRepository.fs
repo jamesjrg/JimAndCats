@@ -1,4 +1,4 @@
-﻿module Jim.CommandHandler.UserRepository.EventStore
+﻿namespace Jim.CommandHandler.UserRepository
 
 open Jim.Domain
 open NodaTime
