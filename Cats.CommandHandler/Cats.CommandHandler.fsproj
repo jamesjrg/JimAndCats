@@ -45,17 +45,18 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="App.config" />
     <Compile Include="AppSettings.fs" />
+    <Compile Include="Domain\CatAggregate.fs" />
+    <Compile Include="Domain\CommandsAndEvents.fs" />
+    <Compile Include="Logging.fs" />
     <Compile Include="CommandContracts.fs" />
     <Compile Include="AppService.fs" />
     <Compile Include="WebServer.fs" />
-    <Compile Include="Logging.fs" />
-    <Compile Include="Domain\CatAggregate.fs" />
-    <Compile Include="Domain\CommandsAndEvents.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">
@@ -66,6 +67,11 @@
     <ProjectReference Include="..\GenericErrorHandling\GenericErrorHandling.fsproj">
       <Name>GenericErrorHandling</Name>
       <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Suave.Extensions\Suave.Extensions.fsproj">
+      <Name>Suave.Extensions</Name>
+      <Project>{384df817-2d6b-48ff-b9af-9a96ab3f522b}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

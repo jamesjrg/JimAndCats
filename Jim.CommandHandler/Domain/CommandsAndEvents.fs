@@ -1,6 +1,7 @@
 ﻿namespace Jim.CommandHandler.Domain
 
-open Jim.Domain.AuthenticationService
+open Jim.CommandHandler.Domain.AuthenticationService
+open EventStore.YetAnotherClient
 open NodaTime
 open GenericErrorHandling
 open System
@@ -87,24 +88,14 @@ module private CommandHandlers =
         else
             Success (PasswordHash (hashFunc (trimmedPassword)))
 
-    let checkForDuplicateEmail (repository:IUserRepository) (email:EmailAddress) =
-        async {
-            let! user = repository.GetByEmail(email)
-            return
-                match user with
-                | Some _ -> Failure (BadRequest "User with this email address already exists")
-                | None -> Success email        
-        }
-
     let createUser
-        (repository:IUserRepository)
+        (repository:IGenericRepository<User>)
         (createGuid: unit -> Guid)
         (createTimestamp: unit -> Instant)
         hashFunc
         (command : CreateUser) =
         resultBuilder { 
             let! email = async { return createEmailAddress command.Email }
-            let! uniqueEmail = checkForDuplicateEmail repository email
             let! name = createUsername command.Name            
             //password hashing expensive so should come last
             let! hash = createPasswordHash hashFunc command.Password
@@ -112,13 +103,13 @@ module private CommandHandlers =
             return! Success (UserCreated {
                 Id = createGuid()
                 Name = name
-                Email = uniqueEmail
+                Email = email
                 PasswordHash = hash
                 CreationTime = createTimestamp()
             })
         }
 
-    let runCommandIfUserExists (repository :IUserRepository) id command f =
+    let runCommandIfUserExists (repository :IGenericRepository<User>) id command f =
         async {
             let! user = repository.Get(id)
             return
@@ -144,14 +135,14 @@ module private CommandHandlers =
 
 [<AutoOpen>]
 module PublicCommandHandlers = 
-    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IUserRepository) =
+    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : IGenericRepository<User>) =
             match command with
             | CreateUser command -> createUser repository createGuid createTimestamp hashFunc command
             | SetName command -> runCommandIfUserExists repository command.Id command setName
             | SetEmail command -> runCommandIfUserExists repository command.Id command setEmail
             | SetPassword command -> runCommandIfUserExists repository command.Id command (setPassword hashFunc)
 
-    let handleCommandWithAutoGeneration (command:Command) (repository : IUserRepository) =
+    let handleCommandWithAutoGeneration (command:Command) (repository : IGenericRepository<User>) =
         handleCommand
             Guid.NewGuid
             (fun () -> SystemClock.Instance.Now)

@@ -3,8 +3,8 @@
 open ConfigMapping
 
 type IAppSettings =
-    abstract member PrivateIdentityStream : string with get
-    abstract member PrivateEventStoreIp : string with get
-    abstract member PrivateEventStorePort : int with get
+    abstract member PublicIdentityStream : string with get
+    abstract member PublicEventStoreIp : string with get
+    abstract member PublicEventStorePort : int with get
 
 let appSettings = ConfigMapper.Map<IAppSettings>();

@@ -19,7 +19,7 @@ let getCommandPosterAndRepository() =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
-    let repository = new InMemory.UserRepository()
+    let repository = new GenericInMemoryRepository<User>()
     let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
     let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     
@@ -69,14 +69,14 @@ module QueryUtilities =
     }
 
     let mapUserToUserResponse (user:User) =
-    {
-        GetUserResponse.Id = user.Id
-        Name = extractUsername user.Name
-        Email = extractEmail user.Email
-        CreationTime = user.CreationTime.ToString()
-    } 
+        {
+            GetUserResponse.Id = user.Id
+            Name = extractUsername user.Name
+            Email = extractEmail user.Email
+            CreationTime = user.CreationTime.ToString()
+        } 
 
-    let getUser (repository:IUserRepository) id : WebPart =
+    let getUser (repository:IGenericRepository<User>) id : Suave.Types.WebPart =
         fun httpContext ->
             async {
                 let! result = repository.Get(id)
@@ -86,7 +86,7 @@ module QueryUtilities =
                     | None -> genericNotFound httpContext
             }
 
-    let listUsers (repository:IUserRepository) : WebPart =
+    let listUsers (repository:IGenericRepository<User>) : Suave.Types.WebPart =
         fun httpContext ->
             async {
                 let! users = repository.List()

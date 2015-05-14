@@ -1,9 +1,7 @@
-﻿module WebServer
+﻿module Cats.QueryHandler.WebServer
 
-module Cats.WebServer
-
-open Cats
-open Cats.AppSettings
+open Cats.QueryHandler
+open Cats.QueryHandler.AppSettings
 
 open Suave
 open Suave.Http
@@ -27,8 +25,8 @@ let webApp postCommand repository =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
-        url "/cats" >>= request (fun r -> QueryAppService.listCats repository)
-        urlScanGuid "/cats/%s" (fun id -> QueryAppService.getCat repository id)
+        url "/cats" >>= request (fun r -> AppService.listCats repository)
+        urlScanGuid "/cats/%s" (fun id -> AppService.getCat repository id)
         url "/" >>= index ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
@@ -39,7 +37,7 @@ let main argv =
     printfn "Starting CATS on %d" appSettings.Port
 
     try     
-        let postCommand, repository = CommandAppService.getCommandPosterAndRepository()
+        let postCommand, repository = AppService.getRepository()
         startWebServer web_config (webApp postCommand repository)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())

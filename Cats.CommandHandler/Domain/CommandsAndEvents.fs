@@ -7,8 +7,6 @@ open Cats.CommandHandler.Domain
 open NodaTime
 open System
 
-let minTitleLength = 3
-
 [<AutoOpen>]
 module Commands =
     type Command =
@@ -45,7 +43,7 @@ module Events =
 
 [<AutoOpen>]
 module private EventHandlers =
-    let catCreated (repository:ISimpleRepository<Cat>) (event: CatCreated) =
+    let catCreated (repository:IGenericRepository<Cat>) (event: CatCreated) =
         async {
             repository.Put event.Id
                 {
@@ -56,7 +54,7 @@ module private EventHandlers =
                 }
         }
 
-    let titleChanged (repository:ISimpleRepository<Cat>) (event: TitleChanged) =
+    let titleChanged (repository:IGenericRepository<Cat>) (event: TitleChanged) =
         async {
             match repository.Get event.Id with
                 | Some cat -> repository.Put event.Id {cat with Title = event.Title}
@@ -65,12 +63,14 @@ module private EventHandlers =
 
 [<AutoOpen>]
 module PublicEventHandler = 
-    let handleEvent (repository : ISimpleRepository<Cat>) = function
+    let handleEvent (repository : IGenericRepository<Cat>) = function
         | CatCreated event -> catCreated repository event
         | TitleChanged event -> titleChanged repository event
 
 [<AutoOpen>]
 module private CommandHandlers =
+    let minTitleLength = 3
+
     let createTitle (s:string) =
         let trimmedTitle = s.Trim()
      
@@ -87,7 +87,7 @@ module private CommandHandlers =
                 | Failure f -> Failure f
         }
 
-    let runCommandIfCatExists (repository : ISimpleRepository<Cat>) id command f =
+    let runCommandIfCatExists (repository : IGenericRepository<Cat>) id command f =
         async {
         return
             match repository.Get id with

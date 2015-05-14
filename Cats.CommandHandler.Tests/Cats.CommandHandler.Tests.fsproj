@@ -60,6 +60,21 @@
       <Project>{c0c855e0-a805-436b-b430-f7d4ca04a660}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">
+      <Name>EventStore.YetAnotherClient</Name>
+      <Project>{4e888127-662c-40e4-8f83-6202ea671bb4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\GenericErrorHandling\GenericErrorHandling.fsproj">
+      <Name>GenericErrorHandling</Name>
+      <Project>{93e305c0-e643-4073-a36e-8213918dc28c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\TestingHelpers\TestingHelpers.fsproj">
+      <Name>TestingHelpers</Name>
+      <Project>{5fd77a37-8aed-4a7d-8134-6c0aef0e09b3}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

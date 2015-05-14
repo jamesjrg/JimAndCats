@@ -1,6 +1,7 @@
 ﻿namespace Jim.CommandHandler.UserRepository
 
-open Jim.Domain
+open Jim.CommandHandler.Domain
+open EventStore.YetAnotherClient
 open NodaTime
 open System
 
@@ -14,13 +15,12 @@ type EventStoreRepository() =
         CreationTime = new Instant(creationTime)
     }
 
-    interface IUserRepository with
+    interface IGenericRepository<User> with
         member this.List() =    
             async {
                 return []
             }
 
-        //FIXME try get
         member this.Get (id:Guid) =
             async {                
                 return None

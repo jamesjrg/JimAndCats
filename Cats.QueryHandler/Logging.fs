@@ -1,4 +1,4 @@
-﻿module Jim.CommandHandler.Logging
+﻿module Cats.QueryHandler.Logging
 
 open Logary
 open Logary.Configuration

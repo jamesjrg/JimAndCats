@@ -1,20 +1,17 @@
-﻿module WebServer
-
-module Cats.WebServer
+﻿module Cats.CommandHandler.WebServer
 
 open Cats.CommandHandler
 open Cats.CommandHandler.AppSettings
+open Cats.CommandHandler.Logging
 
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
-open Suave.Types
 open Suave.Web
 open Suave.Extensions.ConfigDefaults
 open Suave.Extensions.Guids
 open Suave.Extensions.Json
-
-open Logary
+open Logary //must be opened after Suave
 
 open System
 open System.IO
@@ -29,9 +26,9 @@ let webApp postCommand repository =
         url "/api-docs" >>= swaggerSpec
         url "/" >>= index ]
     POST >>= choose [
-        url "/cats/create" >>= tryMapJson (CommandAppService.createCat postCommand) ]
+        url "/cats/create" >>= tryMapJson (AppService.createCat postCommand) ]
     PUT >>= choose [ 
-        urlScanGuid "/cats/%s/title" (fun id -> tryMapJson <| CommandAppService.setTitle postCommand id) ]
+        urlScanGuid "/cats/%s/title" (fun id -> tryMapJson <| AppService.setTitle postCommand id) ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 
@@ -41,7 +38,7 @@ let main argv =
     printfn "Starting CATS on %d" appSettings.Port
 
     try     
-        let postCommand, repository = CommandAppService.getCommandPosterAndRepository()
+        let postCommand, repository = AppService.getCommandPosterAndRepository()
         startWebServer web_config (webApp postCommand repository)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())

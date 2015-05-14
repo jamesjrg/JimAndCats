@@ -54,6 +54,18 @@
     <Compile Include="AppService.fs" />
     <Compile Include="WebServer.fs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">
+      <Name>EventStore.YetAnotherClient</Name>
+      <Project>{4e888127-662c-40e4-8f83-6202ea671bb4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Suave.Extensions\Suave.Extensions.fsproj">
+      <Name>Suave.Extensions</Name>
+      <Project>{384df817-2d6b-48ff-b9af-9a96ab3f522b}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>

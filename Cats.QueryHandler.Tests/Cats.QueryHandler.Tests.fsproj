@@ -50,13 +50,23 @@
     <None Include="paket.references" />
     <None Include="App.config" />
     <Compile Include="AppSettings.fs" />
-    <Compile Include="Web\QueryTests.fs" />
+    <Compile Include="WebTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cats.QueryHandler\Cats.QueryHandler.fsproj">
       <Name>Cats.QueryHandler</Name>
       <Project>{7d2490aa-1a1a-4e78-b52a-99c5ccc69b5f}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\EventStore.YetAnotherClient\EventStore.YetAnotherClient.fsproj">
+      <Name>EventStore.YetAnotherClient</Name>
+      <Project>{4e888127-662c-40e4-8f83-6202ea671bb4}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\TestingHelpers\TestingHelpers.fsproj">
+      <Name>TestingHelpers</Name>
+      <Project>{5fd77a37-8aed-4a7d-8134-6c0aef0e09b3}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

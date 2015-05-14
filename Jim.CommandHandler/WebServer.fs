@@ -2,6 +2,7 @@
 
 open Jim.CommandHandler
 open Jim.CommandHandler.AppSettings
+open Jim.CommandHandler.Logging
 open Suave
 open Logary //must be opened after Suave
 open Suave.Http

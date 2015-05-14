@@ -1,7 +1,7 @@
 ﻿module Jim.CommandHandler.Domain.AuthenticationService
 
+open EventStore.YetAnotherClient
 open GenericErrorHandling
-open Jim.UserRepository
 open System
 
 open System
@@ -52,7 +52,7 @@ module PBKDF2 =
 
         slowEquals hash testHash
 
-let authenticate (repository : IUserRepository) (id:Guid) password =
+let authenticate (repository : IGenericRepository<User>) (id:Guid) password =
     async {
         let! maybeUser = repository.Get id
         return

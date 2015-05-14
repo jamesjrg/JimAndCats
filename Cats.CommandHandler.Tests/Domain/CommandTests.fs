@@ -1,7 +1,6 @@
 ﻿module Cats.CommandHandler.Tests.Domain
 
-open Cats.Domain.CommandsAndEvents
-open Cats.Domain.CatAggregate
+open Cats.CommandHandler.Domain
 open Fuchu
 open EventStore.YetAnotherClient
 open GenericErrorHandling
@@ -18,7 +17,7 @@ let epoch = createEpoch()
 
 let catHasBeenCreated = [CatCreated { Id = catGuid1; Title=PageTitle "My lovely crowdfunding ask template"; Owner=ownerGuid1; CreationTime = epoch }]
 
-let Expect: Result<Event,CQRSFailure> -> Event list * Command -> unit = Expect' (fun () -> new SimpleInMemoryRepository<Cat>()) handleEvent (handleCommand createGuid1 createEpoch)
+let Expect: Result<Event,CQRSFailure> -> Event list * Command -> unit = Expect' (fun () -> new GenericRepository<Cat>()) handleEvent (handleCommand createGuid1 createEpoch)
 let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
 let ExpectSuccess event = Expect (Success event)
 

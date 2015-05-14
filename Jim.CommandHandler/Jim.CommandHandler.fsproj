@@ -64,15 +64,12 @@
     <None Include="paket.references" />
     <None Include="App.config" />
     <None Include="static\api-docs.json" />
+    <Compile Include="AppSettings.fs" />
     <Compile Include="Domain\UserAggregate.fs" />
-    <Compile Include="Domain\IUserRepository.fs" />
     <Compile Include="Domain\AuthenticationService.fs" />
     <Compile Include="Domain\CommandsAndEvents.fs" />
-    <Compile Include="UserRepository\InMemoryRepository.fs" />
-    <Compile Include="UserRepository\EventStoreRepository.fs" />
-    <Compile Include="AppSettings.fs" />
+    <Compile Include="EventStoreRepository.fs" />
     <Compile Include="Logging.fs" />
-    <Compile Include="DuplicateEmailChecker.fs" />
     <Compile Include="CommandContracts.fs" />
     <Compile Include="AppService.fs" />
     <Compile Include="WebServer.fs" />

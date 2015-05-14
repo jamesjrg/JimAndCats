@@ -45,7 +45,7 @@ module private Reflection =
         |> Array.mapi (fun i c -> c.Name, (i,c.PropertyType))
         |> Map.ofArray
 
-    // Json function used by converters
+// Json function used by converters
 module private Json =    
     let writeObject (w: JsonWriter) (s: JsonSerializer) properties =
         let writeProperty (name, value) = 

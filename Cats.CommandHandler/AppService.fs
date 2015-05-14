@@ -5,10 +5,9 @@ open System
 open EventStore.YetAnotherClient
 open GenericErrorHandling
 
-open Cats.AppSettings
-open Cats.CommandContracts
-open Cats.Domain.CatAggregate
-open Cats.Domain.CommandsAndEvents
+open Cats.CommandHandler.AppSettings
+open Cats.CommandHandler.CommandContracts
+open Cats.CommandHandler.Domain
 
 open Suave
 open Suave.Http
@@ -20,7 +19,7 @@ let getCommandPosterAndRepository() =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
-    let repository = new SimpleInMemoryRepository<Cat>()
+    let repository = new GenericInMemoryRepository<Cat>()
     let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
     let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion   
     
