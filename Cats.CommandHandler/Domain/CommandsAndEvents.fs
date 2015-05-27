@@ -43,9 +43,9 @@ module Events =
 
 [<AutoOpen>]
 module private EventHandlers =
-    let catCreated (repository:GenericRepository<Cat>) (event: CatCreated) =
+    let catCreated (event: CatCreated) =
         async {
-                {
+                return {
                     Cat.Id = event.Id
                     Title = event.Title
                     Owner = event.Owner
@@ -53,10 +53,11 @@ module private EventHandlers =
                 }
         }
 
-    let titleChanged (repository:GenericRepository<Cat>) (event: TitleChanged) =
+    let titleChanged (getCat:Guid -> Async<Cat option>) (event: TitleChanged) =
         async {
-            match repository.Get event.Id with
-                | Some cat -> repository.Put event.Id {cat with Title = event.Title}
+            let! cat = getCat event.Id
+            return match cat with
+                | Some cat -> {cat with Title = event.Title}
                 | None -> ()
         }
 

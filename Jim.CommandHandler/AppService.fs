@@ -19,7 +19,7 @@ let getCommandPosterAndRepository() =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
-    let repository = new GenericInMemoryRepository<User>()
+    let getAggregate = Repository.getAggregate store apply "user"
     let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
     let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
     
@@ -76,21 +76,13 @@ module QueryUtilities =
             CreationTime = user.CreationTime.ToString()
         } 
 
-    let getUser (repository:GenericRepository<User>) id : Suave.Types.WebPart =
+    let getUser (getAggregate : Guid-> Async<'TAggregate option>) id : Suave.Types.WebPart =
         fun httpContext ->
             async {
-                let! result = repository.Get(id)
+                let! result = getAggregate id
                 return!
                     match result with
                     | Some user -> jsonOK (mapUserToUserResponse user) httpContext
                     | None -> genericNotFound httpContext
-            }
-
-    let listUsers (repository:GenericRepository<User>) : Suave.Types.WebPart =
-        fun httpContext ->
-            async {
-                let! users = repository.List()
-                let mappedUsers = Seq.map mapUserToUserResponse users
-                return! jsonOK {GetUsersResponse.Users = mappedUsers} httpContext
             }
 

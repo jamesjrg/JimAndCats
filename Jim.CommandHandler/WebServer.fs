@@ -23,8 +23,7 @@ let webApp postCommand repository =
             url "/api-docs" >>= swaggerSpec
             url "/" >>= index ]
 
-        (* These methods are just utility methods for debugging etc, other services should listen to Event Store events and build their own read models *)
-        url "/users" >>= AppService.QueryUtilities.listUsers repository
+        (* This method is just a utility methods for debugging etc, other services should listen to Event Store events and build their own read models *)
         urlScanGuid "/users/%s" (fun id -> AppService.QueryUtilities.getUser repository id)
 
         POST >>= url "/users/create" >>= tryMapJson (AppService.createUser postCommand)

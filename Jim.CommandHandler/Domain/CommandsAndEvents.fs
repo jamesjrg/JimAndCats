@@ -1,7 +1,6 @@
 ﻿namespace Jim.CommandHandler.Domain
 
 open Jim.CommandHandler.Domain.AuthenticationService
-open EventStore.YetAnotherClient
 open NodaTime
 open GenericErrorHandling
 open System
@@ -89,7 +88,6 @@ module private CommandHandlers =
             Success (PasswordHash (hashFunc (trimmedPassword)))
 
     let createUser
-        (repository:GenericRepository<User>)
         (createGuid: unit -> Guid)
         (createTimestamp: unit -> Instant)
         hashFunc
@@ -109,9 +107,9 @@ module private CommandHandlers =
             })
         }
 
-    let runCommandIfUserExists (repository :GenericRepository<User>) id command f =
+    let runCommandIfUserExists (getAggregate : Guid-> Async<User option>) id command f =
         async {
-            let! user = repository.Get(id)
+            let! user = getAggregate id
             return
                 match user with
                 | None -> Failure NotFound
@@ -135,19 +133,19 @@ module private CommandHandlers =
 
 [<AutoOpen>]
 module PublicCommandHandlers = 
-    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (repository : GenericRepository<User>) =
+    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (getAggregate : Guid-> Async<User option>) =
             match command with
-            | CreateUser command -> createUser repository createGuid createTimestamp hashFunc command
-            | SetName command -> runCommandIfUserExists repository command.Id command setName
-            | SetEmail command -> runCommandIfUserExists repository command.Id command setEmail
-            | SetPassword command -> runCommandIfUserExists repository command.Id command (setPassword hashFunc)
+            | CreateUser command -> createUser createGuid createTimestamp hashFunc command
+            | SetName command -> runCommandIfUserExists getAggregate command.Id command setName
+            | SetEmail command -> runCommandIfUserExists getAggregate command.Id command setEmail
+            | SetPassword command -> runCommandIfUserExists getAggregate command.Id command (setPassword hashFunc)
 
-    let handleCommandWithAutoGeneration (command:Command) (repository : GenericRepository<User>) =
+    let handleCommandWithAutoGeneration (command:Command) (getAggregate : Guid-> Async<User option>) =
         handleCommand
             Guid.NewGuid
             (fun () -> SystemClock.Instance.Now)
             PBKDF2.getHash
             command
-            repository
+            getAggregate
 
 (* End Command Handlers *)

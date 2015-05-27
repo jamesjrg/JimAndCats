@@ -52,9 +52,9 @@ module PBKDF2 =
 
         slowEquals hash testHash
 
-let authenticate (repository : GenericRepository<User>) (id:Guid) password =
+let authenticate (getUser : Guid -> Async<User option>) (id:Guid) password =
     async {
-        let! maybeUser = repository.Get id
+        let! maybeUser = getUser id
         return
             match maybeUser with
             | Some user -> Success (PBKDF2.validatePassword (extractPasswordHash user.PasswordHash) password)
