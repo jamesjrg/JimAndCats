@@ -68,7 +68,6 @@
     <Compile Include="Domain\UserAggregate.fs" />
     <Compile Include="Domain\AuthenticationService.fs" />
     <Compile Include="Domain\CommandsAndEvents.fs" />
-    <Compile Include="EventStoreRepository.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="CommandContracts.fs" />
     <Compile Include="AppService.fs" />
