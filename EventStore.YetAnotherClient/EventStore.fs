@@ -94,15 +94,4 @@ type EventStore<'a>(ipAddress, port) =
                 null, //TODO handle subscription being dropped
                 null) |> ignore
 
-module RepositoryLoader =
-    let handleAllEventsInStream (store:IEventStore<'a>) streamId handleEvent =
-        let rec fold version =
-            async {
-            let! events, lastEvent, nextEvent = 
-                store.ReadStream streamId version 500
-
-            List.iter (fun x -> handleEvent x |> Async.RunSynchronously) events
-            match nextEvent with
-            | None -> return lastEvent
-            | Some n -> return! fold n }
-        fold 0
+        member this.StreamExists streamId = async {return true}

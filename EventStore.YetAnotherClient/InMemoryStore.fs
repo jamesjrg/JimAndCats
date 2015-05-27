@@ -58,3 +58,5 @@ type InMemoryStore<'a>() =
             (lastCheckpoint : int)
             (handleEvent: 'a -> unit) =
             ()
+
+        member this.StreamExists streamId = async {return true}
