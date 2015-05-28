@@ -13,17 +13,17 @@ open Suave
 open Suave.Http
 open Suave.Extensions.Json
 
-let getCommandPosterAndRepository() =
-    let streamId = appSettings.PrivateIdentityStream
+let getCommandAgentAndAggregateBuilder() =
     let store =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
-    let getAggregate = Repository.getAggregate store apply "user"
-    let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
-    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion
+    let streamPrefix = "user"
+    let getAggregate = Repository.getAggregate store applyCommand streamPrefix
+    let saveEvent = Repository.saveEvent store streamPrefix
+    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent applyCommandWithAutoGeneration
     
-    postCommand, repository        
+    postCommand, getAggregate        
 
 let private runCommand postCommand (command:Command) : Types.WebPart =
     fun httpContext ->
@@ -56,7 +56,7 @@ let setPassword postCommand (id:Guid) (requestDetails:SetPasswordRequest) =
     runCommand postCommand ( SetPassword{ Id=id; Password = requestDetails.password})
 
 (* These methods are just utility methods for debugging etc, services should listen to Event Store events and build their own read models *)
-module QueryUtilities =
+module DiagnosticQueries =
     type GetUserResponse = {
         Id: Guid
         Name: string

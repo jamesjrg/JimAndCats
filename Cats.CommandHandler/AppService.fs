@@ -13,17 +13,17 @@ open Suave
 open Suave.Http
 open Suave.Extensions.Json
 
-let getCommandPosterAndRepository() =
-    let streamId = appSettings.PrivateCatStream
+let getCommandAgentAndAggregateBuilder() =
     let store =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
-    let repository = new GenericInMemoryRepository<Cat>()
-    let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
-    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandPoster store handleEvent handleCommandWithAutoGeneration streamId initialVersion   
+    let streamPrefix = "cat"
+    let getAggregate = Repository.getAggregate store applyCommand streamPrefix
+    let saveEvent = Repository.saveEvent store streamPrefix
+    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent applyCommandWithAutoGeneration
     
-    postCommand, repository
+    postCommand, getAggregate
 
 let private runCommand postCommand (command:Command) : Types.WebPart =
     fun httpContext ->
@@ -44,3 +44,21 @@ let createCat postCommand (request:CreateCatRequest) =
 
 let setTitle postCommand (id:Guid) (request:SetTitleRequest) =   
     runCommand postCommand (SetTitle {Id=id; Title=request.title})
+
+(* These methods are just utility methods for debugging etc, services should listen to Event Store events and build their own read models *)
+module DiagnosticQueries =
+    type GetCatResponse = {
+        Id: Guid
+        CreationTime: string
+    }
+
+    let mapCatToCatResponse (cat:Cat) =
+        {
+            GetCatResponse.Id = cat.Id
+            CreationTime = cat.CreationTime.ToString()
+        }
+
+    let getCat getAggregate id =
+        match getAggregate id with
+        | Some cat -> jsonOK (mapCatToCatResponse cat)
+        | None -> genericNotFound

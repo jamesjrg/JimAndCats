@@ -21,12 +21,11 @@ let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json"
 
 let index = Successful.OK "Hello from CATS Query Handler"
 
-let webApp postCommand repository =
+let webApp =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
-        url "/cats" >>= request (fun r -> AppService.listCats repository)
-        urlScanGuid "/cats/%s" (fun id -> AppService.getCat repository id)
+        urlScanGuid "/cats/%s" (fun id -> AppService.getCat id)
         url "/" >>= index ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
@@ -36,9 +35,8 @@ let main argv =
     let web_config = makeConfig appSettings.Port (Suave.SuaveAdapter(Logging.logary.GetLogger "suave"))
     printfn "Starting CATS on %d" appSettings.Port
 
-    try     
-        let postCommand, repository = AppService.getRepository()
-        startWebServer web_config (webApp postCommand repository)        
+    try
+        startWebServer web_config webApp    
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

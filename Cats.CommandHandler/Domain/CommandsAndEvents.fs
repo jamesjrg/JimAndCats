@@ -87,10 +87,10 @@ module private CommandHandlers =
                 | Failure f -> Failure f
         }
 
-    let runCommandIfCatExists (repository : GenericRepository<Cat>) id command f =
+    let runCommandIfCatExists (maybeCat : Cat option) command f =
         async {
         return
-            match repository.Get id with
+            match maybeCat with
             | None -> Failure NotFound
             | _ -> f command
         }        
@@ -102,11 +102,11 @@ module private CommandHandlers =
 
 [<AutoOpen>]
 module PublicCommandHandlers = 
-    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command repository =
+    let applyCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command (maybeCat:Cat option)=
         match command with
             | CreateCat command -> createCat createGuid createTimestamp command
-            | SetTitle command -> runCommandIfCatExists repository command.Id command setTitle
+            | SetTitle command -> runCommandIfCatExists maybeCat command setTitle
 
-    let handleCommandWithAutoGeneration command repository =
-        handleCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository
+    let applyCommandWithAutoGeneration command repository =
+        applyCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository
     

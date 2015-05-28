@@ -48,9 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <None Include="App.config" />
-    <Compile Include="AppSettings.fs" />
-    <Compile Include="WebTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

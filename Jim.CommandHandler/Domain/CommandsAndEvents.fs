@@ -98,7 +98,7 @@ module private CommandHandlers =
             //password hashing expensive so should come last
             let! hash = createPasswordHash hashFunc command.Password
 
-            return! Success (UserCreated {
+            return Success (UserCreated {
                 Id = createGuid()
                 Name = name
                 Email = email
@@ -107,14 +107,10 @@ module private CommandHandlers =
             })
         }
 
-    let runCommandIfUserExists (getAggregate : Guid-> Async<User option>) id command f =
-        async {
-            let! user = getAggregate id
-            return
-                match user with
-                | None -> Failure NotFound
-                | _ -> f command
-        }
+    let runCommandIfUserExists (maybeUser : User option) command f =        
+        match maybeUser with
+        | None -> Failure NotFound
+        | _ -> f command
 
     let setName (command : SetName) =
         match createUsername command.Name with
@@ -133,15 +129,15 @@ module private CommandHandlers =
 
 [<AutoOpen>]
 module PublicCommandHandlers = 
-    let handleCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (getAggregate : Guid-> Async<User option>) =
+    let applyCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (hashFunc: string -> string) (command:Command) (maybeUser : User option) =
             match command with
             | CreateUser command -> createUser createGuid createTimestamp hashFunc command
-            | SetName command -> runCommandIfUserExists getAggregate command.Id command setName
-            | SetEmail command -> runCommandIfUserExists getAggregate command.Id command setEmail
-            | SetPassword command -> runCommandIfUserExists getAggregate command.Id command (setPassword hashFunc)
+            | SetName command -> runCommandIfUserExists maybeUser command setName
+            | SetEmail command -> runCommandIfUserExists maybeUser command setEmail
+            | SetPassword command -> runCommandIfUserExists maybeUser command (setPassword hashFunc)
 
-    let handleCommandWithAutoGeneration (command:Command) (getAggregate : Guid-> Async<User option>) =
-        handleCommand
+    let applyCommandWithAutoGeneration (command:Command) (getAggregate : Guid-> Async<User option>) =
+        applyCommand
             Guid.NewGuid
             (fun () -> SystemClock.Instance.Now)
             PBKDF2.getHash

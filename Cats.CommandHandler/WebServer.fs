@@ -20,11 +20,14 @@ let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json"
 
 let index = Successful.OK "Hello from CATS Command Handler"
 
-let webApp postCommand repository =
+let webApp postCommand getAggregate =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
-        url "/" >>= index ]
+        url "/" >>= index
+        (* This method is just a utility for debugging etc, the query handler provides a proper read model *)
+        urlScanGuid "/cats/%s" (fun id -> AppService.DiagnosticQueries.getCat getAggregate id)]
+        
     POST >>= choose [
         url "/cats/create" >>= tryMapJson (AppService.createCat postCommand) ]
     PUT >>= choose [ 
@@ -38,8 +41,8 @@ let main argv =
     printfn "Starting CATS on %d" appSettings.Port
 
     try     
-        let postCommand, repository = AppService.getCommandPosterAndRepository()
-        startWebServer web_config (webApp postCommand repository)        
+        let postCommand, getAggregate = AppService.getCommandAgentAndAggregateBuilder()
+        startWebServer web_config (webApp postCommand getAggregate)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

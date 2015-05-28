@@ -26,9 +26,7 @@ let getWebServer events =
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     if not (List.isEmpty events) then
         store.AppendToStream streamId -1 events |> Async.RunSynchronously
-    let repository = new GenericInMemoryRepository<Cat>()
-    let initialVersion = RepositoryLoader.handleAllEventsInStream store streamId (handleEvent repository) |> Async.RunSynchronously
-    let postCommand, repo = (CommandAgent.getCommandPoster store repository handleCommandWithAutoGeneration handleEvent streamId initialVersion), repository
+    let postCommand = CommandAgent.getCommandAgent store repository applyCommandWithAutoGeneration initialVersion
     webApp postCommand repo
 
 let getWebServerWithNoEvents() = getWebServer []
@@ -60,6 +58,21 @@ let commandTests =
 
         testCase "Should get 404 trying to set title of non-existent cat" (fun () ->
             let actual = put getWebServerWithNoEvents "/cats/3C71C09A-2902-4682-B8AB-663432C8867B/title" """{"title":"My new lovely cat name"}""" statusCode
+
+            HttpStatusCode.NotFound =? actual)
+        ]
+
+[<Tests>]
+let diagnosticQueryTests =
+    testList "Diagnostic query web API tests"
+        [
+        testCase "Should be able to fetch a CAT" (fun () ->
+            let actual = get getWebServerWithACat "/cats/3C71C09A-2902-4682-B8AB-663432C8867B" contentString
+
+            """{"Id":"3c71c09a-2902-4682-b8ab-663432c8867b","CreationTime":"1970-01-01T00:00:00Z"}""" =? actual)
+
+        testCase "Should get 404 for non-existent CAT" (fun () ->
+            let actual = get getWebServerWithNoEvents "/cats/3C71C09A-2902-4682-B8AB-663432C8867B" statusCode
 
             HttpStatusCode.NotFound =? actual)
         ]

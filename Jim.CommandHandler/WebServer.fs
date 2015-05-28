@@ -21,10 +21,9 @@ let webApp postCommand repository =
     choose [
         GET >>= choose [
             url "/api-docs" >>= swaggerSpec
-            url "/" >>= index ]
-
-        (* This method is just a utility methods for debugging etc, other services should listen to Event Store events and build their own read models *)
-        urlScanGuid "/users/%s" (fun id -> AppService.QueryUtilities.getUser repository id)
+            url "/" >>= index
+            (* This method is just a utility for debugging etc, other services should listen to Event Store events and build their own read models *)
+            urlScanGuid "/users/%s" (fun id -> AppService.DiagnosticQueries.getUser repository id)]        
 
         POST >>= url "/users/create" >>= tryMapJson (AppService.createUser postCommand)
 
@@ -41,7 +40,7 @@ let main argv =
     printfn "Starting JIM on %d" appSettings.Port
 
     try     
-        let postCommand, repository = AppService.getCommandPosterAndRepository()
+        let postCommand, getAggregate = AppService.getCommandAgentAndAggregateBuilder()
         startWebServer web_config (webApp postCommand repository)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())

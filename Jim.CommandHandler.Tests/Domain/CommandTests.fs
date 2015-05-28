@@ -15,7 +15,7 @@ let guid1 = createGuid1()
 let createEpoch () = new Instant(0L)
 let epoch = createEpoch()
 
-let Expect = Expect' (fun () -> new InMemory.UserRepository()) handleEvent (handleCommand createGuid1 createEpoch id)
+let Expect = Expect' (fun () -> new InMemory.UserRepository()) handleEvent (applyCommand createGuid1 createEpoch id)
 let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
 let ExpectSuccess event = Expect (Success event)
 
