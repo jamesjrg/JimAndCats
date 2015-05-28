@@ -8,15 +8,15 @@ In particular:
 
 1. The system is written entirely in F#, demonstrating that F# works well not only for complex logic and mathematical problems, for also for web endpoints, unit tests, build systems, database access, etc.
 
-2. The system experiments with event sourcing, a term which seems to mean different things to different people. Versions of "event sourcing" that I have been exposed to are:
+2. The system experiments with event sourcing, a term which seems to mean different things to different people. Versions of "event sourcing" that I have been exposed to commerically are:
 
-	a) giving each aggregate its own event stream, allowing aggregates to be reconsistuted when requested from that small subset of events relevant to the aggregate. Optionally some or all aggregates can be transiently cached in memory or in database in the query model.
+    a) The way usually recommended by well-known authors on the subject is to give each aggregate its own event stream, and then aggregates are reconsistuted directly from the events whenever a command is executed against them. The event stream on disk then functions as both the canonical source of truth, and also as a database for building aggregates. Where clients need to return information taken from multiple aggregates, a separate read model is created that gathers information from multiple streams to provide a cache of certain views of the data. Care must be taken when deciding on aggregate boundaries. If the aggregates are too small then all consistency violations must be dealt with after-the-case, which is much more work than simply making it impossible for data to become inconsistent. But if aggregates are too large then managing concurrency is much more difficult, as multiple users will often be editing the same aggregate.
 
-	b) restoring all aggregates from a persistent event stream whenever a new server is started up, and thereafter serving both commands and queries on all aggregates from state stored in RAM
+	a) Also possible is to use an event stream per aggregate-type, and then to create both query models and command models in RAM. By allowing developers to write code against plain old in-memory objects this is in some ways actually simpler than a traditional SQL-based-approach, and debugging is very easy. Modern machines have so much RAM this is a plausible solution for many problems, and also allows for very high performance. But there are definite limits if there are a very large number of aggregate instances, and it needs a well-thought-out approach to failover for when servers go down. The fact it clearly isn't "web scale" also makes it very untrendy.
 
-	c) having event listeners watch all event streams and update aggregates in SQL Server, and then writing all service logic directly against the SQL, using the event stream only for interacting with other services and maintaining a history log (which in my opinion isn't really event sourcing at all)
+	c) One place I worked had event listeners watch event streams for each aggregate-type, which then updated tables of aggregates in SQL Server. Logic for both commands and queries was written in SQL, with the event stream used as service bus for sending events to other services. In my opinion isn't really proper event sourcing at all - it adds a lot of complexity without offering much benefit over a more standard approach of a SQL database + AMQP message bus.
 
-	The services here started out as (b), then started borrowing some elements (c), and are now being entirely re-written as (a). This is such a major change that the entire codebase is currently undergoing a major rewrite and doesn't even compile.
+	The services here started out as (b), then I stated borrowing some elements from (c) to try to make it a bit more enterprisey, and now I am entirely re-writing them as (a). As such the entire codebase is currently undergoing a major rewrite and doesn't even compile.
 
 3. I have spent some time reading about and toying with different approaches to managing centralized authorization for a set of web services, again currently still a work in progress as I try out various options.
 
