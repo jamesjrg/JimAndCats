@@ -93,5 +93,3 @@ type EventStore<'a>(ipAddress, port) =
                 null,
                 null, //TODO handle subscription being dropped
                 null) |> ignore
-
-        member this.StreamExists streamId = async {return true}

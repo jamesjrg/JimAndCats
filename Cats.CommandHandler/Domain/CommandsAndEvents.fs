@@ -1,7 +1,6 @@
 ﻿namespace Cats.CommandHandler.Domain
 
 open GenericErrorHandling
-open EventStore.YetAnotherClient
 open Cats.CommandHandler.Domain
 
 open NodaTime
@@ -10,18 +9,17 @@ open System
 [<AutoOpen>]
 module Commands =
     type Command =
-        | CreateCat of CreateCat
         | SetTitle of SetTitle
-
-    and CreateCat = {
-        Title: string
-        Owner: Guid
-       }
 
     and SetTitle = {
         Id: Guid
         Title: string
        }
+
+    type CreateCat = {
+        Title: string
+        Owner: Guid
+        }
 
 [<AutoOpen>]
 module Events =
@@ -39,34 +37,18 @@ module Events =
     and TitleChanged = {
         Id: Guid
         Title: PageTitle
-    }
+    } 
 
 [<AutoOpen>]
-module private EventHandlers =
-    let catCreated (event: CatCreated) =
-        async {
-                return {
-                    Cat.Id = event.Id
-                    Title = event.Title
-                    Owner = event.Owner
-                    CreationTime = event.CreationTime
-                }
-        }
-
-    let titleChanged (getCat:Guid -> Async<Cat option>) (event: TitleChanged) =
-        async {
-            let! cat = getCat event.Id
-            return
-                match cat with
-                | Some cat -> {cat with Title = event.Title}
-                | None -> ()
-        }
-
-[<AutoOpen>]
-module PublicEventHandler = 
-    let handleEvent (cat : Cat) = function
-        | CatCreated event -> catCreated event
-        | TitleChanged event -> titleChanged event
+module EventHandler = 
+    let handleEvent (cat : Cat)  = function
+        | CatCreated createCat -> Some {
+                Cat.Id = createCat.Id
+                Title = createCat.Title
+                Owner = createCat.Owner
+                CreationTime = createCat.CreationTime
+            }
+        | TitleChanged eventDetails -> Some { cat with Title = eventDetails.Title }
 
 [<AutoOpen>]
 module private CommandHandlers =
@@ -78,23 +60,7 @@ module private CommandHandlers =
         if trimmedTitle.Length < minTitleLength then
             Failure (BadRequest (sprintf "Title must be at least %d characters" minTitleLength))
         else
-            Success (PageTitle trimmedTitle)
-
-    let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command:CreateCat) =
-        async {
-            return
-                match createTitle command.Title with
-                | Success title -> Success (CatCreated { Id = createGuid(); Title = title; Owner = command.Owner; CreationTime = createTimestamp()})
-                | Failure f -> Failure f
-        }
-
-    let runCommandIfCatExists (maybeCat : Cat option) command f =
-        async {
-        return
-            match maybeCat with
-            | None -> Failure NotFound
-            | _ -> f command
-        }        
+            Success (PageTitle trimmedTitle)    
 
     let setTitle (command:SetTitle) =
         match createTitle command.Title with
@@ -103,11 +69,24 @@ module private CommandHandlers =
 
 [<AutoOpen>]
 module PublicCommandHandlers = 
-    let applyCommand (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) command (maybeCat:Cat option)=
-        match command with
-            | CreateCat command -> createCat createGuid createTimestamp command
-            | SetTitle command -> runCommandIfCatExists maybeCat command setTitle
+    let applyCommand command (maybeCat:Cat option) =
+        match maybeCat with
+        | Some cat ->
+            match command with
+            | SetTitle command -> setTitle command
+        | None -> Failure NotFound
+            
+    let createCat (createGuid: unit -> Guid) (createTimestamp: unit -> Instant) (command:CreateCat) =
+        match createTitle command.Title with
+        | Success title -> Success (CatCreated { Id = createGuid(); Title = title; Owner = command.Owner; CreationTime = createTimestamp()})
+        | Failure f -> Failure f
 
-    let applyCommandWithAutoGeneration command repository =
-        applyCommand Guid.NewGuid (fun () -> SystemClock.Instance.Now) command repository
+    let createCatWithAutoGeneration command =
+        createCat Guid.NewGuid (fun () -> SystemClock.Instance.Now) command
     
+    let invalidCat = {
+        Cat.CreationTime = SystemClock.Instance.Now;
+        Id = Guid.Empty;
+        Title=PageTitle "Invalid";
+        Owner=Guid.Empty
+    }

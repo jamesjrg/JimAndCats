@@ -6,24 +6,25 @@ open System
 module Repository =        
     let private makeStreamId streamPrefix (aggregateId:Guid) = sprintf "%s-%O" streamPrefix (aggregateId.ToString("N"))
 
-    let getAggregate (store:IEventStore<'TEvent>) (apply:'TAggregate option -> 'TEvent-> 'TAggregate option) (streamPrefix:string) (aggregateId:Guid) = 
+    let getAggregate (store:IEventStore<'TEvent>) (apply:'TAggregate -> 'TEvent-> 'TAggregate) (invalidState:'TAggregate) (streamPrefix:string) (aggregateId:Guid) = 
         let streamId = makeStreamId streamPrefix aggregateId
 
+        //TODO error handling
         let rec fold aggregate version =
             async {
                 let! events, lastEvent, nextEvent = store.ReadStream streamId version 500
-
                 let aggregate = List.fold apply aggregate events
                 match nextEvent with
                 | None -> return aggregate, lastEvent
                 | Some n -> return! fold aggregate n
             }
         
-        async {
-            let! streamExists = store.StreamExists streamId            
-            if streamExists then return! fold None 0 else return None, ExpectedVersion.NoStream
+        async {           
+            let! result = fold invalidState 0
+            return if fst result = invalidState then None, snd result else Some (fst result), snd result
         }
 
+    //TODO error handling
     let saveEvent (store:IEventStore<'TEvent>) (streamPrefix:string) aggregateId expectedVersion (event:'TEvent) =
         store.AppendToStream (makeStreamId streamPrefix aggregateId) expectedVersion [event]
         

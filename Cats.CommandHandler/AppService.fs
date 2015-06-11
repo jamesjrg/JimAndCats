@@ -20,9 +20,9 @@ let getAppServices() =
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let streamPrefix = "cat"
-    let getAggregate = Repository.getAggregate store applyCommandWithAutoGeneration streamPrefix
+    let getAggregate = Repository.getAggregate store applyCommand invalidCat streamPrefix
     let saveEvent = Repository.saveEvent store streamPrefix
-    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent applyCommandWithAutoGeneration
+    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent applyCommand
     
     postCommand, getAggregate, saveEvent
 
@@ -34,8 +34,14 @@ let mapResultToResponse = function
     | Failure (BadRequest f) -> RequestErrors.BAD_REQUEST f
     | Failure NotFound -> genericNotFound
 
-let createCat saveEvent (request:CreateCatRequest) =   
-    saveEvent (CreateCat { CreateCat.Title=request.title; Owner=request.Owner })
+let createCat saveEvent (request:CreateCatRequest) =
+    let result = PublicCommandHandlers.createCatWithAutoGeneration (CreateCat { CreateCat.Title=request.title; Owner=request.Owner })
+
+    match result with
+    | Success event -> saveEvent event
+    | Failure f -> ()
+
+    mapResultToResponse result
 
 let setTitle postCommand (aggregateId:Guid) (request:SetTitleRequest) =
     postCommand aggregateId (SetTitle {Id=aggregateId; Title=request.title})

@@ -19,7 +19,7 @@ let getAppServices() =
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let streamPrefix = "user"
-    let getAggregate = Repository.getAggregate store applyCommandWithAutoGeneration streamPrefix
+    let getAggregate = Repository.getAggregate store applyCommandWithAutoGeneration streamPrefix invalidUser
     let saveEvent = Repository.saveEvent store streamPrefix
     let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent applyCommandWithAutoGeneration
     
@@ -46,17 +46,22 @@ let private runCommand postCommand userId (command:Command) : Types.WebPart =
     }
 
 let createUser saveEvent (requestDetails:CreateUserRequest) =   
-    let! result = postCommand req
-    runCommand postCommand (CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
+    let result = PublicCommandHandlers.createUserWithAutoGeneration (CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
 
-let setName postCommand (id:Guid) (requestDetails:SetNameRequest) =    
-    runCommand postCommand (SetName{ Id=id; Name = requestDetails.name})
+    match result with
+    | Success event -> saveEvent event
+    | Failure f -> ()
 
-let setEmail postCommand (id:Guid) (requestDetails:SetEmailRequest) =
-    runCommand postCommand ( SetEmail {Id = id; Email = requestDetails.email} )
+    mapResultToResponse result
 
-let setPassword postCommand (id:Guid) (requestDetails:SetPasswordRequest) =    
-    runCommand postCommand ( SetPassword{ Id=id; Password = requestDetails.password})
+let setName postCommand (userId:Guid) (requestDetails:SetNameRequest) =    
+    runCommand postCommand userId (SetName{ Id=userId; Name = requestDetails.name})
+
+let setEmail postCommand (userId:Guid) (requestDetails:SetEmailRequest) =
+    runCommand postCommand userId ( SetEmail {Id = userId; Email = requestDetails.email} )
+
+let setPassword postCommand (userId:Guid) (requestDetails:SetPasswordRequest) =    
+    runCommand postCommand userId ( SetPassword{ Id=userId; Password = requestDetails.password})
 
 (* These methods are just utility methods for debugging etc, services should listen to Event Store events and build their own read models *)
 module DiagnosticQueries =
@@ -79,12 +84,12 @@ module DiagnosticQueries =
             CreationTime = user.CreationTime.ToString()
         } 
 
-    let getUser (getAggregate : Guid-> Async<User option>) id : Suave.Types.WebPart =
+    let getUser getAggregate id : Suave.Types.WebPart =
         fun httpContext ->
             async {
-                let! result = (getAggregate id) |> fst
+                let! result = getAggregate id
                 return!
-                    match result with
+                    match fst result with
                     | Some user -> jsonOK (mapUserToUserResponse user) httpContext
                     | None -> genericNotFound httpContext
             }
