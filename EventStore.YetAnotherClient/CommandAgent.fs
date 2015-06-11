@@ -6,31 +6,29 @@ open GenericErrorHandling
 open System
 
 let getCommandAgent<'TCommand, 'TEvent, 'TAggregate>
-    (getAggregate : Guid-> Async<'TAggregate option>)
+    (getAggregate : Guid-> Async<'TAggregate option * int>)
     saveEvent
-    (applyCommand:'TCommand -> 'TAggregate option -> Async<Result<'TEvent, CQRSFailure>>) =
+    (applyCommand:'TCommand -> 'TAggregate option -> Result<'TEvent, CQRSFailure>) =
 
     let agent = MailboxProcessor<Guid * 'TCommand * AsyncReplyChannel<Result<'TEvent, CQRSFailure>>>.Start <| fun inbox -> 
-        let rec messageLoop version = async {
-            let! aggregateId, command, replyChannel = inbox.Receive()
+        let rec messageLoop () =
+            async {
+                let! aggregateId, command, replyChannel = inbox.Receive()
             
-            let! aggregate = getAggregate aggregateId 
-            let! result = applyCommand command aggregate
-            match result with
-            | Success newEvent ->
-                //TODO: need to handle the case that there are multiple agents writing to the same aggregate
-                do! saveEvent aggregateId version newEvent
+                let! aggregate, actualVersion = getAggregate aggregateId 
+                let result = applyCommand command aggregate
+                match result with
+                | Success newEvent ->
+                    //TODO: need to handle the case that there are multiple agents writing to the same aggregate
+                    //alongside that may well want to run multiple agents per web server
+                    do! saveEvent aggregateId (actualVersion + 1) newEvent
+                | _ -> ()
+
                 replyChannel.Reply(result)
-                //TODO: is this necessary, or can you just use 0 instead of ExpectedVersion.NoStream (which is defined as -1)?
-                let newVersion = if version = ExpectedVersion.NoStream then 1 else version + 1
-                return! messageLoop (newVersion)
-            | Failure f ->
-                replyChannel.Reply(result)
-                return! messageLoop version            
+                return! messageLoop ()
             }
         async {          
-            return! messageLoop ExpectedVersion.NoStream
+            return! messageLoop ()
             }
 
-    fun guid command -> agent.PostAndAsyncReply(fun replyChannel -> guid, command, replyChannel)
-
+    fun aggregateId command -> agent.PostAndAsyncReply(fun replyChannel -> aggregateId, command, replyChannel)

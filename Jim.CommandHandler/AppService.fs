@@ -13,37 +13,40 @@ open Suave
 open Suave.Http
 open Suave.Extensions.Json
 
-let getCommandAgentAndAggregateBuilder() =
+let getAppServices() =
     let store =
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let streamPrefix = "user"
-    let getAggregate = Repository.getAggregate store applyCommand streamPrefix
+    let getAggregate = Repository.getAggregate store applyCommandWithAutoGeneration streamPrefix
     let saveEvent = Repository.saveEvent store streamPrefix
     let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent applyCommandWithAutoGeneration
     
-    postCommand, getAggregate        
+    postCommand, getAggregate, saveEvent
 
-let private runCommand postCommand (command:Command) : Types.WebPart =
+let mapResultToResponse = function
+    | Success (UserCreated event) ->
+        jsonResponse Successful.CREATED ( { UserCreatedResponse.Id = event.Id; Message = "User created: " + extractUsername event.Name })
+    | Success (NameChanged event) ->
+        jsonOK ( { GenericResponse.Message = "Name changed to: " + extractUsername event.Name })
+    | Success (EmailChanged event) ->
+        jsonOK ( { GenericResponse.Message = "Email changed to: " + extractEmail event.Email })
+    | Success (PasswordChanged event) ->
+        jsonOK ( { GenericResponse.Message = "Password changed" })
+    | Failure (BadRequest f) -> RequestErrors.BAD_REQUEST f
+    | Failure NotFound -> genericNotFound
+
+
+let private runCommand postCommand userId (command:Command) : Types.WebPart =
     fun httpContext ->
     async {
-        let! result = postCommand command
-
-        match result with
-        | Success (UserCreated event) ->
-            return! jsonResponse Successful.CREATED ( { UserCreatedResponse.Id = event.Id; Message = "User created: " + extractUsername event.Name }) httpContext
-        | Success (NameChanged event) ->
-            return! jsonOK ( { GenericResponse.Message = "Name changed to: " + extractUsername event.Name }) httpContext
-        | Success (EmailChanged event) ->
-            return! jsonOK ( { GenericResponse.Message = "Email changed to: " + extractEmail event.Email }) httpContext
-        | Success (PasswordChanged event) ->
-            return! jsonOK ( { GenericResponse.Message = "Password changed" }) httpContext
-        | Failure (BadRequest f) -> return! RequestErrors.BAD_REQUEST f httpContext
-        | Failure NotFound -> return! genericNotFound httpContext
+        let! result = postCommand userId command
+        return! mapResultToResponse result httpContext
     }
 
-let createUser postCommand (requestDetails:CreateUserRequest) =   
+let createUser saveEvent (requestDetails:CreateUserRequest) =   
+    let! result = postCommand req
     runCommand postCommand (CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
 
 let setName postCommand (id:Guid) (requestDetails:SetNameRequest) =    
@@ -76,10 +79,10 @@ module DiagnosticQueries =
             CreationTime = user.CreationTime.ToString()
         } 
 
-    let getUser (getAggregate : Guid-> Async<'TAggregate option>) id : Suave.Types.WebPart =
+    let getUser (getAggregate : Guid-> Async<User option>) id : Suave.Types.WebPart =
         fun httpContext ->
             async {
-                let! result = getAggregate id
+                let! result = (getAggregate id) |> fst
                 return!
                     match result with
                     | Some user -> jsonOK (mapUserToUserResponse user) httpContext

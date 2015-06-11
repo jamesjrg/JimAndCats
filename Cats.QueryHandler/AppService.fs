@@ -6,4 +6,4 @@ open NodaTime
 open Suave.Extensions.Json
 
 let getCat id =
-     ()
+     genericNotFound

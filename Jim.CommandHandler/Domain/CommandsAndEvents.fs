@@ -93,7 +93,7 @@ module private CommandHandlers =
         hashFunc
         (command : CreateUser) =
         resultBuilder { 
-            let! email = async { return createEmailAddress command.Email }
+            let! email = createEmailAddress command.Email
             let! name = createUsername command.Name            
             //password hashing expensive so should come last
             let! hash = createPasswordHash hashFunc command.Password
@@ -136,12 +136,12 @@ module PublicCommandHandlers =
             | SetEmail command -> runCommandIfUserExists maybeUser command setEmail
             | SetPassword command -> runCommandIfUserExists maybeUser command (setPassword hashFunc)
 
-    let applyCommandWithAutoGeneration (command:Command) (getAggregate : Guid-> Async<User option>) =
+    let applyCommandWithAutoGeneration (command:Command) maybeUser =
         applyCommand
             Guid.NewGuid
             (fun () -> SystemClock.Instance.Now)
             PBKDF2.getHash
             command
-            getAggregate
+            maybeUser
 
 (* End Command Handlers *)

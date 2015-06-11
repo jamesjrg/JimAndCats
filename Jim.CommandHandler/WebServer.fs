@@ -17,15 +17,15 @@ let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json"
 
 let index = Successful.OK "Hello from JIM Command Handler"
 
-let webApp postCommand repository =
+let webApp postCommand getAggregate saveEvent =
     choose [
         GET >>= choose [
             url "/api-docs" >>= swaggerSpec
             url "/" >>= index
             (* This method is just a utility for debugging etc, other services should listen to Event Store events and build their own read models *)
-            urlScanGuid "/users/%s" (fun id -> AppService.DiagnosticQueries.getUser repository id)]        
+            urlScanGuid "/users/%s" (fun id -> AppService.DiagnosticQueries.getUser getAggregate id)]        
 
-        POST >>= url "/users/create" >>= tryMapJson (AppService.createUser postCommand)
+        POST >>= url "/users/create" >>= (tryMapJson <| AppService.createUser saveEvent)
 
         PUT >>= choose [ 
             urlScanGuid "/users/%s/name" (fun id -> tryMapJson <| AppService.setName postCommand id)
@@ -40,8 +40,8 @@ let main argv =
     printfn "Starting JIM on %d" appSettings.Port
 
     try     
-        let postCommand, getAggregate = AppService.getCommandAgentAndAggregateBuilder()
-        startWebServer web_config (webApp postCommand repository)
+        let postCommand, getAggregate, saveEvent = AppService.getAppServices()
+        startWebServer web_config (webApp postCommand getAggregate saveEvent)
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

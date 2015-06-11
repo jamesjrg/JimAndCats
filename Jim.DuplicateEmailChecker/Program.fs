@@ -10,7 +10,7 @@ let insertUser = "INSERT INTO Jim.UserEmail VALUES (@Id, @Email)"
 
 [<Literal>]
 let checkForDuplicateEmail =
-    "select exists (select * from Jim.UserEmail where Email = @Email)"
+    "if (EXISTS (SELECT * FROM Jim.UserEmail WHERE Email = @Email)) SELECT 1 ELSE SELECT 0"
 
 type InsertUserCommand = SqlCommandProvider<insertUser, "name=Jim">
 type CheckForDuplicateEmailQuery = SqlCommandProvider<checkForDuplicateEmail, "name=Jim">

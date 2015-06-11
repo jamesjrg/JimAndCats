@@ -56,7 +56,8 @@ module private EventHandlers =
     let titleChanged (getCat:Guid -> Async<Cat option>) (event: TitleChanged) =
         async {
             let! cat = getCat event.Id
-            return match cat with
+            return
+                match cat with
                 | Some cat -> {cat with Title = event.Title}
                 | None -> ()
         }
