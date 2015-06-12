@@ -1,11 +1,13 @@
 ﻿module Cats.CommandHandler.WebServer
 
 open Cats.CommandHandler
+open Cats.CommandHandler.Domain
 open Cats.CommandHandler.AppSettings
 
 open Suave
 open Suave.Http
 open Suave.Http.Applicatives
+open Suave.Types
 open Suave.Web
 open Suave.Extensions.ConfigDefaults
 open Suave.Extensions.Guids
@@ -19,7 +21,10 @@ let swaggerSpec = Files.browseFileHome <| Path.Combine("static", "api-docs.json"
 
 let index = Successful.OK "Hello from CATS Command Handler"
 
-let webApp postCommand getAggregate saveEvent =
+let webApp
+    (commandToWebPart : Guid -> Command -> WebPart)
+    (getAggregate: Guid -> Async<Cat option * int>)
+    (saveEventToNewStream : Guid -> Event -> Async<unit>) =
   choose [
     GET >>= choose [
         url "/api-docs" >>= swaggerSpec
@@ -28,9 +33,9 @@ let webApp postCommand getAggregate saveEvent =
         urlScanGuid "/cats/%s" (fun id -> AppService.DiagnosticQueries.getCat getAggregate id)]
         
     POST >>= choose [
-        url "/cats/create" >>= tryMapJson (AppService.createCat saveEvent) ]
+        url "/cats/create" >>= tryMapJson (AppService.createCat saveEventToNewStream) ]
     PUT >>= choose [ 
-        urlScanGuid "/cats/%s/title" (fun id -> tryMapJson <| AppService.setTitle postCommand id) ]
+        urlScanGuid "/cats/%s/title" (fun id -> tryMapJson <| AppService.setTitle commandToWebPart id) ]
 
     RequestErrors.NOT_FOUND "404 not found" ] 
 
@@ -40,8 +45,9 @@ let main argv =
     printfn "Starting CATS on %d" appSettings.Port
 
     try     
-        let postCommand, getAggregate, saveEvent = AppService.getAppServices()
-        startWebServer web_config (webApp postCommand getAggregate saveEvent)        
+        let postCommand, getAggregate, saveEventToNewStream = AppService.getAppServices()
+        let commandToWebPart = AppService.createCommandToWebPartMapper postCommand
+        startWebServer web_config (webApp commandToWebPart getAggregate saveEventToNewStream)        
     with
     | e -> Logger.fatal (Logging.getCurrentLogger()) (e.ToString())
 

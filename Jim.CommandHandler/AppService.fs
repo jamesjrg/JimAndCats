@@ -18,11 +18,12 @@ let getAppServices() =
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     
     let streamPrefix = "user"
-    let getAggregate = Repository.getAggregate store applyCommandWithAutoGeneration streamPrefix invalidUser
+    let getAggregate = Repository.getAggregate store applyEvent CommandHandling.invalidUser streamPrefix
     let saveEvent = Repository.saveEvent store streamPrefix
-    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent applyCommandWithAutoGeneration
-    
-    postCommand, getAggregate, saveEvent
+    let postCommand = 
+        EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent 
+            CommandHandling.handleCommandWithAutoGeneration
+    postCommand, getAggregate, Repository.saveEventToNewStream store streamPrefix
 
 let mapResultToResponse = 
     function 
@@ -37,31 +38,43 @@ let mapResultToResponse =
     | Failure(BadRequest f) -> RequestErrors.BAD_REQUEST f
     | Failure NotFound -> genericNotFound
 
+let private runCommand postCommand userId (command : Command) : Types.WebPart = 
+    fun httpContext -> async { let! result = postCommand userId command
+                               return! mapResultToResponse result httpContext }
+let createCommandToWebPartMapper (commandAgent : Guid -> Command -> Async<Result<Event, CQRSFailure>>) 
+    (aggregateId : Guid) command : Types.WebPart = 
+    fun httpContext -> async { let! result = commandAgent aggregateId command
+                               return! mapResultToResponse result httpContext }
 
-let private runCommand postCommand userId (command:Command) : Types.WebPart =
-    fun httpContext ->
-    async {
-        let! result = postCommand userId command
-        return! mapResultToResponse result httpContext
-    }
-
-let createUser saveEvent (requestDetails:CreateUserRequest) =   
-    let result = PublicCommandHandlers.createUserWithAutoGeneration (CreateUser {Name=requestDetails.name; Email=requestDetails.email; Password=requestDetails.password})
+let createUser (saveEventToNewStream : Guid -> Event -> Async<unit>) (requestDetails : CreateUserRequest) = 
+    let result = 
+        CommandHandling.createUserWithAutoGeneration(
+            {
+                CreateUser.Name = requestDetails.name;
+                Email = requestDetails.email;
+                Password = requestDetails.password
+            })
 
     match result with
-    | Success event -> saveEvent event
-    | Failure f -> ()
+    | Success event ->
+        let wrappedEvent = UserCreated event
+        saveEventToNewStream event.Id wrappedEvent
+        mapResultToResponse (Success wrappedEvent)
+    | Failure f ->
+        mapResultToResponse (Failure f)
 
-    mapResultToResponse result
+let setName (commandToWebPart : Guid -> Command -> Types.WebPart) (userId : Guid) (requestDetails : SetNameRequest) = 
+    commandToWebPart userId (SetName { Id = userId
+                                       Name = requestDetails.name })
 
-let setName postCommand (userId:Guid) (requestDetails:SetNameRequest) =    
-    runCommand postCommand userId (SetName{ Id=userId; Name = requestDetails.name})
+let setEmail (commandToWebPart : Guid -> Command -> Types.WebPart) (userId : Guid) (requestDetails : SetEmailRequest) = 
+    commandToWebPart userId (SetEmail { Id = userId
+                                        Email = requestDetails.email })
 
-let setEmail postCommand (userId:Guid) (requestDetails:SetEmailRequest) =
-    runCommand postCommand userId ( SetEmail {Id = userId; Email = requestDetails.email} )
-
-let setPassword postCommand (userId:Guid) (requestDetails:SetPasswordRequest) =    
-    runCommand postCommand userId ( SetPassword{ Id=userId; Password = requestDetails.password})
+let setPassword (commandToWebPart : Guid -> Command -> Types.WebPart) (userId : Guid) 
+    (requestDetails : SetPasswordRequest) = 
+    commandToWebPart userId (SetPassword { Id = userId
+                                           Password = requestDetails.password })
 
 (* These methods are just utility methods for debugging etc, services should listen to Event Store events and build their own read models *)
 module DiagnosticQueries = 
@@ -84,9 +97,7 @@ module DiagnosticQueries =
         fun httpContext -> 
             async { 
                 let! result = getAggregate id
-                return!
-                    match fst result with
-                    | Some user -> jsonOK (mapUserToUserResponse user) httpContext
-                    | None -> genericNotFound httpContext
+                return! match fst result with
+                        | Some user -> jsonOK (mapUserToUserResponse user) httpContext
+                        | None -> genericNotFound httpContext
             }
-

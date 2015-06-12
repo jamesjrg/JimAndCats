@@ -2,8 +2,7 @@
 
 open GenericErrorHandling
 open TestingHelpers.BDDHelpers
-open Jim.CommandHandler.UserRepository
-open Jim.Domain
+open Jim.CommandHandler.Domain
 open NodaTime
 open System
 

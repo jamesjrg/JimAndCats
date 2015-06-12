@@ -1,7 +1,5 @@
 ﻿module EventStore.YetAnotherClient.CommandAgent
 
-open EventStore.YetAnotherClient
-open EventStore.ClientAPI
 open GenericErrorHandling
 open System
 

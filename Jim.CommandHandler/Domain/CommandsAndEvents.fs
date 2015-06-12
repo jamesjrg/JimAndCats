@@ -56,10 +56,7 @@ module Events =
         { Id : Guid
           PasswordHash : PasswordHash }
 
-[<AutoOpen>]
-module EventHandler = 
-    let handleEvent user = 
-        function 
+    let applyEvent user = function 
         | UserCreated eventDetails -> 
             { User.Id = eventDetails.Id
               Name = eventDetails.Name
@@ -71,7 +68,7 @@ module EventHandler =
         | PasswordChanged eventDetails -> { user with PasswordHash = eventDetails.PasswordHash }
 
 [<AutoOpen>]
-module private CommandHandlers = 
+module private InternalCommandHandling = 
     module private Constants = 
         let minPasswordLength = 7 //using PBKDF2 with lots of iterations so needn't be huge
         let minUsernameLength = 5
@@ -87,12 +84,7 @@ module private CommandHandlers =
         if trimmedPassword.Length < Constants.minPasswordLength then 
             Failure(BadRequest(sprintf "Password must be at least %d characters" Constants.minPasswordLength))
         else Success(PasswordHash(hashFunc (trimmedPassword)))
-    
-    let runCommandIfUserExists (maybeUser : User option) command f = 
-        match maybeUser with
-        | None -> Failure NotFound
-        | _ -> f command
-    
+       
     let setName (command : SetName) = 
         match createUsername command.Name with
         | Success name -> 
@@ -114,9 +106,8 @@ module private CommandHandlers =
                                       PasswordHash = hash })
         | Failure f -> Failure f
 
-[<AutoOpen>]
-module PublicCommandHandlers = 
-    let applyCommand (hashFunc : string -> string) (command : Command) (maybeUser : User option) = 
+module CommandHandling = 
+    let handleCommand (hashFunc : string -> string) (command : Command) (maybeUser : User option) = 
         match maybeUser with
         | Some user -> 
             match command with
@@ -125,7 +116,7 @@ module PublicCommandHandlers =
             | SetPassword command -> (setPassword hashFunc) command
         | None -> Failure NotFound
     
-    let applyCommandWithAutoGeneration (command : Command) maybeUser = applyCommand PBKDF2.getHash command maybeUser
+    let handleCommandWithAutoGeneration (command : Command) maybeUser = handleCommand PBKDF2.getHash command maybeUser
     
     let createUser (createGuid : unit -> Guid) (createTimestamp : unit -> Instant) hashFunc (command : CreateUser) = 
         resultBuilder { 
@@ -133,11 +124,14 @@ module PublicCommandHandlers =
             let! name = createUsername command.Name
             //password hashing expensive so should come last
             let! hash = createPasswordHash hashFunc command.Password
-            return Success(UserCreated { Id = createGuid()
-                                         Name = name
-                                         Email = email
-                                         PasswordHash = hash
-                                         CreationTime = createTimestamp() })
+            return Success(
+                {
+                    UserCreated.Id = createGuid()
+                    Name = name
+                    Email = email
+                    PasswordHash = hash
+                    CreationTime = createTimestamp()
+                })
         }
     
     let createUserWithAutoGeneration (command : CreateUser) = 

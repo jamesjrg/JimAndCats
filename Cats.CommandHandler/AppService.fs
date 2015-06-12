@@ -12,7 +12,6 @@ open Cats.CommandHandler.Domain
 open Suave
 open Suave.Http
 open Suave.Extensions.Json
-open Suave.Types
 
 let getAppServices() =
     let store =
@@ -20,11 +19,11 @@ let getAppServices() =
         | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     let streamPrefix = "cat"
-    let getAggregate = Repository.getAggregate store applyCommand invalidCat streamPrefix
+    let getAggregate = Repository.getAggregate store applyEvent CommandHandling.invalidCat streamPrefix
     let saveEvent = Repository.saveEvent store streamPrefix
-    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent applyCommand
+    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent CommandHandling.handleCommand
     
-    postCommand, getAggregate, saveEvent
+    postCommand, getAggregate, Repository.saveEventToNewStream store streamPrefix
 
 let mapResultToResponse = function
     | Success (CatCreated event) ->
@@ -34,17 +33,26 @@ let mapResultToResponse = function
     | Failure (BadRequest f) -> RequestErrors.BAD_REQUEST f
     | Failure NotFound -> genericNotFound
 
-let createCat saveEvent (request:CreateCatRequest) =
-    let result = PublicCommandHandlers.createCatWithAutoGeneration (CreateCat { CreateCat.Title=request.title; Owner=request.Owner })
+let createCommandToWebPartMapper (commandAgent : Guid -> Command -> Async<Result<Event, CQRSFailure>>) (aggregateId:Guid) command : Types.WebPart =
+    fun httpContext ->
+        async {
+            let! result = commandAgent aggregateId command
+            return! mapResultToResponse result httpContext
+        }   
+
+let setTitle (commandToWebPart : Guid -> Command -> Types.WebPart) (aggregateId:Guid) (request:SetTitleRequest) : Types.WebPart =
+    commandToWebPart aggregateId (SetTitle {Id=aggregateId; Title=request.title})
+
+let createCat (saveEventToNewStream : Guid -> Event -> Async<unit>) (request:CreateCatRequest) =
+    let result = CommandHandling.createCatWithAutoGeneration ({ CreateCat.Title=request.title; Owner=request.Owner })
 
     match result with
-    | Success event -> saveEvent event
-    | Failure f -> ()
-
-    mapResultToResponse result
-
-let setTitle postCommand (aggregateId:Guid) (request:SetTitleRequest) =
-    postCommand aggregateId (SetTitle {Id=aggregateId; Title=request.title})
+    | Success event ->
+        let wrappedEvent = CatCreated event
+        saveEventToNewStream event.Id wrappedEvent
+        mapResultToResponse (Success wrappedEvent)
+    | Failure f ->
+        mapResultToResponse (Failure f)
 
 (* These methods are just utility methods for debugging etc, services should listen to Event Store events and build their own read models *)
 module DiagnosticQueries =
@@ -59,11 +67,11 @@ module DiagnosticQueries =
             CreationTime = cat.CreationTime.ToString()
         }
 
-    let getCat getAggregate id : WebPart =
+    let getCat (getAggregate: Guid -> Async<Cat option * int>) id : Types.WebPart =
         fun httpContext -> async {
-            let! result = getAggregate id |> fst
+            let! result = getAggregate id
             return!
-                match result with
+                match fst result with
                 | Some cat -> jsonOK (mapCatToCatResponse cat) httpContext
                 | None -> genericNotFound httpContext
         }
