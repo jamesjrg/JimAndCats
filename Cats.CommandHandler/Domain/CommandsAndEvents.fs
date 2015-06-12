@@ -2,7 +2,6 @@
 
 open GenericErrorHandling
 open Cats.CommandHandler.Domain
-
 open NodaTime
 open System
 
