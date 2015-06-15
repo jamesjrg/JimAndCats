@@ -2,7 +2,6 @@
 
 open Cats.CommandHandler.Domain
 open Fuchu
-open EventStore.YetAnotherClient
 open GenericErrorHandling
 open TestingHelpers.BDDHelpers
 open NodaTime
@@ -17,7 +16,7 @@ let epoch = createEpoch()
 
 let catHasBeenCreated = [CatCreated { Id = catGuid1; Title=PageTitle "My lovely crowdfunding ask template"; Owner=ownerGuid1; CreationTime = epoch }]
 
-let Expect: Result<Event,CQRSFailure> -> Event list * Command -> unit = Expect' Events.applyEvent CommandHandling.handleCommand CommandHandling.invalidCat
+let Expect: Result<Event,CQRSFailure> -> Event list * Command -> unit = Expect' Events.applyEvent CommandHandling.handleCommand CommandHandling.nullCat
 let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
 let ExpectSuccess event = Expect (Success event)
 

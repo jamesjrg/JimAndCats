@@ -21,7 +21,7 @@ let getAppServices() =
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
     
     let streamPrefix = "cat"
-    let getAggregate = Repository.getAggregate store applyEvent CommandHandling.invalidCat streamPrefix
+    let getAggregate = Repository.getAggregate store applyEvent CommandHandling.nullCat streamPrefix
     let saveEvent = Repository.saveEvent store streamPrefix
     let postCommand = 
         EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent 

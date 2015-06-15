@@ -137,7 +137,7 @@ module CommandHandling =
     let createUserWithAutoGeneration (command : CreateUser) = 
         createUser Guid.NewGuid (fun () -> SystemClock.Instance.Now) PBKDF2.getHash command
     
-    let invalidUser = {
+    let nullUser = {
         User.CreationTime = SystemClock.Instance.Now
         Id = Guid.Empty
         Name = Username "Invalid"

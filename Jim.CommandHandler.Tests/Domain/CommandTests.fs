@@ -14,7 +14,7 @@ let guid1 = createGuid1()
 let createEpoch () = new Instant(0L)
 let epoch = createEpoch()
 
-let Expect = Expect' Events.applyEvent (CommandHandling.handleCommand id) CommandHandling.invalidUser
+let Expect = Expect' Events.applyEvent (CommandHandling.handleCommand id) CommandHandling.nullUser
 let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
 let ExpectSuccess event = Expect (Success event)
 

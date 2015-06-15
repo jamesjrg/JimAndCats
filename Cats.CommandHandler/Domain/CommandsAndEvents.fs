@@ -83,7 +83,7 @@ module CommandHandling =
     
     let createCatWithAutoGeneration command = createCat Guid.NewGuid (fun () -> SystemClock.Instance.Now) command
     
-    let invalidCat = 
+    let nullCat = 
         { Cat.CreationTime = SystemClock.Instance.Now
           Id = Guid.Empty
           Title = PageTitle "Invalid"

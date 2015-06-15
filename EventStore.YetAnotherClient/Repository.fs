@@ -6,7 +6,7 @@ open System
 module Repository =        
     let private makeStreamId streamPrefix (aggregateId:Guid) = sprintf "%s-%O" streamPrefix (aggregateId.ToString("N"))
 
-    let getAggregate (store:IEventStore<'TEvent>) (apply:'TAggregate -> 'TEvent-> 'TAggregate) (invalidState:'TAggregate) (streamPrefix:string) (aggregateId:Guid) = 
+    let getAggregate (store:IEventStore<'TEvent>) (apply:'TAggregate -> 'TEvent-> 'TAggregate) (initialState:'TAggregate) (streamPrefix:string) (aggregateId:Guid) = 
         let streamId = makeStreamId streamPrefix aggregateId
 
         //TODO error handling
@@ -20,8 +20,8 @@ module Repository =
             }
         
         async {           
-            let! result = fold invalidState 0
-            return if fst result = invalidState then None, snd result else Some (fst result), snd result
+            let! result = fold initialState 0
+            return if fst result = initialState then None, snd result else Some (fst result), snd result
         }
 
     //TODO error handling
