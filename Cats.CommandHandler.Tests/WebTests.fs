@@ -1,4 +1,4 @@
-﻿module Cats.CommandHandler.Tests.Web
+﻿module Cats.CommandHandler.Tests.WebTests
 
 open Cats.CommandHandler
 open Cats.CommandHandler.Domain
