@@ -2,29 +2,23 @@
 
 open EventStore.YetAnotherClient
 open Fuchu
+open Jim.CommandHandler
 open Jim.CommandHandler.Domain
-open Jim.CommandHandler.Tests.AppSettings
-open Jim.CommandHandler.WebServer
 open NodaTime
-open Suave.Types
 open Suave.Testing
 open System
 open System.Net
 open Swensen.Unquote.Assertions
 open TestingHelpers.SuaveHelpers
 
-let streamId = "testStream"
+let streamPrefix = "testStream"
 
 let getWebServer events =
-    let store =
-        match appSettings.WriteToInMemoryStoreOnly with
-        | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
-        | true -> new InMemoryStore<Event>() :> IEventStore<Event>
+    let postCommand, getAggregate, saveEventToNewStream, saveEvents = AppService.getAppServicesForTesting()
+    
     if not (List.isEmpty events) then
-        store.AppendToStream streamId -1 events |> Async.RunSynchronously
-    let repository = new InMemory.UserRepository()
-    let postCommand, repo = (CommandAgent.getCommandAgent store repository applyCommandWithAutoGeneration handleEvent streamId initialVersion), repository
-    webApp postCommand repo
+        saveEvents streamPrefix -1 events |> Async.RunSynchronously
+    WebServer.webApp (AppService.createCommandToWebPartMapper postCommand) getAggregate saveEventToNewStream
 
 let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
 let epoch = new Instant(0L)

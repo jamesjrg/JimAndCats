@@ -11,6 +11,10 @@ open Suave.Http
 open Suave.Extensions.Json
 
 let getAppServices() = 
+    let postCommand, getAggregate, saveEventToNewStream, _ = getAppServicesForTesting()
+    postCommand, getAggregate, saveEventToNewStream
+
+let getAppServicesForTesting() =
     let store = 
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> 
@@ -23,7 +27,7 @@ let getAppServices() =
     let postCommand = 
         EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent 
             CommandHandling.handleCommandWithAutoGeneration
-    postCommand, getAggregate, Repository.saveEventToNewStream store streamPrefix
+    postCommand, getAggregate, Repository.saveEventToNewStream store streamPrefix, Repository.saveEvents store streamPrefix
 
 let mapResultToResponse = 
     function 
@@ -39,29 +43,36 @@ let mapResultToResponse =
     | Failure NotFound -> genericNotFound
 
 let private runCommand postCommand userId (command : Command) : Types.WebPart = 
-    fun httpContext -> async { let! result = postCommand userId command
-                               return! mapResultToResponse result httpContext }
+    fun httpContext -> async {
+        let! result = postCommand userId command
+        return! mapResultToResponse result httpContext
+    }
+
 let createCommandToWebPartMapper (commandAgent : Guid -> Command -> Async<Result<Event, CQRSFailure>>) 
     (aggregateId : Guid) command : Types.WebPart = 
     fun httpContext -> async { let! result = commandAgent aggregateId command
                                return! mapResultToResponse result httpContext }
 
-let createUser (saveEventToNewStream : Guid -> Event -> Async<unit>) (requestDetails : CreateUserRequest) = 
-    let result = 
-        CommandHandling.createUserWithAutoGeneration(
-            {
-                CreateUser.Name = requestDetails.name;
-                Email = requestDetails.email;
-                Password = requestDetails.password
-            })
+let createUser
+    (saveEventToNewStream : Guid -> Event -> Async<unit>)
+    (requestDetails : CreateUserRequest) : Types.WebPart = 
+    fun httpContext -> async {
+        let result = 
+            CommandHandling.createUserWithAutoGeneration(
+                {
+                    CreateUser.Name = requestDetails.name;
+                    Email = requestDetails.email;
+                    Password = requestDetails.password
+                })
 
-    match result with
-    | Success event ->
-        let wrappedEvent = UserCreated event
-        saveEventToNewStream event.Id wrappedEvent
-        mapResultToResponse (Success wrappedEvent)
-    | Failure f ->
-        mapResultToResponse (Failure f)
+        match result with
+        | Success event ->
+            let wrappedEvent = UserCreated event
+            do! saveEventToNewStream event.Id wrappedEvent
+            return! mapResultToResponse (Success wrappedEvent) httpContext
+        | Failure f ->
+            return! mapResultToResponse (Failure f) httpContext
+    }
 
 let setName (commandToWebPart : Guid -> Command -> Types.WebPart) (userId : Guid) (requestDetails : SetNameRequest) = 
     commandToWebPart userId (SetName { Id = userId

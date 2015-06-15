@@ -13,17 +13,24 @@ open Suave
 open Suave.Http
 open Suave.Extensions.Json
 
-let getAppServices() =
-    let store =
+let getAppServices() = 
+    let postCommand, getAggregate, saveEventToNewStream, _ = getAppServicesForTesting()
+    postCommand, getAggregate, saveEventToNewStream
+
+let getAppServicesForTesting() =
+    let store = 
         match appSettings.WriteToInMemoryStoreOnly with
-        | false -> new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
+        | false -> 
+            new EventStore<Event>(appSettings.PrivateEventStoreIp, appSettings.PrivateEventStorePort) :> IEventStore<Event>
         | true -> new InMemoryStore<Event>() :> IEventStore<Event>
+    
     let streamPrefix = "cat"
     let getAggregate = Repository.getAggregate store applyEvent CommandHandling.invalidCat streamPrefix
     let saveEvent = Repository.saveEvent store streamPrefix
-    let postCommand = EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent CommandHandling.handleCommand
-    
-    postCommand, getAggregate, Repository.saveEventToNewStream store streamPrefix
+    let postCommand = 
+        EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent 
+            CommandHandling.handleCommand
+    postCommand, getAggregate, Repository.saveEventToNewStream store streamPrefix, Repository.saveEvents store streamPrefix
 
 let mapResultToResponse = function
     | Success (CatCreated event) ->
@@ -44,15 +51,17 @@ let setTitle (commandToWebPart : Guid -> Command -> Types.WebPart) (aggregateId:
     commandToWebPart aggregateId (SetTitle {Id=aggregateId; Title=request.title})
 
 let createCat (saveEventToNewStream : Guid -> Event -> Async<unit>) (request:CreateCatRequest) =
-    let result = CommandHandling.createCatWithAutoGeneration ({ CreateCat.Title=request.title; Owner=request.Owner })
+    fun httpContext -> async {
+        let result = CommandHandling.createCatWithAutoGeneration ({ CreateCat.Title=request.title; Owner=request.Owner })
 
-    match result with
-    | Success event ->
-        let wrappedEvent = CatCreated event
-        saveEventToNewStream event.Id wrappedEvent
-        mapResultToResponse (Success wrappedEvent)
-    | Failure f ->
-        mapResultToResponse (Failure f)
+        match result with
+        | Success event ->
+            let wrappedEvent = CatCreated event
+            do! saveEventToNewStream event.Id wrappedEvent
+            return! mapResultToResponse (Success wrappedEvent) httpContext
+        | Failure f ->
+            return! mapResultToResponse (Failure f) httpContext
+    }            
 
 (* These methods are just utility methods for debugging etc, services should listen to Event Store events and build their own read models *)
 module DiagnosticQueries =
