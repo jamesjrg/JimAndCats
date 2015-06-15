@@ -7,7 +7,7 @@ let Given<'TEvent>(events: 'TEvent list) = events
 
 let When<'TCommand, 'TEvent> (command: 'TCommand) (events:'TEvent list) = events, command
 
-let Expect'<'TEvent, 'TCommand, 'TAggregate when 'TEvent:equality>
+let Expect<'TEvent, 'TCommand, 'TAggregate when 'TEvent:equality>
     (applyEvent: 'TAggregate -> 'TEvent -> 'TAggregate)
     (handleCommand: 'TCommand -> 'TAggregate option -> Result<'TEvent, CQRSFailure>)
     (initialState:'TAggregate)
@@ -22,3 +22,13 @@ let Expect'<'TEvent, 'TCommand, 'TAggregate when 'TEvent:equality>
     | Failure NotFound, Failure NotFound -> Failure NotFound =? Failure NotFound
     | _ -> expected =? actual
 
+let ExpectAfterCreateCommand<'TCreatedEvent, 'TCreateCommand when 'TCreatedEvent:equality>
+    (handleCreateCommand: 'TCreateCommand -> Result<'TCreatedEvent, CQRSFailure>)
+    (expected: Result<'TCreatedEvent, CQRSFailure>)    
+    command =
+        let actual = handleCreateCommand command
+
+        match expected, actual with
+        | Failure (BadRequest e), Failure (BadRequest a) -> a =? a //not concerned about the precise error message
+        | Failure NotFound, Failure NotFound -> Failure NotFound =? Failure NotFound
+        | _ -> expected =? actual

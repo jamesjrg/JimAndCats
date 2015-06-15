@@ -14,31 +14,36 @@ let ownerGuid1 = new Guid("9F2FFD7A-7B24-4B72-A4A5-8EF507306038")
 let createEpoch () = new Instant(0L)
 let epoch = createEpoch()
 
-let catHasBeenCreated = [CatCreated { Id = catGuid1; Title=PageTitle "My lovely crowdfunding ask template"; Owner=ownerGuid1; CreationTime = epoch }]
-
-let Expect: Result<Event,CQRSFailure> -> Event list * Command -> unit = Expect' Events.applyEvent CommandHandling.handleCommand CommandHandling.nullCat
-let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
-let ExpectSuccess event = Expect (Success event)
-
 [<Tests>]
-let tests =
-    testList "Domain tests"
+let creationTests =
+    let Expect = ExpectAfterCreateCommand (CommandHandling.createCat createGuid1 createEpoch)
+    let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))
+
+    testList "Cat creation tests"
         [
-            testCase "Should be able to create a CAT" (fun () ->            
-                Given []
-                |> When ( { CreateCat.Title="My lovely crowdfunding ask template"; Owner=ownerGuid1 } )
-                |> ExpectSuccess (CatCreated { Id = catGuid1; CreationTime = epoch; Title=PageTitle"My lovely crowdfunding ask template"; Owner=ownerGuid1} ))
+            testCase "Should be able to create a CAT" (fun () ->   
+                { CreateCat.Title="My lovely crowdfunding ask template"; Owner=ownerGuid1 }
+                |> Expect (Success { CatCreated.Id = catGuid1; CreationTime = epoch; Title=PageTitle"My lovely crowdfunding ask template"; Owner=ownerGuid1} ))
 
             testCase "Should not be able to create a CAT with too short a title" (fun () ->            
-                Given []
-                |> When ( { CreateCat.Title="a"; Owner=ownerGuid1 } )
+                { CreateCat.Title="a"; Owner=ownerGuid1 }
                 |> ExpectBadRequest)
 
             testCase "Should not be able to create a CAT with large whitespace title" (fun () ->            
-                Given []
-                |> When ( { CreateCat.Title="                 "; Owner=ownerGuid1 } )
+                { CreateCat.Title="                 "; Owner=ownerGuid1 }
                 |> ExpectBadRequest)
+        ]
 
+[<Tests>]
+let catEditTests =
+    let Expect: Result<Event,CQRSFailure> -> Event list * Command -> unit = Expect Events.applyEvent CommandHandling.handleCommand CommandHandling.nullCat 
+    let ExpectSuccess event = Expect (Success event)
+    let ExpectBadRequest = Expect (Failure (BadRequest "any string will do"))    
+
+    let catHasBeenCreated = [CatCreated { Id = catGuid1; Title=PageTitle "My lovely crowdfunding ask template"; Owner=ownerGuid1; CreationTime = epoch }]
+
+    testList "Cat editing tests"
+        [
             testCase "Should be able to retitle a CAT" (fun () ->
                 Given catHasBeenCreated
                 |> When ( SetTitle { Id = catGuid1; Title="My lovely new cat name"; } )
