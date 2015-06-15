@@ -31,22 +31,22 @@ let tests =
 
             testCase "Should not be able to create a user with too short a username" (fun () ->            
                 Given []
-                |> When ( { CreateUser .Name="Bob"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
+                |> When ( { CreateUser.Name="Bob"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
                 |> ExpectBadRequest)
 
             testCase "Should not be able to create a user with large whitespace username" (fun () ->            
                 Given []
-                |> When ( { CreateUser .Name="                 "; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
+                |> When ( { CreateUser.Name="                 "; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
                 |> ExpectBadRequest)
 
             testCase "Should not be able to create a user with invalid email address" (fun () ->            
                 Given []
-                |> When ( { CreateUser .Name="Bob Holness"; Email="bob.holnessitv.com"; Password="p4ssw0rd" } )
+                |> When ( { CreateUser.Name="Bob Holness"; Email="bob.holnessitv.com"; Password="p4ssw0rd" } )
                 |> ExpectBadRequest)
 
             testCase "Should not be able to create a user with same email as existing user" (fun () ->            
                 GivenBobHolness
-                |> When ( { CreateUser .Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
+                |> When ( { CreateUser.Name="Bob Holness"; Email="bob.holness@itv.com"; Password="p4ssw0rd" } )
                 |> ExpectBadRequest)
 
             testCase "Should be able to rename a user" (fun () ->

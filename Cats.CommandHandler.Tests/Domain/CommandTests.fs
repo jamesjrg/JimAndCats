@@ -26,17 +26,17 @@ let tests =
         [
             testCase "Should be able to create a CAT" (fun () ->            
                 Given []
-                |> When ( { CreateCat .Title="My lovely crowdfunding ask template"; Owner=ownerGuid1 } )
+                |> When ( { CreateCat.Title="My lovely crowdfunding ask template"; Owner=ownerGuid1 } )
                 |> ExpectSuccess (CatCreated { Id = catGuid1; CreationTime = epoch; Title=PageTitle"My lovely crowdfunding ask template"; Owner=ownerGuid1} ))
 
             testCase "Should not be able to create a CAT with too short a title" (fun () ->            
                 Given []
-                |> When ( { CreateCat .Title="a"; Owner=ownerGuid1 } )
+                |> When ( { CreateCat.Title="a"; Owner=ownerGuid1 } )
                 |> ExpectBadRequest)
 
             testCase "Should not be able to create a CAT with large whitespace title" (fun () ->            
                 Given []
-                |> When ( { CreateCat .Title="                 "; Owner=ownerGuid1 } )
+                |> When ( { CreateCat.Title="                 "; Owner=ownerGuid1 } )
                 |> ExpectBadRequest)
 
             testCase "Should be able to retitle a CAT" (fun () ->
