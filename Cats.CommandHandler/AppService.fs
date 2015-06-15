@@ -13,11 +13,7 @@ open Suave
 open Suave.Http
 open Suave.Extensions.Json
 
-let getAppServices() = 
-    let postCommand, getAggregate, saveEventToNewStream, _ = getAppServicesForTesting()
-    postCommand, getAggregate, saveEventToNewStream
-
-let getAppServicesForTesting() =
+let getAppServices() =
     let store = 
         match appSettings.WriteToInMemoryStoreOnly with
         | false -> 
@@ -30,7 +26,7 @@ let getAppServicesForTesting() =
     let postCommand = 
         EventStore.YetAnotherClient.CommandAgent.getCommandAgent getAggregate saveEvent 
             CommandHandling.handleCommand
-    postCommand, getAggregate, Repository.saveEventToNewStream store streamPrefix, Repository.saveEvents store streamPrefix
+    postCommand, getAggregate, Repository.saveEventToNewStream store streamPrefix
 
 let mapResultToResponse = function
     | Success (CatCreated event) ->

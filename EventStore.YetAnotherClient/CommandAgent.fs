@@ -13,7 +13,7 @@ let getCommandAgent<'TCommand, 'TEvent, 'TAggregate>
             async {
                 let! aggregateId, command, replyChannel = inbox.Receive()
             
-                let! aggregate, actualVersion = getAggregate aggregateId 
+                let! aggregate, actualVersion = getAggregate aggregateId
                 let result = applyCommand command aggregate
                 match result with
                 | Success newEvent ->

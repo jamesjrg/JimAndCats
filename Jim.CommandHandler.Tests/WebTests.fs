@@ -11,23 +11,23 @@ open System.Net
 open Swensen.Unquote.Assertions
 open TestingHelpers.SuaveHelpers
 
-let streamPrefix = "testStream"
-
-let getWebServer events =
-    let postCommand, getAggregate, saveEventToNewStream, saveEvents = AppService.getAppServicesForTesting()
-    
-    if not (List.isEmpty events) then
-        saveEvents streamPrefix -1 events |> Async.RunSynchronously
-    WebServer.webApp (AppService.createCommandToWebPartMapper postCommand) getAggregate saveEventToNewStream
-
 let guid1 = new Guid("3C71C09A-2902-4682-B8AB-663432C8867B")
 let epoch = new Instant(0L)
 
 let bob = { UserCreated.Id = guid1; Name=Username "Bob Holness"; Email=EmailAddress "bob.holness@itv.com"; PasswordHash=PasswordHash "128000:rp4MqoM6SelmRHtM8XF87Q==:MCtWeondG9hLIQ7zahxV6JTPSt4="; CreationTime = epoch}
 
-let userHasBeenCreated = [UserCreated bob ]
+let userHasBeenCreated = Some (UserCreated bob)
 
-let getWebServerWithNoEvents() = getWebServer []
+let getWebServer initialEvent =
+    let postCommand, getAggregate, saveEventToNewStream = AppService.getAppServices()
+    
+    match initialEvent with
+    | Some user -> saveEventToNewStream guid1 user |> Async.RunSynchronously
+    | _ -> ()
+
+    WebServer.webApp (AppService.createCommandToWebPartMapper postCommand) getAggregate saveEventToNewStream
+
+let getWebServerWithNoEvents() = getWebServer None
 let getWebServerWithAUser() = getWebServer userHasBeenCreated
 
 [<Tests>]

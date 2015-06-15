@@ -2,14 +2,11 @@
 
 open Cats.CommandHandler
 open Cats.CommandHandler.Domain
-open EventStore.YetAnotherClient
 open Fuchu
 open TestingHelpers.SuaveHelpers
 open NodaTime
 open Suave.Testing
-open Suave.Types
 open System
-open System.Text
 open System.Net
 open Swensen.Unquote.Assertions
 
@@ -18,17 +15,17 @@ let ownerGuid1 = new Guid("9F2FFD7A-7B24-4B72-A4A5-8EF507306038")
 let epoch = new Instant(0L)
 let catHasBeenCreated = [CatCreated {Id = guid1; Title = PageTitle "My lovely cat"; Owner=ownerGuid1; CreationTime=epoch}]
 
-let streamPrefix = "testStream"
-
-let getWebServer events =
-    let postCommand, getAggregate, saveEventToNewStream, saveEvents = AppService.getAppServicesForTesting()
+let getWebServer initialEvent =
+    let postCommand, getAggregate, saveEventToNewStream = AppService.getAppServices()
     
-    if not (List.isEmpty events) then
-        saveEvents streamPrefix -1 events |> Async.RunSynchronously
+    match initialEvent with
+    | Some cat -> saveEventToNewStream guid1 cat |> Async.RunSynchronously
+    | _ -> ()
+
     WebServer.webApp (AppService.createCommandToWebPartMapper postCommand) getAggregate saveEventToNewStream
 
-let getWebServerWithNoEvents() = getWebServer []
-let getWebServerWithACat() = getWebServer catHasBeenCreated
+let getWebServerWithNoEvents() = getWebServer None
+let getWebServerWithACat() = getWebServer (Some catHasBeenCreated)
 
 [<Tests>]
 let commandTests =

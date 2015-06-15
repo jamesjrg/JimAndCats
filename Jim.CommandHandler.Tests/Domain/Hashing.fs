@@ -1,6 +1,6 @@
 ﻿module Jim.Tests.Domain.Hashing
 
-open Jim.Domain.AuthenticationService.PBKDF2
+open Jim.CommandHandler.Domain.AuthenticationService.PBKDF2
 
 open Fuchu
 open Swensen.Unquote.Assertions

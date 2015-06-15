@@ -25,11 +25,8 @@ module Repository =
         }
 
     //TODO error handling
-    let saveEvents (store:IEventStore<'TEvent>) (streamPrefix:string) aggregateId expectedVersion (events:'TEvent list) =
-        store.AppendToStream (makeStreamId streamPrefix aggregateId) expectedVersion events
-
     let saveEvent (store:IEventStore<'TEvent>) (streamPrefix:string) aggregateId expectedVersion (event:'TEvent) =
-        saveEvents store streamPrefix aggregateId expectedVersion [event]
+        store.AppendToStream (makeStreamId streamPrefix aggregateId) expectedVersion [event]
 
     let saveEventToNewStream (store:IEventStore<'TEvent>) (streamPrefix:string) aggregateId (event:'TEvent) =
         saveEvent store streamPrefix aggregateId ExpectedVersion.NoStream event
